@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Branch;
+use App\Models\Location;
+use App\Enums\UserType;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,7 +24,9 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'branches' => Branch::all()
+        ]);
     }
 
     /**
@@ -35,18 +40,33 @@ class RegisteredUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'phone' => 'required|string|max:20',
+            'branch_id' => 'required|exists:branches,id',
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'phone' => $request->phone,
+            'branch_id' => $request->branch_id,
+            'user_type' => UserType::Customer->value,
+        ]);
+
+        Location::create([
+            'user_id' => $user->id,
+            'latitude' => $request->lat,
+            'longitude' => $request->lng,
+            'branch_id' => $request->branch_id,
+            'created_by' => $user->id,
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('customer.dashboard', absolute: false));
     }
 }

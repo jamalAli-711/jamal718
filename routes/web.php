@@ -1,22 +1,75 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\BranchesController;
+use App\Http\Controllers\SettingsController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
+use App\Http\Controllers\Customer\StorefrontController as CustomerStorefrontController;
+use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Admin & General Routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Customer App Routes
+    Route::prefix('customer')->name('customer.')->group(function () {
+        Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+        
+        Route::get('/storefront', [CustomerStorefrontController::class, 'index'])->name('storefront');
+        Route::get('/storefront/{product}', [CustomerStorefrontController::class, 'show'])->name('storefront.show');
+        Route::get('/cart', [CustomerStorefrontController::class, 'cart'])->name('cart');
+        
+        Route::post('/checkout', [CustomerOrderController::class, 'checkout'])->name('checkout');
+        Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
+        Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+    });
+    // Orders
+    Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrdersController::class, 'store'])->name('orders.store');
+    Route::patch('/orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');
+    Route::post('/orders/{order}/allocate', [OrdersController::class, 'allocate'])->name('orders.allocate');
+    Route::delete('/orders/{order}', [OrdersController::class, 'destroy'])->name('orders.destroy');
+
+    // Inventory
+    Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
+    Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
+    Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
+    Route::post('/inventory/{product}/stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
+    Route::post('/inventory/{product}/units', [InventoryController::class, 'updateUnits'])->name('inventory.updateUnits');
+    Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
+
+    // Branches
+    Route::get('/branches', [BranchesController::class, 'index'])->name('branches.index');
+    Route::post('/branches', [BranchesController::class, 'store'])->name('branches.store');
+    Route::put('/branches/{branch}', [BranchesController::class, 'update'])->name('branches.update');
+    Route::delete('/branches/{branch}', [BranchesController::class, 'destroy'])->name('branches.destroy');
+
+    // Units
+    Route::get('/units', [\App\Http\Controllers\UnitsController::class, 'index'])->name('units.index');
+    Route::post('/units', [\App\Http\Controllers\UnitsController::class, 'store'])->name('units.store');
+    Route::put('/units/{unit}', [\App\Http\Controllers\UnitsController::class, 'update'])->name('units.update');
+    Route::delete('/units/{unit}', [\App\Http\Controllers\UnitsController::class, 'destroy'])->name('units.destroy');
+
+    // Categories
+    Route::get('/categories', [\App\Http\Controllers\CategoriesController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [\App\Http\Controllers\CategoriesController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [\App\Http\Controllers\CategoriesController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [\App\Http\Controllers\CategoriesController::class, 'destroy'])->name('categories.destroy');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

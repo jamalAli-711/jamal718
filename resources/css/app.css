@@ -1,3 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    /* Mukallaf Unified Design System Tokens */
+    --primary: #031633;
+    --primary-container: #1a2b49;
+    --on-primary: #ffffff;
+    
+    --secondary: #0058be;
+    --secondary-container: #2170e4;
+    --on-secondary: #ffffff;
+
+    --surface: #f8f9fb;
+    --surface-low: #f3f4f6;
+    --surface-lowest: #ffffff;
+    --on-surface: #191c1e;
+    --on-surface-variant: #44474e;
+    
+    --outline-variant: rgba(197, 198, 206, 0.2);
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-xl: 24px;
+    
+    --shadow-ambient: 0 12px 32px rgba(25, 28, 30, 0.06);
+}
+
+@keyframes slide-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@layer base {
+    html {
+        font-family: 'Tajawal', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        scroll-behavior: smooth;
+    }
+    body {
+        background-color: var(--surface);
+        color: var(--on-surface);
+        @apply transition-colors duration-300;
+    }
+}
+
+@layer components {
+    /* Editorial Surfaces (No-Line Rule) */
+    .surface-base { background-color: var(--surface); }
+    .surface-low { background-color: var(--surface-low); }
+    .surface-lowest { background-color: var(--surface-lowest); }
+    
+    /* Editorial Artisan Navigation (Glassmorphism) */
+    .glass-nav {
+        @apply sticky top-0 z-50;
+        background: rgba(248, 249, 251, 0.82);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--outline-variant);
+    }
+
+    /* Professional Sidebar */
+    .sidebar {
+        @apply fixed inset-y-0 right-0 z-50 w-64 flex flex-col transition-all duration-300;
+        background-color: var(--primary);
+    }
+    .sidebar-brand {
+        @apply flex items-center justify-center p-6 mb-4;
+    }
+    .sidebar-nav-item {
+        @apply flex items-center gap-4 px-6 py-3.5 text-sm font-medium transition-all duration-200 cursor-pointer text-white/60 mx-3 rounded-xl;
+    }
+    .sidebar-nav-item:hover {
+        @apply text-white bg-white/5;
+    }
+    .sidebar-nav-item.active {
+        @apply text-white shadow-lg;
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
+    }
+
+    /* Premium Data Table (Ghost Borders) */
+    .data-table {
+        @apply w-full text-sm text-right border-separate border-spacing-0;
+    }
+    .data-table thead th {
+        @apply px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest bg-transparent border-b border-gray-100;
+    }
+    .data-table tbody td {
+        @apply px-6 py-5 border-b border-gray-50/50 text-gray-700 transition-colors;
+    }
+    .data-table tbody tr:hover td {
+        @apply bg-gray-50/50;
+    }
+    .data-table tbody tr:last-child td {
+        @apply border-b-0;
+    }
+
+    /* Editorial Artisan Statistics */
+    .stat-card {
+        @apply bg-white p-6 transition-all duration-300 flex flex-col gap-1;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-ambient);
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+
+    /* Premium Buttons */
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-white text-sm font-bold transition-all duration-200 active:scale-95;
+        background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
+        border-radius: var(--radius-md);
+        box-shadow: 0 4px 12px rgba(0, 88, 190, 0.2);
+    }
+    .btn-primary:hover {
+        @apply brightness-110 shadow-xl;
+        box-shadow: 0 8px 20px rgba(0, 88, 190, 0.3);
+    }
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 text-sm font-bold border transition-all duration-200 active:scale-95;
+        border-color: var(--outline-variant);
+        border-radius: var(--radius-md);
+    }
+    .btn-secondary:hover {
+        @apply bg-gray-50 shadow-sm border-gray-300;
+    }
+
+    /* High-End Components */
+    .card-editorial {
+        @apply bg-white overflow-hidden transition-all duration-300;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-ambient);
+    }
+    
+    .badge-editorial {
+        @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-tight uppercase;
+    }
+
+    /* Hide Spinners */
+    .hide-spinner::-webkit-inner-spin-button, .hide-spinner::-webkit-outer-spin-button {
+        -webkit-appearance: none; margin: 0;
+    }
+    .hide-spinner { -moz-appearance: textfield; }
+}
