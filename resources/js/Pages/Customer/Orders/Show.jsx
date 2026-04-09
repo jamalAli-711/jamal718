@@ -97,7 +97,7 @@ export default function OrderShow({ order }) {
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className="px-4 py-1.5 bg-gray-100 rounded-full text-xs font-black text-[#031633]">
-                                                        {item.quantity} x {item.unit?.unit_name || 'حبة'}
+                                                        {item.quantity} x {item.product_unit?.unit?.unit_name || 'حبة'}
                                                     </span>
                                                     {item.notes && (
                                                         <span className="text-xs text-gray-400 font-bold italic truncate max-w-xs">{item.notes}</span>

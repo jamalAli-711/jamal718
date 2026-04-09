@@ -43,13 +43,15 @@
         font-family: 'Tajawal', system-ui, sans-serif;
         -webkit-font-smoothing: antialiased;
         scroll-behavior: smooth;
+        @apply text-[16px] md:text-[18px];
     }
     body {
         background-color: var(--surface);
         color: var(--on-surface);
-        @apply transition-colors duration-300;
+        @apply transition-colors duration-300 font-bold;
     }
 }
+
 
 @layer components {
     /* Editorial Surfaces (No-Line Rule) */
@@ -75,15 +77,16 @@
         @apply flex items-center justify-center p-6 mb-4;
     }
     .sidebar-nav-item {
-        @apply flex items-center gap-4 px-6 py-3.5 text-sm font-medium transition-all duration-200 cursor-pointer text-white/60 mx-3 rounded-xl;
+        @apply flex items-center gap-4 px-6 py-4 text-base font-black transition-all duration-200 cursor-pointer text-white/60 mx-3 rounded-xl;
     }
     .sidebar-nav-item:hover {
-        @apply text-white bg-white/5;
+        @apply text-white bg-white/10;
     }
     .sidebar-nav-item.active {
-        @apply text-white shadow-lg;
-        background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-container) 100%);
+        @apply text-white shadow-xl scale-[1.02];
+        background: linear-gradient(135deg, #e31e24 0%, #ff4d4d 100%);
     }
+
 
     /* Premium Data Table (Ghost Borders) */
     .data-table {

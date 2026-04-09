@@ -6,7 +6,7 @@ import MapPicker from '@/Components/MapPicker';
 import BranchesMap from '@/Components/BranchesMap';
 import { useToast } from '@/Components/Toast';
 
-export default function BranchesIndex({ auth, branches }) {
+export default function BranchesIndex({ auth, branches, currencies = [] }) {
     const toast = useToast();
     const { flash } = usePage().props;
 
@@ -19,8 +19,8 @@ export default function BranchesIndex({ auth, branches }) {
         if (flash?.error) toast.error(flash.error);
     }, [flash]);
 
-    const addForm = useForm({ branch_name: '', location_city: '', manager_name: '', branch_lat: null, branch_lon: null });
-    const editForm = useForm({ branch_name: '', location_city: '', manager_name: '', branch_lat: null, branch_lon: null });
+    const addForm = useForm({ branch_name: '', location_city: '', manager_name: '', branch_lat: null, branch_lon: null, currency_id: '' });
+    const editForm = useForm({ branch_name: '', location_city: '', manager_name: '', branch_lat: null, branch_lon: null, currency_id: '' });
 
     const submitAdd = (e) => {
         e.preventDefault();
@@ -37,6 +37,7 @@ export default function BranchesIndex({ auth, branches }) {
             manager_name: branch.manager_name || '',
             branch_lat: branch.branch_lat,
             branch_lon: branch.branch_lon,
+            currency_id: branch.currency_id || '',
         });
         setShowEditModal(true);
     };
@@ -89,28 +90,30 @@ export default function BranchesIndex({ auth, branches }) {
                         <div className="card-body">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
-                                    <h3 className="font-bold text-gray-900">{branch.branch_name}</h3>
-                                    <p className="text-sm text-gray-500">{branch.location_city}</p>
+                                     <h3 className="font-black text-xl text-slate-900 mb-1">{branch.branch_name}</h3>
+                                    <p className="text-base font-black text-slate-400 uppercase tracking-tight">{branch.location_city}</p>
                                 </div>
-                                <div className="flex gap-1">
-                                    <button onClick={() => openEdit(branch)} className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50">تعديل</button>
-                                    <button onClick={() => deleteBranch(branch)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50">حذف</button>
+                                <div className="flex gap-2">
+                                    <button onClick={() => openEdit(branch)} className="text-sm font-black text-blue-600 hover:bg-blue-50 px-3 py-2 rounded-xl border border-blue-100 transition-colors">تعديل</button>
+                                    <button onClick={() => deleteBranch(branch)} className="text-sm font-black text-rose-500 hover:bg-rose-50 px-3 py-2 rounded-xl border border-rose-100 transition-colors">حذف</button>
                                 </div>
                             </div>
                             {branch.manager_name && (
-                                <p className="text-xs text-gray-500 mb-3">المدير: <span className="font-medium text-gray-700">{branch.manager_name}</span></p>
+                                <p className="text-sm font-black text-slate-500 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100">المدير المسئول: <span className="text-slate-900">{branch.manager_name}</span></p>
                             )}
+
                             {branch.branch_lat && branch.branch_lon && (
                                 <div className="mb-3 flex items-center gap-1.5 text-xs text-emerald-600 bg-emerald-50 rounded-md px-2 py-1 border border-emerald-100">
                                     <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" /></svg>
                                     <span className="font-medium">الموقع محدد على الخريطة</span>
                                 </div>
                             )}
-                            <div className="flex gap-4 text-xs text-gray-500 pt-3 border-t border-gray-100">
-                                <span><strong className="text-gray-700">{branch.users_count}</strong> مستخدم</span>
-                                <span><strong className="text-gray-700">{branch.products_count}</strong> منتج</span>
-                                <span><strong className="text-gray-700">{branch.orders_count}</strong> طلب</span>
+                             <div className="flex gap-4 text-sm font-black text-slate-400 pt-4 border-t-2 border-slate-50">
+                                <span><strong className="text-slate-900 text-lg">{branch.users_count}</strong> مستخدم</span>
+                                <span><strong className="text-slate-900 text-lg">{branch.products_count}</strong> منتج</span>
+                                <span><strong className="text-slate-900 text-lg">{branch.orders_count}</strong> طلب</span>
                             </div>
+
                         </div>
                     </div>
                 ))}
@@ -126,19 +129,31 @@ export default function BranchesIndex({ auth, branches }) {
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 mb-1">اسم الفرع *</label>
-                                    <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={addForm.data.branch_name} onChange={e => addForm.setData('branch_name', e.target.value)} required />
-                                    {addForm.errors.branch_name && <p className="text-xs text-red-500 mt-1">{addForm.errors.branch_name}</p>}
+                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">اسم الفرع *</label>
+                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm" value={addForm.data.branch_name} onChange={e => addForm.setData('branch_name', e.target.value)} required />
+                                    {addForm.errors.branch_name && <p className="text-sm font-black text-rose-500 mt-1 uppercase">{addForm.errors.branch_name}</p>}
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-semibold text-gray-600 mb-1">المحافظة / المدينة *</label>
-                                    <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={addForm.data.location_city} onChange={e => addForm.setData('location_city', e.target.value)} required />
+                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">المحافظة / المدينة *</label>
+                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm" value={addForm.data.location_city} onChange={e => addForm.setData('location_city', e.target.value)} required />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">اسم المدير (اختياري)</label>
-                                <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={addForm.data.manager_name} onChange={e => addForm.setData('manager_name', e.target.value)} />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">اسم المدير (اختياري)</label>
+                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm" value={addForm.data.manager_name} onChange={e => addForm.setData('manager_name', e.target.value)} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">العملة الافتراضية للفرع *</label>
+                                    <select className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm appearance-none bg-white" value={addForm.data.currency_id} onChange={e => addForm.setData('currency_id', e.target.value)} required>
+                                        <option value="">-- اختر العملة الافتراضية --</option>
+                                        {currencies.map(c => (
+                                            <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code_en})</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
+
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-2">
                                     <span className="flex items-center gap-1.5">
@@ -180,9 +195,20 @@ export default function BranchesIndex({ auth, branches }) {
                                         <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={editForm.data.location_city} onChange={e => editForm.setData('location_city', e.target.value)} required />
                                     </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-gray-600 mb-1">اسم المدير</label>
-                                    <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={editForm.data.manager_name} onChange={e => editForm.setData('manager_name', e.target.value)} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">اسم المدير (اختياري)</label>
+                                        <input type="text" className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={editForm.data.manager_name} onChange={e => editForm.setData('manager_name', e.target.value)} />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 mb-1">العملة الافتراضية *</label>
+                                        <select className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500" value={editForm.data.currency_id} onChange={e => editForm.setData('currency_id', e.target.value)} required>
+                                            <option value="">-- اختر العملة --</option>
+                                            {currencies.map(c => (
+                                                <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code_en})</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-600 mb-2">

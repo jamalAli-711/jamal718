@@ -42,19 +42,25 @@ class DatabaseSeeder extends Seeder
         // 2. Currencies
         $yer = Currency::create([
             'currency_name' => 'ريال يمني',
-            'currency_code' => 'YER',
+            'currency_code_en' => 'YER',
+            'currency_code_ar' => 'ر.ي',
             'exchange_rate' => 1.0000,
             'branch_id' => $mainBranch->id,
-            'last_updated' => now(),
+            'updated_by' => null,
+            'is_default' => true,
         ]);
-        
+
         $sar = Currency::create([
             'currency_name' => 'ريال سعودي',
-            'currency_code' => 'SAR',
+            'currency_code_en' => 'SAR',
+            'currency_code_ar' => 'ر.س',
             'exchange_rate' => 140.0000,
             'branch_id' => $mainBranch->id,
-            'last_updated' => now(),
+            'updated_by' => null,
         ]);
+
+        $mainBranch->update(['currency_id' => $yer->id]);
+        $branch2->update(['currency_id' => $yer->id]);
 
         // 3. Units
         $carton = Unit::create(['unit_name' => 'كرتون', 'short_name' => 'CTN']);
@@ -100,43 +106,37 @@ class DatabaseSeeder extends Seeder
         $pepsi = Product::create([
             'sku' => 'BEV-PEPSI-001',
             'name' => 'بيبسي كولا دايت 330 مل',
-            'official_price' => 250,
-            'wholesale_price' => 220,
-            'retail_price' => 240,
             'category_id' => $catBeverages->id,
         ]);
-        
+
         $pepsi->branches()->attach($mainBranch->id, ['stock_quantity' => 1500]);
 
-        ProductUnit::create([
+        $pepsiUnitPiece = ProductUnit::create([
             'product_id' => $pepsi->id, 'unit_id' => $piece->id,
             'conversion_factor' => 1, 'base_price' => 250,
             'wholesale_price' => 220, 'retail_price' => 240,
-            'is_default_sale' => true, 'branch_id' => $mainBranch->id
+            'is_default_sale' => true, 'branch_id' => $mainBranch->id, 'currency_id' => $yer->id
         ]);
-        ProductUnit::create([
+        $pepsiUnitCarton = ProductUnit::create([
             'product_id' => $pepsi->id, 'unit_id' => $carton->id,
             'conversion_factor' => 24, 'base_price' => 6000,
             'wholesale_price' => 5200, 'retail_price' => 5700,
-            'is_default_sale' => false, 'branch_id' => $mainBranch->id
+            'is_default_sale' => false, 'branch_id' => $mainBranch->id, 'currency_id' => $yer->id
         ]);
 
         $beans = Product::create([
             'sku' => 'CAN-BEANS-002',
             'name' => 'فاصولياء حمراء معلبة 400 جرام',
-            'official_price' => 500,
-            'wholesale_price' => 450,
-            'retail_price' => 480,
             'category_id' => $catCanned->id,
         ]);
-        
+
         $beans->branches()->attach($mainBranch->id, ['stock_quantity' => 450]);
 
-        ProductUnit::create([
+        $beansUnitPiece = ProductUnit::create([
             'product_id' => $beans->id, 'unit_id' => $piece->id,
             'conversion_factor' => 1, 'base_price' => 500,
             'wholesale_price' => 450, 'retail_price' => 480,
-            'is_default_sale' => true, 'branch_id' => $mainBranch->id
+            'is_default_sale' => true, 'branch_id' => $mainBranch->id, 'currency_id' => $yer->id
         ]);
 
         // 7. Orders
@@ -144,7 +144,7 @@ class DatabaseSeeder extends Seeder
             'reference_number' => 'ORD-20260403-001',
             'customer_id' => $merchant->id,
             'order_status' => OrderStatus::Pending,
-            'total_price' => 52000, 
+            'total_price' => 52000,
             'currency_id' => $yer->id,
             'exchange_rate' => 1,
             'exchange_total' => 52000,
@@ -154,8 +154,8 @@ class DatabaseSeeder extends Seeder
 
         OrderItem::create([
             'order_id' => $order1->id, 'product_id' => $pepsi->id,
-            'unit_id' => $carton->id, 'conversion_factor' => 24,
-            'quantity' => 10, 'unit_total' => 240,
+            'product_unit_id' => $pepsiUnitCarton->id,
+            'quantity' => 10, 'unit_total' => 240, // 10 cartons * 24
             'unit_price' => 5200, 'item_total' => 52000,
             'currency_id' => $yer->id, 'exchange_rate' => 1,
             'exchange_total' => 52000, 'branch_id' => $mainBranch->id,
@@ -165,7 +165,7 @@ class DatabaseSeeder extends Seeder
             'reference_number' => 'ORD-20260403-002',
             'customer_id' => $customer->id,
             'order_status' => OrderStatus::OutForDelivery,
-            'total_price' => 5700, 
+            'total_price' => 5700,
             'currency_id' => $yer->id,
             'exchange_rate' => 1,
             'exchange_total' => 5700,
@@ -175,8 +175,8 @@ class DatabaseSeeder extends Seeder
 
         OrderItem::create([
             'order_id' => $order2->id, 'product_id' => $pepsi->id,
-            'unit_id' => $carton->id, 'conversion_factor' => 24,
-            'quantity' => 1, 'unit_total' => 24,
+            'product_unit_id' => $pepsiUnitCarton->id,
+            'quantity' => 1, 'unit_total' => 24, // 1 carton * 24
             'unit_price' => 5700, 'item_total' => 5700,
             'currency_id' => $yer->id, 'exchange_rate' => 1,
             'exchange_total' => 5700, 'branch_id' => $mainBranch->id,
@@ -191,12 +191,12 @@ class DatabaseSeeder extends Seeder
             'status' => 2, // On_Way
             'branch_id' => $mainBranch->id,
         ]);
-        
+
         $order3 = OrderQueue::create([
             'reference_number' => 'ORD-20260403-003',
             'customer_id' => $merchant->id,
             'order_status' => OrderStatus::Delivered,
-            'total_price' => 45000, 
+            'total_price' => 45000,
             'currency_id' => $yer->id,
             'exchange_rate' => 1,
             'exchange_total' => 45000,
@@ -227,16 +227,16 @@ class DatabaseSeeder extends Seeder
                 for ($j = 0; $j < $numItems; $j++) {
                     $prod = \App\Models\Product::find($allProductIds[array_rand($allProductIds)]);
                     $qty = rand(10, 50); // Customer requests a bulk of items
-                    $price = $prod->retail_price ?: $prod->official_price;
+                    $defaultUnit = $prod->units()->where('is_default_sale', true)->first() ?? $prod->units()->first();
+                    $price = $defaultUnit ? ($defaultUnit->retail_price ?: $defaultUnit->base_price) : 0;
                     $itemTotal = $qty * $price;
 
                     \App\Models\OrderItem::create([
                         'order_id'          => $orderQueue->id,
                         'product_id'        => $prod->id,
-                        'unit_id'           => null,
-                        'conversion_factor' => 1,
+                        'product_unit_id'   => $defaultUnit?->id,
                         'quantity'          => $qty,
-                        'unit_total'        => $qty,
+                        'unit_total'        => $qty * ($defaultUnit?->conversion_factor ?: 1),
                         'unit_price'        => $price,
                         'item_total'        => $itemTotal,
                         'branch_id'         => null, // UNALLOCATED

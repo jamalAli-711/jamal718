@@ -13,14 +13,16 @@ class Currency extends Model
 
     protected $fillable = [
         'currency_name',
-        'currency_code',
+        'currency_code_en',
+        'currency_code_ar',
         'exchange_rate',
-        'last_updated',
+        'updated_by',
         'branch_id',
+        'is_default',
     ];
 
     protected $casts = [
-        'last_updated' => 'datetime',
+        'is_default' => 'boolean',
     ];
 
     public function branch()

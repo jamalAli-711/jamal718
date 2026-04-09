@@ -30,7 +30,7 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = OrderQueue::where('customer_id', Auth::id())
-            ->with(['orderItems.product.images', 'orderItems.unit', 'branch'])
+            ->with(['orderItems.product.images', 'orderItems.productUnit.unit', 'branch'])
             ->findOrFail($id);
 
         return Inertia::render('Customer/Orders/Show', [
@@ -85,9 +85,11 @@ class OrderController extends Controller
         foreach ($validated['items'] as $item) {
             $product = Product::find($item['product_id']);
             
-            $unitPrice = $product->official_price;
-            if ($customer->user_type == UserType::Wholesaler->value) $unitPrice = $product->wholesale_price;
-            elseif ($customer->user_type == UserType::Retailer->value) $unitPrice = $product->retail_price;
+            $defaultUnit = $product->units()->where('is_default_sale', true)->first() ?? $product->units()->first();
+            $unitPrice = $defaultUnit ? ($defaultUnit->retail_price ?: $defaultUnit->base_price) : 0;
+            
+            if ($customer->user_type == UserType::Wholesaler->value && $defaultUnit && $defaultUnit->wholesale_price) $unitPrice = $defaultUnit->wholesale_price;
+            elseif ($customer->user_type == UserType::Retailer->value && $defaultUnit && $defaultUnit->retail_price) $unitPrice = $defaultUnit->retail_price;
 
             $itemTotal = $item['quantity'] * $unitPrice;
             $totalPrice += $itemTotal;
@@ -95,9 +97,9 @@ class OrderController extends Controller
             OrderItem::create([
                 'order_id'          => $order->id,
                 'product_id'        => $item['product_id'],
+                'product_unit_id'   => $defaultUnit?->id,
                 'quantity'          => $item['quantity'],
-                'conversion_factor' => 1,
-                'unit_total'        => $item['quantity'],
+                'unit_total'        => $item['quantity'] * ($defaultUnit?->conversion_factor ?: 1),
                 'unit_price'        => $unitPrice,
                 'item_total'        => $itemTotal,
                 'currency_id'       => 1,

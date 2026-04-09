@@ -20,7 +20,7 @@ class OrdersController extends Controller
 {
     public function index()
     {
-        $orders = OrderQueue::with(['customer', 'orderItems.product', 'orderItems.unit', 'branch'])
+        $orders = OrderQueue::with(['customer', 'orderItems.product', 'orderItems.productUnit.unit', 'branch'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -42,11 +42,11 @@ class OrdersController extends Controller
                 // To get pivot stock_quantity
                 $q->select('branches.id', 'branch_name');
             }])
-            ->select('id', 'name', 'sku', 'category_id', 'official_price', 'wholesale_price', 'retail_price')
+            ->select('id', 'name', 'sku', 'category_id')
             ->withSum('branches as total_stock', 'branch_product.stock_quantity')
             ->get();
 
-        $currencies = Currency::select('id', 'currency_name', 'currency_code', 'exchange_rate', 'branch_id')->get();
+        $currencies = \App\Models\Currency::select('id', 'currency_name', 'currency_code_en', 'exchange_rate', 'branch_id')->get();
 
         return Inertia::render('Orders/Index', [
             'orders'     => $orders,
@@ -65,7 +65,7 @@ class OrdersController extends Controller
             'currency_id' => 'nullable|exists:currencies,id',
             'items'       => 'required|array|min:1',
             'items.*.product_id'  => 'required|exists:products,id',
-            'items.*.unit_id'     => 'nullable|exists:units,id',
+            'items.*.product_unit_id' => 'nullable|exists:product_units,id',
             'items.*.branch_id'   => 'required|exists:branches,id',
             'items.*.quantity'    => 'required|integer|min:1',
             'items.*.notes'       => 'nullable|string',
@@ -87,12 +87,8 @@ class OrdersController extends Controller
             
             // Calculate base total quantity required in primary units (pieces)
             $conversionFactor = 1;
-            if (!empty($item['unit_id'])) {
-                $prodUnit = \App\Models\ProductUnit::where('product_id', $product->id)
-                                ->where('unit_id', $item['unit_id'])
-                                ->where(function($q) use ($item) {
-                                    $q->where('branch_id', $item['branch_id'])->orWhereNull('branch_id');
-                                })->first();
+            if (!empty($item['product_unit_id'])) {
+                $prodUnit = \App\Models\ProductUnit::find($item['product_unit_id']);
                 if ($prodUnit) {
                     $conversionFactor = $prodUnit->conversion_factor;
                 }
@@ -128,24 +124,19 @@ class OrdersController extends Controller
             
             // Re-Determine Pricing and Unit Factor SERVER-SIDE
             $conversionFactor = 1;
-            $unitPrice = $product->official_price;
+            $unitPrice = 0;
 
-            if ($customer->user_type === UserType::Wholesaler) $unitPrice = $product->wholesale_price;
-            elseif ($customer->user_type === UserType::Retailer) $unitPrice = $product->retail_price;
+            if (!empty($item['product_unit_id'])) {
+                $prodUnit = \App\Models\ProductUnit::find($item['product_unit_id']);
+            } else {
+                $prodUnit = $product->units()->where('is_default_sale', true)->first() ?? $product->units()->first();
+            }
 
-            if (!empty($item['unit_id'])) {
-                // Try finding branch specific pricing first, else generic
-                $prodUnit = \App\Models\ProductUnit::where('product_id', $product->id)
-                                ->where('unit_id', $item['unit_id'])
-                                ->orderByRaw('branch_id = ? DESC', [$item['branch_id']])
-                                ->first();
-
-                if ($prodUnit) {
-                    $conversionFactor = $prodUnit->conversion_factor;
-                    if ($prodUnit->base_price > 0) $unitPrice = $prodUnit->base_price;
-                    if ($customer->user_type === UserType::Wholesaler && $prodUnit->wholesale_price > 0) $unitPrice = $prodUnit->wholesale_price;
-                    if ($customer->user_type === UserType::Retailer && $prodUnit->retail_price > 0) $unitPrice = $prodUnit->retail_price;
-                }
+            if ($prodUnit) {
+                $conversionFactor = $prodUnit->conversion_factor;
+                $unitPrice = $prodUnit->base_price;
+                if ($customer->user_type === UserType::Wholesaler && $prodUnit->wholesale_price > 0) $unitPrice = $prodUnit->wholesale_price;
+                if ($customer->user_type === UserType::Retailer && $prodUnit->retail_price > 0) $unitPrice = $prodUnit->retail_price;
             }
 
             $itemTotal = $item['quantity'] * $unitPrice;
@@ -154,8 +145,7 @@ class OrdersController extends Controller
             OrderItem::create([
                 'order_id'          => $order->id,
                 'product_id'        => $item['product_id'],
-                'unit_id'           => $item['unit_id'] ?? null,
-                'conversion_factor' => $conversionFactor,
+                'product_unit_id'   => $prodUnit ? $prodUnit->id : null,
                 'quantity'          => $item['quantity'],
                 'unit_total'        => $item['quantity'] * $conversionFactor,
                 'unit_price'        => $unitPrice,
@@ -220,7 +210,8 @@ class OrdersController extends Controller
                     $branchPivot = $product->branches->first();
                     $availableStock = $branchPivot ? $branchPivot->pivot->stock_quantity : 0;
                     
-                    $neededBaseQty = $split['allocated_qty'] * $originalItem->conversion_factor;
+                    $cf = $originalItem->productUnit ? $originalItem->productUnit->conversion_factor : 1;
+                    $neededBaseQty = $split['allocated_qty'] * $cf;
 
                     if ($availableStock < $neededBaseQty) {
                         throw new \Exception("الكمية المخصصة ({$neededBaseQty}) من المنتج {$product->name} تتجاوز الرصيد المتوفر ({$availableStock}) في فرع {$branch->branch_name}.");
@@ -230,15 +221,15 @@ class OrdersController extends Controller
                 // Everything is valid! Delete original unmapped row, create split mapped rows!
                 foreach ($alloc['splits'] as $split) {
                     $qty = $split['allocated_qty'];
-                    $itemTotal = ($qty * $originalItem->conversion_factor) * $originalItem->unit_price;
+                    $cf = $originalItem->productUnit ? $originalItem->productUnit->conversion_factor : 1;
+                    $itemTotal = ($qty * $cf) * $originalItem->unit_price;
 
                     OrderItem::create([
                         'order_id'          => $order->id,
                         'product_id'        => $originalItem->product_id,
-                        'unit_id'           => $originalItem->unit_id,
-                        'conversion_factor' => $originalItem->conversion_factor,
+                        'product_unit_id'   => $originalItem->product_unit_id,
                         'quantity'          => $qty,
-                        'unit_total'        => $qty * $originalItem->conversion_factor,
+                        'unit_total'        => $qty * $cf,
                         'unit_price'        => $originalItem->unit_price,
                         'item_total'        => $itemTotal,
                         'currency_id'       => $originalItem->currency_id,

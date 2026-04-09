@@ -75,12 +75,12 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
         customer_id: '',
         currency_id: '',
         notes: '',
-        items: [{ product_id: '', branch_id: branches[0]?.id || '', unit_id: '', quantity: 1, unit_price: 0, _max_stock: 0, notes: '' }],
+        items: [{ product_id: '', branch_id: branches[0]?.id || '', product_unit_id: '', quantity: 1, unit_price: 0, _max_stock: 0, notes: '' }],
     });
 
     const addItem = () => {
         const customer = customers.find(c => c.id == createForm.data.customer_id);
-        createForm.setData('items', [...createForm.data.items, { product_id: '', branch_id: customer?.branch_id || branches[0]?.id || '', unit_id: '', quantity: 1, unit_price: 0, _max_stock: 0, notes: '' }]);
+        createForm.setData('items', [...createForm.data.items, { product_id: '', branch_id: customer?.branch_id || branches[0]?.id || '', product_unit_id: '', quantity: 1, unit_price: 0, _max_stock: 0, notes: '' }]);
     };
 
     const removeItem = (index) => {
@@ -95,7 +95,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
         const row = newItems[index];
 
         // Trigger heavy recalculation if Product, Unit, or Branch changes
-        if (['product_id', 'unit_id', 'branch_id'].includes(field)) {
+        if (['product_id', 'product_unit_id', 'branch_id'].includes(field)) {
             const product = products.find(p => p.id == row.product_id);
             const customer = customers.find(c => c.id == createForm.data.customer_id);
             
@@ -106,14 +106,14 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                 
                 // 2. Determine Unit Pricing & Conversion
                 let convFactor = 1;
-                let price = product.official_price;
-                if (customer && customer.user_type === USER_TYPE_VALUES.Wholesaler) price = product.wholesale_price;
-                if (customer && customer.user_type === USER_TYPE_VALUES.Retailer) price = product.retail_price;
+                
+                const defaultUnit = product.units?.find(u => u.is_default_sale) || product.units?.[0];
+                let price = defaultUnit ? (defaultUnit.retail_price || defaultUnit.base_price) : 0;
+                if (customer && customer.user_type === USER_TYPE_VALUES.Wholesaler && defaultUnit?.wholesale_price) price = defaultUnit.wholesale_price;
+                if (customer && customer.user_type === USER_TYPE_VALUES.Retailer && defaultUnit?.retail_price) price = defaultUnit.retail_price;
 
-                if (row.unit_id) {
-                    // Try to find Unit exact match (prioritize Branch specific)
-                    const pUnit = product.units?.filter(u => u.unit_id == row.unit_id)
-                        .sort((a,b) => (a.branch_id == row.branch_id ? -1 : 1))[0];
+                if (row.product_unit_id) {
+                    const pUnit = product.units?.find(u => u.id == row.product_unit_id);
                     if (pUnit) {
                         convFactor = Number(pUnit.conversion_factor) || 1;
                         if (pUnit.base_price > 0) price = pUnit.base_price;
@@ -232,15 +232,16 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
             {/* Page Header */}
             <div className="mb-12 flex justify-between items-end">
                 <div>
-                    <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-2 block">Management Dashboard</span>
-                    <h2 className="font-black text-4xl text-[#031633] tracking-tighter">إدارة الطلبات</h2>
-                    <p className="text-gray-400 font-medium mt-1">متابعة دقيقة وشاملة لكافة طلبات العملاء والعمليات البيعية</p>
+                    <span className="text-xs font-black text-[#0058be] uppercase tracking-[0.3em] mb-2 block">نظام إدارة العمليات</span>
+                    <h2 className="font-black text-5xl text-[#031633] tracking-tighter">إدارة طلبات المبيعات</h2>
+                    <p className="text-slate-400 font-black mt-2 text-lg">متابعة دقيقة وشاملة لكافة طلبات العملاء وحالات التوصيل</p>
                 </div>
-                <button className="btn-primary h-14 px-8 rounded-2xl flex items-center gap-3 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1" onClick={() => setShowCreateModal(true)}>
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    <span className="font-black uppercase tracking-widest text-sm">Create Order</span>
+                <button className="btn-primary h-16 px-10 rounded-2xl flex items-center gap-3 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1" onClick={() => setShowCreateModal(true)}>
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    <span className="font-black uppercase tracking-widest text-lg">إنشاء طلب جديد</span>
                 </button>
             </div>
+
 
             {/* Quick Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -269,45 +270,53 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
             <div className="card-editorial overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="data-table">
-                        <thead className="bg-gray-50/50">
+                        <thead className="bg-slate-100 border-b-2 border-slate-200">
                             <tr className="text-right">
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest">Reference</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest">Date</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest">Customer</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest text-center">Items</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest">Grand Total</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest text-center">Status</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-[#031633] uppercase tracking-widest text-center">Actions</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest">رقم المرجع</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest">التاريخ</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest text-right">العميل والفرع</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest text-center">عدد الأصناف</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest text-right">المبلغ الإجمالي</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest text-center">حالة الطلب</th>
+                                <th className="px-8 py-6 text-base font-black text-[#031633] uppercase tracking-widest text-center">العمليات</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {orders.data.map((order) => {
                                 const hasUnallocated = order.order_items?.some(i => i.branch_id === null);
                                 return (
-                                <tr key={order.id} className={hasUnallocated ? "bg-amber-50/30" : ""}>
-                                    <td className="font-mono text-xs font-medium text-gray-900">
+                                 <tr key={order.id} className={hasUnallocated ? "bg-amber-50/50 border-r-4 border-amber-400" : "hover:bg-slate-50 transition-colors"}>
+                                    <td className="px-8 py-6 text-base font-black text-gray-900">
                                         {order.reference_number}
-                                        {hasUnallocated && <span className="mr-2 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">غير مخصص ⚠️</span>}
+                                        {hasUnallocated && <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-200">صرف معلق ⚠️</div>}
                                     </td>
-                                    <td className="text-xs text-gray-500">{formatDate(order.created_at)}</td>
-                                    <td>
-                                        <div className="font-medium text-gray-800 text-xs">{order.customer?.name}</div>
-                                        <div className="text-xs text-gray-400">{USER_TYPES[order.customer?.user_type]?.label}</div>
+                                    <td className="px-8 py-6 text-base font-black text-slate-500">{formatDate(order.created_at)}</td>
+                                    <td className="px-8 py-6 text-right">
+                                        <div className="font-black text-slate-900 text-lg">{order.customer?.name}</div>
+                                        <div className="text-sm font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">{USER_TYPES[order.customer?.user_type]?.label}</div>
                                     </td>
-                                    <td className="text-center text-sm">{order.order_items?.length || 0}</td>
-                                    <td className="font-medium text-gray-900 text-sm">{formatCurrency(order.final_amount)}</td>
-                                    <td><StatusBadge status={order.order_status} /></td>
-                                    <td className="text-center">
-                                        <div className="flex items-center justify-center gap-1">
+                                    <td className="px-8 py-6 text-center text-lg font-black">{order.order_items?.length || 0}</td>
+                                    <td className="px-8 py-6 font-black text-slate-900 text-lg">{formatCurrency(order.final_amount)}</td>
+                                    <td className="px-8 py-6 text-center"><StatusBadge status={order.order_status} /></td>
+                                    <td className="px-8 py-6 text-center">
+                                        <div className="flex items-center justify-center gap-2">
                                             {hasUnallocated ? (
-                                                <button onClick={() => openAllocateModal(order)} className="text-xs text-white bg-amber-600 hover:bg-amber-700 font-bold px-3 py-1.5 rounded shadow-sm">تخصيص الصرف</button>
+                                                <button onClick={() => openAllocateModal(order)} className="text-sm text-white bg-amber-600 hover:bg-amber-700 font-black px-4 py-2 rounded-xl shadow-lg transition-transform active:scale-95">تجزئة الصرف</button>
                                             ) : (
-                                                <button onClick={() => openStatusModal(order)} className="text-xs text-purple-600 hover:text-purple-800 font-medium px-2 py-1 rounded hover:bg-purple-50">تحديث</button>
+                                                <button onClick={() => openStatusModal(order)} className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all shadow-sm border-2 border-purple-100" title="تحديث الحالة">
+                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m13 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                                </button>
                                             )}
-                                            <button onClick={() => openDetails(order)} className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 rounded hover:bg-blue-50">عرض</button>
-                                            <button onClick={() => deleteOrder(order)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 rounded hover:bg-red-50">حذف</button>
+                                            <button onClick={() => openDetails(order)} className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border-2 border-blue-100" title="عرض التفاصيل">
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                            </button>
+                                            <button onClick={() => deleteOrder(order)} className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all shadow-sm border-2 border-rose-100" title="حذف">
+                                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                            </button>
                                         </div>
                                     </td>
+
                                 </tr>
                                 );
                             })}
@@ -336,73 +345,75 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
             <Modal show={showCreateModal} onClose={() => setShowCreateModal(false)} title="إنشاء طلب بيع جديد" maxWidth="xl">
                 <form onSubmit={submitOrder}>
                     <Modal.Body>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">العميل *</label>
+                                <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">اسم العميل *</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm appearance-none bg-white"
                                     value={createForm.data.customer_id}
                                     onChange={e => createForm.setData('customer_id', e.target.value)}
                                     required
                                 >
-                                    <option value="">اختر العميل...</option>
+                                    <option value="">اختر العميل المستلم...</option>
                                     {customers.map(c => (
                                         <option key={c.id} value={c.id}>{c.name} — {USER_TYPES[c.user_type]?.label}</option>
                                     ))}
                                 </select>
-                                {createForm.errors.customer_id && <p className="text-xs text-red-500 mt-1">{createForm.errors.customer_id}</p>}
+                                {createForm.errors.customer_id && <p className="text-sm font-black text-rose-500 mt-1 uppercase">{createForm.errors.customer_id}</p>}
                             </div>
                             <div>
-                                <label className="block text-xs font-semibold text-gray-600 mb-1">العملة</label>
+                                <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">عملة الطلب (اختياري)</label>
                                 <select
-                                    className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm appearance-none bg-white"
                                     value={createForm.data.currency_id}
                                     onChange={e => createForm.setData('currency_id', e.target.value)}
                                 >
-                                    <option value="">افتراضي</option>
+                                    <option value="">استخدام العملة الافتراضية</option>
                                     {currencies.map(c => (
-                                        <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code})</option>
+                                        <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code_en})</option>
                                     ))}
                                 </select>
                             </div>
                         </div>
 
                         <div className="mb-6">
-                            <label className="block text-xs font-semibold text-gray-600 mb-1">ملاحظات عامة للطلب</label>
+                            <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-2">ملاحظات إضافية على الفاتورة</label>
                             <textarea
-                                className="w-full border border-gray-300 rounded-md text-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm"
                                 value={createForm.data.notes}
                                 onChange={e => createForm.setData('notes', e.target.value)}
                                 rows="2"
-                                placeholder="مثلاً: التوصيل بعد الساعة 4 عصراً، أو أي تعليمات خاصة..."
+                                placeholder="اكتب أي تعليمات خاصة بالتوصيل أو التغليف هنا..."
                             ></textarea>
                         </div>
 
+
                         {/* Items */}
-                        <div className="border border-gray-200 rounded-lg overflow-hidden">
-                            <div className="bg-gray-50 px-4 py-2 flex justify-between items-center border-b border-gray-200">
-                                <span className="text-xs font-bold text-gray-600">أصناف الطلب</span>
-                                <button type="button" onClick={addItem} className="text-xs text-blue-600 hover:text-blue-800 font-medium">+ إضافة صنف</button>
+                        <div className="border-2 border-slate-200 rounded-[2rem] overflow-hidden shadow-sm">
+                            <div className="bg-slate-50 px-6 py-4 flex justify-between items-center border-b-2 border-slate-200">
+                                <span className="text-sm font-black text-slate-500 uppercase tracking-widest">أصناف الفاتورة (السلة)</span>
+                                <button type="button" onClick={addItem} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[#e31e24] transition-colors">إضافة صنف +</button>
                             </div>
-                            <div className="divide-y divide-gray-100">
+                            <div className="divide-y-2 divide-slate-100">
                                 {createForm.data.items.map((item, idx) => (
-                                    <div key={idx} className="p-4 grid grid-cols-12 gap-3 items-end">
-                                        <div className="col-span-2">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">المنتج</label>
-                                            <select className="w-full border border-gray-300 rounded-md text-xs py-1.5 px-2" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)} required>
-                                                <option value="">اختر المنتج...</option>
+                                    <div key={idx} className="hover:bg-slate-50/50 transition-colors">
+                                        <div className="p-6 grid grid-cols-12 gap-4 items-end bg-white">
+                                        <div className="col-span-3">
+                                            <label className="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">اختر الصنف</label>
+                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-base py-3 px-3 font-black text-slate-900 focus:border-blue-500 transition-all bg-slate-50" value={item.product_id} onChange={e => updateItem(idx, 'product_id', e.target.value)} required>
+                                                <option value="">اسم المنتج...</option>
                                                 {products.map(p => (
                                                     <option key={p.id} value={p.id}>{p.name}</option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div className="col-span-2">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">فرع التوريد</label>
-                                            <select className="w-full border border-gray-300 rounded-md text-xs py-1.5 px-2" value={item.branch_id} onChange={e => updateItem(idx, 'branch_id', e.target.value)} required>
+                                            <label className="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">الفرع</label>
+                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-base py-3 px-3 font-black text-slate-900 focus:border-blue-500 transition-all bg-slate-50 text-xs" value={item.branch_id} onChange={e => updateItem(idx, 'branch_id', e.target.value)} required>
                                                 <option value="">اختر...</option>
                                                 {item.product_id ? (
                                                     products.find(p => p.id == item.product_id)?.branches?.map(b => (
-                                                        <option key={b.id} value={b.id}>{b.branch_name} ({b.pivot?.stock_quantity || 0} متوفر)</option>
+                                                        <option key={b.id} value={b.id}>{b.branch_name} ({b.pivot?.stock_quantity || 0})</option>
                                                     ))
                                                 ) : (
                                                     branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)
@@ -410,47 +421,48 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                             </select>
                                         </div>
                                         <div className="col-span-2">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">الوحدة</label>
-                                            <select className="w-full border border-gray-300 rounded-md text-xs py-1.5 px-2" value={item.unit_id} onChange={e => updateItem(idx, 'unit_id', e.target.value)}>
+                                            <label className="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest">الوحدة</label>
+                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-base py-3 px-3 font-black text-slate-900 focus:border-blue-500 transition-all bg-slate-50" value={item.product_unit_id} onChange={e => updateItem(idx, 'product_unit_id', e.target.value)}>
                                                 <option value="">الأساسية</option>
-                                                {item.product_id && products.find(p => p.id == item.product_id)?.units?.map(u => (
-                                                    <option key={u.id} value={u.unit_id}>{u.unit?.unit_name || 'وحدة'}</option>
+                                                {item.product_id && products.find(p => p.id == item.product_id)?.units?.sort((a,b) => (a.branch_id == item.branch_id ? -1 : 1)).map(u => (
+                                                    <option key={u.id} value={u.id}>{u.unit?.unit_name || 'وحدة'}</option>
                                                 ))}
                                             </select>
                                         </div>
                                         <div className="col-span-2">
-                                            <div className="flex justify-between items-end mb-1">
-                                                <label className="block text-[10px] font-bold text-gray-500 uppercase">الكمية</label>
-                                                {item.product_id && <span className="text-[9px] text-emerald-600 font-bold">أقصى: {item._max_stock}</span>}
+                                            <div className="flex justify-between items-end mb-2">
+                                                <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest">الكمية</label>
+                                                {item.product_id && <span className="text-[10px] text-emerald-600 font-extrabold">المتاح: {item._max_stock}</span>}
                                             </div>
-                                            <input type="number" min="1" max={item._max_stock || 9999} className="w-full border border-gray-300 rounded-md text-xs py-1.5 px-2" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseInt(e.target.value) || 1)} required />
-                                            {item.quantity > item._max_stock && <p className="text-[10px] text-red-500 absolute mt-0.5">تتجاوز الرصيد ({item._max_stock})!</p>}
+                                            <input type="number" min="1" max={item._max_stock || 9999} className="w-full border-2 border-slate-100 rounded-2xl text-base py-3 px-3 font-black text-slate-900 text-center focus:border-blue-500 transition-all bg-slate-50" value={item.quantity} onChange={e => updateItem(idx, 'quantity', parseInt(e.target.value) || 1)} required />
+                                            {item.quantity > item._max_stock && <p className="text-[10px] font-black text-rose-500 absolute mt-1">تجاوز المتاح!</p>}
                                         </div>
                                         <div className="col-span-2">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">السعر والإجمالي {item.product_id && `(${item.unit_price})`}</label>
-                                            <div className="text-sm font-bold text-gray-800 bg-gray-100 rounded px-2 py-1.5 text-center">
+                                            <label className="block text-[11px] font-black text-slate-400 uppercase mb-2 tracking-widest text-center">الإجمالي</label>
+                                            <div className="text-base font-black text-slate-900 bg-slate-100 rounded-2xl px-3 py-3 text-center border-2 border-slate-200">
                                                 {formatCurrency(item.quantity * item.unit_price)}
                                             </div>
                                         </div>
-                                        <div className="col-span-2">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">ملاحظة الصنف</label>
-                                            <input type="text" className="w-full border border-gray-300 rounded-md text-xs py-1.5 px-2" value={item.notes} onChange={e => updateItem(idx, 'notes', e.target.value)} placeholder="..." />
-                                        </div>
-                                        <div className="col-span-1 text-center pb-1.5">
+                                        <div className="col-span-1 text-center pb-2">
                                             {createForm.data.items.length > 1 && (
-                                                <button type="button" onClick={() => removeItem(idx)} className="text-red-400 hover:text-red-600 p-1">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                <button type="button" onClick={() => removeItem(idx)} className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all border border-rose-100">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                                 </button>
                                             )}
                                         </div>
                                     </div>
+                                    <div key={`notes-${idx}`} className="px-6 pb-4 pt-1 bg-white border-b-2 border-slate-50">
+                                        <input type="text" className="w-full border-0 bg-slate-50/50 rounded-xl text-xs py-2 px-4 italic font-bold text-slate-400 focus:ring-0 placeholder:text-slate-200" value={item.notes} onChange={e => updateItem(idx, 'notes', e.target.value)} placeholder="إضافة ملاحظة لهذا الصنف (اختياري)..." />
+                                    </div>
+                                    </div>
                                 ))}
                             </div>
-                            <div className="bg-gray-50 px-4 py-3 border-t border-gray-200 flex justify-between items-center">
-                                <span className="text-sm font-bold text-gray-700">المجموع الكلي:</span>
-                                <span className="text-lg font-bold text-blue-700">{formatCurrency(orderTotal)}</span>
+                            <div className="bg-slate-900 px-8 py-6 flex justify-between items-center text-white">
+                                <span className="text-lg font-black uppercase tracking-widest text-white/50">إجمالي قيمة الطلب:</span>
+                                <span className="text-3xl font-black text-white">{formatCurrency(orderTotal)}</span>
                             </div>
                         </div>
+
                     </Modal.Body>
                     <Modal.Footer>
                         <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">إلغاء</button>
@@ -498,7 +510,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                         <tr key={item.id} className={!item.branch_id ? "bg-amber-50" : ""}>
                                             <td className="text-center">{i + 1}</td>
                                             <td className="font-medium">{item.product?.name}</td>
-                                            <td>{item.unit?.unit_name || '—'}</td>
+                                            <td>{item.product_unit?.unit?.unit_name || '—'}</td>
                                             <td className="font-bold text-center">{item.quantity}</td>
                                             <td>
                                                 {item.branch_id ? (

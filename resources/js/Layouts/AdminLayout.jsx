@@ -42,6 +42,7 @@ export default function AdminLayout({ user, header, children }) {
     const secondaryNav = [
         { name: 'الوحدات', href: route('units.index'), icon: IconSettings, active: url.startsWith('/units') },
         { name: 'الفئات', href: route('categories.index'), icon: IconSettings, active: url.startsWith('/categories') },
+        { name: 'العملات', href: route('currencies.index'), icon: IconSettings, active: url.startsWith('/currencies') },
         { name: 'الإعدادات', href: route('settings.index'), icon: IconSettings, active: url.startsWith('/settings') },
     ];
 

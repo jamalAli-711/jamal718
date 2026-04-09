@@ -18,6 +18,8 @@ class Branch extends Model
         'manager_name',
         'branch_lat',
         'branch_lon',
+        'currency_id',
+
     ];
 
     public function users()
@@ -63,6 +65,11 @@ class Branch extends Model
     public function currencies()
     {
         return $this->hasMany(Currency::class);
+    }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
     }
 
     public function categories()

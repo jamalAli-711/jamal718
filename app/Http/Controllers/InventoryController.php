@@ -21,20 +21,32 @@ class InventoryController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(20);
 
-        $totalStockVal = 0;
+        $defaultCurrency = \App\Models\Currency::where('is_default', true)->first() ?? \App\Models\Currency::first();
+        $totalStockValValue = 0;
         foreach ($products->items() as $p) {
-            $totalStockVal += ($p->total_stock * $p->official_price);
+            $defaultUnit = $p->units->where('is_default_sale', true)->first() ?? $p->units->first();
+            if ($defaultUnit) {
+                $price = ($defaultUnit->retail_price > 0) ? $defaultUnit->retail_price : $defaultUnit->base_price;
+                // Get unit currency
+                $unitCurrency = \App\Models\Currency::find($defaultUnit->currency_id) ?? $defaultCurrency;
+                // Convert to default currency (Target)
+                // ConvertedValue = Price * (SourceRate / TargetRate)
+                $convertedPrice = $price * ($unitCurrency->exchange_rate / $defaultCurrency->exchange_rate);
+                $totalStockValValue += ($p->total_stock * $convertedPrice);
+            }
         }
 
         $stats = [
             'total_products' => Product::count(),
-            'low_stock'      => Product::has('branches', '<', 1)->count(),
-            'total_value'    => number_format($totalStockVal),
+            'low_stock'      => Product::whereDoesntHave('branches')->count(),
+            'total_value'    => number_format($totalStockValValue),
+            'currency_symbol'=> $defaultCurrency->currency_code_ar
         ];
 
         $units = Unit::select('id', 'unit_name', 'short_name')->get();
         $categories = Category::select('id', 'category_name')->get();
         $branches = Branch::select('id', 'branch_name')->get();
+        $currencies = \App\Models\Currency::select('id', 'currency_name', 'currency_code_en', 'currency_code_ar', 'exchange_rate', 'is_default')->get();
 
         return Inertia::render('Inventory/Index', [
             'products'   => $products,
@@ -42,6 +54,8 @@ class InventoryController extends Controller
             'units'      => $units,
             'categories' => $categories,
             'branches'   => $branches,
+            'currencies' => $currencies,
+            'default_currency' => $defaultCurrency,
         ]);
     }
 
@@ -50,9 +64,6 @@ class InventoryController extends Controller
         $validated = $request->validate([
             'sku'             => 'required|string|unique:products,sku',
             'name'            => 'required|string|max:255',
-            'official_price'  => 'required|numeric|min:0',
-            'wholesale_price' => 'required|numeric|min:0',
-            'retail_price'    => 'required|numeric|min:0',
             'category_id'     => 'nullable|exists:categories,id',
             'images'          => 'nullable|array',
             'images.*'        => 'image|max:2048',
@@ -66,10 +77,7 @@ class InventoryController extends Controller
         $product = Product::create([
             'sku'             => $validated['sku'],
             'name'            => $validated['name'],
-            'official_price'  => $validated['official_price'],
-            'wholesale_price' => $validated['wholesale_price'],
-            'retail_price'    => $validated['retail_price'],
-            'category_id'     => $validated['category_id'],
+            'category_id'     => $validated['category_id'] ?? null,
         ]);
 
         // Handle Images
@@ -94,9 +102,6 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name'             => 'required|string|max:255',
-            'official_price'   => 'required|numeric|min:0',
-            'wholesale_price'  => 'required|numeric|min:0',
-            'retail_price'     => 'required|numeric|min:0',
             'category_id'      => 'nullable|exists:categories,id',
             'new_images'       => 'nullable|array',
             'new_images.*'     => 'image|max:2048',
@@ -106,10 +111,7 @@ class InventoryController extends Controller
 
         $product->update([
             'name'            => $validated['name'],
-            'official_price'  => $validated['official_price'],
-            'wholesale_price' => $validated['wholesale_price'],
-            'retail_price'    => $validated['retail_price'],
-            'category_id'     => $validated['category_id'],
+            'category_id'     => $validated['category_id'] ?? null,
         ]);
 
         // 1. Delete requested images
@@ -169,6 +171,7 @@ class InventoryController extends Controller
             'units' => 'required|array',
             'units.*.unit_id' => 'required|exists:units,id',
             'units.*.branch_id' => 'required|exists:branches,id',
+            'units.*.currency_id' => 'required|exists:currencies,id',
             'units.*.conversion_factor' => 'required|numeric|min:1',
             'units.*.base_price' => 'required|numeric|min:0',
             'units.*.wholesale_price' => 'required|numeric|min:0',

@@ -10,10 +10,12 @@ class BranchesController extends Controller
 {
     public function index()
     {
-        $branches = Branch::withCount(['users', 'products', 'orders'])->get();
+        $branches = Branch::withCount(['users', 'products', 'orders'])->with('currency')->get();
+        $currencies = \App\Models\Currency::all();
 
         return Inertia::render('Branches/Index', [
             'branches' => $branches,
+            'currencies' => $currencies,
         ]);
     }
 
@@ -25,6 +27,7 @@ class BranchesController extends Controller
             'manager_name'  => 'nullable|string|max:100',
             'branch_lat'    => 'nullable|numeric|between:-90,90',
             'branch_lon'    => 'nullable|numeric|between:-180,180',
+            'currency_id'   => 'required|exists:currencies,id',
         ]);
 
         Branch::create($validated);
@@ -40,6 +43,7 @@ class BranchesController extends Controller
             'manager_name'  => 'nullable|string|max:100',
             'branch_lat'    => 'nullable|numeric|between:-90,90',
             'branch_lon'    => 'nullable|numeric|between:-180,180',
+            'currency_id'   => 'required|exists:currencies,id',
         ]);
 
         $branch->update($validated);

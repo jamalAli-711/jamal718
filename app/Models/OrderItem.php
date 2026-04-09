@@ -15,8 +15,8 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'unit_id',
-        'conversion_factor',
+        'product_unit_id',
+        //'conversion_factor',
         'quantity',
         'unit_total',
         'free_bonus_units',
@@ -39,9 +39,9 @@ class OrderItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function unit()
+    public function productUnit()
     {
-        return $this->belongsTo(Unit::class);
+        return $this->belongsTo(ProductUnit::class);
     }
 
     public function currency()

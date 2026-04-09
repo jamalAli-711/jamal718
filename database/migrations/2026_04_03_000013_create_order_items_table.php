@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id(); // BIGINT PK - المعرف الفريد للصنف
             $table->unsignedBigInteger('order_id'); // الربط بالطلب الرئيسي
             $table->unsignedBigInteger('product_id'); // رقم المنتج
-            $table->unsignedInteger('unit_id')->nullable(); // الوحدة المختارة (كرتون، حبة..)
-            $table->decimal('conversion_factor', 10, 3)->default(1); // معامل التحويل
+            $table->unsignedBigInteger('product_unit_id')->nullable(); // الوحدة المختارة (كرتون، حبة..)
+            //$table->unsignedInteger('unit_id')->nullable(); // الوحدة المختارة (كرتون، حبة..)
+            //$table->decimal('conversion_factor', 10, 3)->default(1); // معامل التحويل
             $table->integer('quantity')->default(1); // الكمية المطلوبة بالوحدة المختارة
-            $table->decimal('unit_total', 10, 3)->default(0); // إجمالي الكمية بالأصغر لضبط المخزن
+            $table->decimal('unit_total', 15, 4)->default(0); // إجمالي الكمية بالأصغر لضبط المخزن
             $table->integer('free_bonus_units')->default(0); // الكمية المجانية
             $table->decimal('unit_price', 15, 4)->default(0); // سعر الوحدة وقت البيع
             $table->decimal('item_total', 15, 4)->default(0); // إجمالي السعر للصنف
@@ -32,7 +33,8 @@ return new class extends Migration
 
             $table->foreign('order_id')->references('id')->on('orders_queue')->cascadeOnDelete();
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
-            $table->foreign('unit_id')->references('id')->on('units')->nullOnDelete();
+            $table->foreign('product_unit_id')->references('id')->on('product_units')->nullOnDelete();
+            //$table->foreign('unit_id')->references('id')->on('units')->nullOnDelete();
             $table->foreign('currency_id')->references('id')->on('currencies')->nullOnDelete();
             $table->foreign('branch_id')->references('id')->on('branches')->nullOnDelete();
         });

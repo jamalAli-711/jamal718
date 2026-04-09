@@ -160,12 +160,21 @@ export default function ProductShow({ product, relatedProducts }) {
                             </div>
 
                             {/* Price */}
-                            <div className="flex items-baseline gap-3">
+                            <div className="flex flex-col gap-1">
                                 <span className="text-3xl font-black text-[#e31e24]">
-                                    {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 2})}
-                                    <span className="text-base font-bold mr-1">ر.س</span>
+                                    {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 0})}
+                                    <span className="text-base font-bold mr-1">{product.system_currency_name}</span>
                                 </span>
+                                {product.is_multi_currency && (
+                                    <div className="flex items-center gap-2 text-gray-400 font-bold bg-gray-50 px-3 py-1 rounded-lg w-fit">
+                                        <span className="text-xs">السعر الأصلي:</span>
+                                        <span className="text-sm">
+                                            {Number(product.original_price).toLocaleString('ar-SA')} {product.currency_name}
+                                        </span>
+                                    </div>
+                                )}
                             </div>
+
 
                             {/* Description */}
                             <p className="text-gray-500 leading-relaxed text-sm">
@@ -380,8 +389,9 @@ export default function ProductShow({ product, relatedProducts }) {
                                         </div>
                                         <h3 className="font-bold text-[#1a2340] text-sm mb-1 line-clamp-1 group-hover:text-[#e31e24] transition-colors">{related.name}</h3>
                                         <span className="text-[#e31e24] font-black text-base">
-                                            {Number(related.price).toLocaleString('ar-SA', {minimumFractionDigits: 2})} ر.س
+                                            {Number(related.price).toLocaleString('ar-SA', {minimumFractionDigits: 0})} {product.system_currency_name}
                                         </span>
+
                                     </Link>
                                 ))}
                             </div>

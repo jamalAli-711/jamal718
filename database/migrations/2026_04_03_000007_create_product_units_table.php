@@ -21,10 +21,13 @@ return new class extends Migration
             $table->decimal('retail_price', 10, 3)->default(0); // السعر الخاص بالتجزئة
             $table->boolean('is_default_sale')->default(false); // هل هي الوحدة الافتراضية للبيع
             $table->unsignedInteger('branch_id')->nullable(); // الفرع التابع له السعر
+            $table->unsignedInteger('currency_id')->nullable(); // العملة
+            
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('products')->cascadeOnDelete();
             $table->foreign('unit_id')->references('id')->on('units')->cascadeOnDelete();
+            $table->foreign('currency_id')->references('id')->on('currencies')->nullOnDelete();
             $table->foreign('branch_id')->references('id')->on('branches')->nullOnDelete();
         });
     }

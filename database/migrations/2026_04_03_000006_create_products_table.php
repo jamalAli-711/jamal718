@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id(); // bigInt PK
             $table->string('sku')->unique(); // رمز المنتج الفريد
             $table->string('name'); // اسم المنتج
-            $table->decimal('official_price', 15, 4)->default(0); // السعر الرسمي للمواطن
-            $table->decimal('wholesale_price', 15, 4)->default(0); // سعر الجملة الخاص
-            $table->decimal('retail_price', 15, 4)->default(0); // سعر التجزئة الخاص
             $table->decimal('stock_quantity', 15, 3)->default(0); // الكمية الكلية
             $table->unsignedInteger('category_id')->nullable(); // فئة المنتج
             $table->unsignedInteger('branch_id')->nullable(); // الفرع

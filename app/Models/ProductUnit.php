@@ -20,6 +20,7 @@ class ProductUnit extends Model
         'retail_price',
         'is_default_sale',
         'branch_id',
+        'currency_id',
     ];
 
     protected $casts = [
@@ -40,4 +41,10 @@ class ProductUnit extends Model
     {
         return $this->belongsTo(Branch::class);
     }
+
+    public function currency()
+    {
+        return $this->belongsTo(Currency::class);
+    }
 }
+

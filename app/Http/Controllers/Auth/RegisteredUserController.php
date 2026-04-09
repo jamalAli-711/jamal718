@@ -42,6 +42,7 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => 'required|string|max:20',
             'branch_id' => 'required|exists:branches,id',
+            'user_type' => 'required|in:'.UserType::Wholesaler->value.','.UserType::Retailer->value.','.UserType::Customer->value,
             'lat' => 'required|numeric',
             'lng' => 'required|numeric',
         ]);
@@ -52,8 +53,9 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'branch_id' => $request->branch_id,
-            'user_type' => UserType::Customer->value,
+            'user_type' => $request->user_type,
         ]);
+
 
         Location::create([
             'user_id' => $user->id,

@@ -350,13 +350,13 @@ function ProductCard({ product, quantity, onStep, onAddToCart }) {
 
                 {/* Price + Quantity */}
                 <div className="flex items-center justify-between gap-2">
-                    {/* Price */}
                     <div className="text-right">
                         <span className="text-2xl font-black text-[#c00011] leading-none">
-                            {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 0, maximumFractionDigits: 2})}
                         </span>
-                        <span className="text-xs font-bold text-gray-400 mr-1">ر.س</span>
+                        <span className="text-xs font-bold text-gray-400 mr-1">{product.default_currency_symbol}</span>
                     </div>
+
 
                     {/* Qty Stepper */}
                     <div className="flex items-center bg-gray-100 rounded-xl p-1 shrink-0">
