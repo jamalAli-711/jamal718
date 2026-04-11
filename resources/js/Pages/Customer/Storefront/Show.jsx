@@ -17,6 +17,23 @@ export default function ProductShow({ product, relatedProducts }) {
         setQuantity(next);
     };
 
+    const handleQuantityChange = (value) => {
+        if (value === '') {
+            setQuantity('');
+            return;
+        }
+        let num = parseInt(value);
+        if (!isNaN(num)) {
+            setQuantity(Math.max(1, Math.min(num, product.stock_quantity)));
+        }
+    };
+
+    const handleBlur = () => {
+        if (quantity === '' || quantity < 1) {
+            setQuantity(1);
+        }
+    };
+
     const addToCart = () => {
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const existingIndex = cart.findIndex(item => item.product_id === product.id);
@@ -159,20 +176,13 @@ export default function ProductShow({ product, relatedProducts }) {
                                 </div>
                             </div>
 
-                            {/* Price */}
                             <div className="flex flex-col gap-1">
                                 <span className="text-3xl font-black text-[#e31e24]">
-                                    {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 0})}
+                                    {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                                     <span className="text-base font-bold mr-1">{product.system_currency_name}</span>
+                                    <span className="mx-2 text-gray-300 text-lg">/</span>
+                                    <span className="text-xl font-bold text-gray-500">{product.default_unit_name}</span>
                                 </span>
-                                {product.is_multi_currency && (
-                                    <div className="flex items-center gap-2 text-gray-400 font-bold bg-gray-50 px-3 py-1 rounded-lg w-fit">
-                                        <span className="text-xs">السعر الأصلي:</span>
-                                        <span className="text-sm">
-                                            {Number(product.original_price).toLocaleString('ar-SA')} {product.currency_name}
-                                        </span>
-                                    </div>
-                                )}
                             </div>
 
 
@@ -193,7 +203,14 @@ export default function ProductShow({ product, relatedProducts }) {
                                         >
                                             −
                                         </button>
-                                        <span className="w-10 text-center font-black text-[#1a2340] text-lg">{quantity}</span>
+                                        <input
+                                            type="text"
+                                            value={quantity}
+                                            onChange={(e) => handleQuantityChange(e.target.value)}
+                                            onBlur={handleBlur}
+                                            className="w-10 bg-transparent text-center font-black text-[#1a2340] text-lg outline-none border-none focus:ring-0 p-0"
+                                            disabled={!product.in_stock}
+                                        />
                                         <button
                                             onClick={() => stepQuantity(1)}
                                             disabled={quantity >= product.stock_quantity}
@@ -389,7 +406,9 @@ export default function ProductShow({ product, relatedProducts }) {
                                         </div>
                                         <h3 className="font-bold text-[#1a2340] text-sm mb-1 line-clamp-1 group-hover:text-[#e31e24] transition-colors">{related.name}</h3>
                                         <span className="text-[#e31e24] font-black text-base">
-                                            {Number(related.price).toLocaleString('ar-SA', {minimumFractionDigits: 0})} {product.system_currency_name}
+                                            {Number(related.price).toLocaleString('ar-SA', {minimumFractionDigits: 2, maximumFractionDigits: 2})} {product.system_currency_name}
+                                            <span className="mx-1 text-gray-300 text-xs">/</span>
+                                            <span className="text-xs font-bold text-gray-500">{related.default_unit_name}</span>
                                         </span>
 
                                     </Link>

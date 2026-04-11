@@ -34,7 +34,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if ($request->user()->user_type === \App\Enums\UserType::Customer->value) {
-            return redirect()->intended(route('customer.dashboard', absolute: false));
+            return redirect()->intended(route('customer.storefront', absolute: false));
         }
 
         return redirect()->intended(route('dashboard', absolute: false));

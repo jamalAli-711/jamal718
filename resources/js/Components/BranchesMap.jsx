@@ -1,132 +1,256 @@
-import { useCallback, useRef } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow, StandaloneSearchBox } from '@react-google-maps/api';
-import { useState } from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Autocomplete, OverlayView } from '@react-google-maps/api';
+import { Link } from '@inertiajs/react';
 
-const YEMEN_CENTER = { lat: 15.5527, lng: 44.0170 };
+const YEMEN_CENTER = { lat: 15.3694, lng: 44.1910 };
 const libraries = ['places'];
 
-export default function BranchesMap({ branches = [], height = '380px' }) {
+export default function BranchesMap({ branches = [], customers = [], stats = {}, height = '520px' }) {
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '',
         libraries: libraries,
     });
 
-    const [activeMarker, setActiveMarker] = useState(null);
+    const [hoveredMarker, setHoveredMarker] = useState(null);
+    const [selectedMarker, setSelectedMarker] = useState(null);
+    const [viewMode, setViewMode] = useState('all'); // 'branches', 'customers', 'all'
+    const [filterBranchId, setFilterBranchId] = useState('all');
+    const [showPoi, setShowPoi] = useState(false);
+    
     const mapRef = useRef(null);
-    const searchBoxRef = useRef(null);
+    const autocompleteRef = useRef(null);
+    const hoverTimeoutRef = useRef(null);
 
-    const branchesWithCoords = branches.filter(b => b.branch_lat && b.branch_lon);
+    const activeMarker = hoveredMarker || selectedMarker;
+
+    // Filter Logic
+    const filteredBranches = useMemo(() => {
+        if (viewMode === 'customers') return [];
+        return branches.filter(b => b.branch_lat && b.branch_lon);
+    }, [branches, viewMode]);
+
+    const filteredCustomers = useMemo(() => {
+        if (viewMode === 'branches') return [];
+        let list = customers.filter(c => c.lat && c.lng);
+        if (filterBranchId !== 'all') {
+            list = list.filter(c => c.branch_id == filterBranchId);
+        }
+        return list;
+    }, [customers, viewMode, filterBranchId]);
 
     const onLoad = useCallback((map) => {
         mapRef.current = map;
-        // Fit bounds to show all markers
-        if (branchesWithCoords.length > 1) {
-            const bounds = new window.google.maps.LatLngBounds();
-            branchesWithCoords.forEach(b => {
-                bounds.extend({ lat: parseFloat(b.branch_lat), lng: parseFloat(b.branch_lon) });
-            });
-            map.fitBounds(bounds, { padding: 60 });
+        const bounds = new window.google.maps.LatLngBounds();
+        let hasPoints = false;
+
+        filteredBranches.forEach(b => {
+             bounds.extend({ lat: parseFloat(b.branch_lat), lng: parseFloat(b.branch_lon) });
+             hasPoints = true;
+        });
+        filteredCustomers.forEach(c => {
+             bounds.extend({ lat: parseFloat(c.lat), lng: parseFloat(c.lng) });
+             hasPoints = true;
+        });
+
+        if (hasPoints) {
+            map.fitBounds(bounds, { padding: 80 });
         }
-    }, [branchesWithCoords]);
+    }, [filteredBranches, filteredCustomers]);
 
-    const onSearchLoad = useCallback(ref => {
-        searchBoxRef.current = ref;
-    }, []);
+    const onAutocompleteLoad = (autocomplete) => {
+        autocompleteRef.current = autocomplete;
+    };
 
-    const onPlacesChanged = () => {
-        const places = searchBoxRef.current?.getPlaces();
-        if (places && places.length > 0) {
-            const place = places[0];
-            const newLocation = {
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-            };
-            if (mapRef.current) {
-                mapRef.current.panTo(newLocation);
+    const onPlaceChanged = () => {
+        if (autocompleteRef.current !== null) {
+            const place = autocompleteRef.current.getPlace();
+            if (place.geometry) {
+                mapRef.current.panTo(place.geometry.location);
                 mapRef.current.setZoom(12);
             }
         }
     };
 
-    if (!isLoaded) {
-        return (
-            <div style={{ height }} className="rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200 animate-pulse">
-                <div className="flex items-center gap-2 text-gray-400 text-sm">
-                    <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                    جاري تحميل الخريطة...
-                </div>
-            </div>
-        );
-    }
+    const handleMouseOver = (data, type) => {
+        if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+        setHoveredMarker({ id: data.id, type, data });
+    };
 
-    if (branchesWithCoords.length === 0) {
-        return (
-            <div style={{ height }} className="rounded-lg bg-gray-50 flex flex-col items-center justify-center border border-gray-200 text-center px-4">
-                <svg className="w-12 h-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                <p className="text-sm text-gray-400 font-medium">لا توجد فروع بمواقع محددة</p>
-                <p className="text-xs text-gray-300 mt-1">حدد موقع الفرع من صفحة إدارة الفروع</p>
-            </div>
-        );
-    }
+    const handleMouseOut = () => {
+        hoverTimeoutRef.current = setTimeout(() => {
+            setHoveredMarker(null);
+        }, 100);
+    };
 
-    const center = branchesWithCoords.length === 1
-        ? { lat: parseFloat(branchesWithCoords[0].branch_lat), lng: parseFloat(branchesWithCoords[0].branch_lon) }
-        : YEMEN_CENTER;
+    // Custom Icons
+    const branchIcon = useMemo(() => ({
+        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+        fillColor: "#0058be",
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#ffffff",
+        scale: 2,
+        anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 22) : null,
+    }), []);
+
+    const customerIcon = useMemo(() => ({
+        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+        fillColor: "#e31e24", // Royal Red
+        fillOpacity: 1,
+        strokeWeight: 2,
+        strokeColor: "#ffffff",
+        scale: 1.5,
+        anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 22) : null,
+    }), []);
+
+    if (!isLoaded) return <div style={{ height }} className="rounded-[2rem] bg-slate-50 animate-pulse border-2 border-slate-100" />;
 
     return (
-        <div className="rounded-lg overflow-hidden border border-gray-200 shadow-sm relative" style={{ height }}>
+        <div className="relative group" style={{ height }}>
+            {/* Control Bar */}
+            <div className="absolute top-6 left-6 right-6 z-10 flex flex-wrap gap-3 pointer-events-none">
+                <div className="bg-white/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex gap-1 pointer-events-auto transition-all hover:scale-[1.02]">
+                    <button onClick={() => setViewMode('all')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'all' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>الكل</button>
+                    <button onClick={() => setViewMode('branches')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'branches' ? 'bg-[#0058be] text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>الفروع</button>
+                    <button onClick={() => setViewMode('customers')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'customers' ? 'bg-[#e31e24] text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>العملاء</button>
+                </div>
+
+                {viewMode !== 'branches' && (
+                    <div className="bg-white/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex items-center pointer-events-auto transition-all hover:scale-[1.02]">
+                        <span className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">التصفية:</span>
+                        <select value={filterBranchId} onChange={(e) => setFilterBranchId(e.target.value)} className="bg-transparent border-none text-[11px] font-black text-slate-900 focus:ring-0 cursor-pointer pr-8">
+                            <option value="all">جميع الفروع</option>
+                            {branches.map(b => (
+                                <option key={b.id} value={b.id}>{b.branch_name}</option>
+                            ))}
+                        </select>
+                    </div>
+                )}
+
+                <div className="bg-white/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 pointer-events-auto">
+                    <button onClick={() => setShowPoi(!showPoi)} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${showPoi ? 'bg-emerald-600 text-white' : 'bg-gray-100 text-slate-500'}`}>
+                        {showPoi ? 'إخفاء المعالم' : 'إظهار المحلات'}
+                    </button>
+                </div>
+            </div>
+
             <GoogleMap
-                mapContainerStyle={{ width: '100%', height: '100%' }}
-                center={center}
-                zoom={branchesWithCoords.length === 1 ? 12 : 6}
+                mapContainerStyle={{ width: '100%', height: '100%', borderRadius: '2rem' }}
+                center={YEMEN_CENTER}
+                zoom={6}
                 onLoad={onLoad}
                 options={{
-                    streetViewControl: false,
-                    mapTypeControl: false,
-                    fullscreenControl: true,
-                    zoomControl: true,
+                    streetViewControl: false, mapTypeControl: false, fullscreenControl: true, zoomControl: true,
                     styles: [
-                        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+                        { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: showPoi ? 'on' : 'off' }] },
+                        { featureType: 'landscape', elementType: 'geometry.fill', stylers: [{ color: '#f8fafc' }] },
+                        { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#e2e8f0' }] },
                     ],
                 }}
             >
-                <StandaloneSearchBox
-                    onLoad={onSearchLoad}
-                    onPlacesChanged={onPlacesChanged}
+                <Autocomplete
+                    onLoad={onAutocompleteLoad}
+                    onPlaceChanged={onPlaceChanged}
+                    options={{ componentRestrictions: { country: "ye" } }}
                 >
-                    <input
-                        type="text"
-                        placeholder="ابحث عن مدينة أو منطقة..."
-                        className="absolute top-3 right-[50%] translate-x-[50%] w-3/4 max-w-sm h-10 px-4 rounded-full shadow-lg border-0 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
-                    />
-                </StandaloneSearchBox>
+                    <input type="text" placeholder="ابحث في اليمن..." style={{
+                        boxSizing: `border-box`, border: `none`, width: `240px`, height: `40px`, padding: `0 12px`,
+                        borderRadius: `12px`, boxShadow: `0 8px 16px rgba(0,0,0,0.1)`, fontSize: `13px`,
+                        outline: `none`, position: `absolute`, left: `24px`, bottom: `24px`, backgroundColor: '#fff', fontWeight: 'bold'
+                    }} />
+                </Autocomplete>
 
-                {branchesWithCoords.map((branch) => (
+                {/* Branch Markers */}
+                {filteredBranches.map((branch) => (
                     <Marker
-                        key={branch.id}
+                        key={`branch-${branch.id}`}
                         position={{ lat: parseFloat(branch.branch_lat), lng: parseFloat(branch.branch_lon) }}
-                        title={branch.branch_name}
-                        onClick={() => setActiveMarker(branch.id)}
+                        icon={branchIcon}
+                        onMouseOver={() => handleMouseOver(branch, 'branch')}
+                        onMouseOut={handleMouseOut}
+                        onClick={() => setSelectedMarker({ id: branch.id, type: 'branch', data: branch })}
+                    />
+                ))}
+
+                {/* Customer Markers with Luxury Pulse */}
+                {filteredCustomers.map((customer) => (
+                    <React.Fragment key={`cust-group-${customer.id}`}>
+                        {/* Pulse Effect */}
+                        <OverlayView
+                            position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
+                            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                        >
+                            <div className="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                                <div className="absolute w-6 h-6 bg-red-500/30 rounded-full animate-luxury-pulse pointer-events-none" />
+                                <div className="absolute w-12 h-12 bg-red-400/20 rounded-full animate-luxury-pulse delay-700 pointer-events-none" />
+                            </div>
+                        </OverlayView>
+                        
+                        <Marker
+                            position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
+                            icon={customerIcon}
+                            onMouseOver={() => handleMouseOver(customer, 'customer')}
+                            onMouseOut={handleMouseOut}
+                            onClick={() => setSelectedMarker({ id: customer.id, type: 'customer', data: customer })}
+                        />
+                    </React.Fragment>
+                ))}
+
+                {activeMarker && (
+                    <InfoWindow 
+                        position={activeMarker.type === 'branch' 
+                            ? { lat: parseFloat(activeMarker.data.branch_lat), lng: parseFloat(activeMarker.data.branch_lon) }
+                            : { lat: parseFloat(activeMarker.data.lat), lng: parseFloat(activeMarker.data.lng) }
+                        }
+                        options={{
+                            pixelOffset: new window.google.maps.Size(0, -35)
+                        }}
+                        onCloseClick={() => {
+                            setHoveredMarker(null);
+                            setSelectedMarker(null);
+                        }}
                     >
-                        {activeMarker === branch.id && (
-                            <InfoWindow onCloseClick={() => setActiveMarker(null)}>
-                                <div style={{ direction: 'rtl', textAlign: 'right', padding: '4px 0' }}>
-                                    <h4 style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '4px', color: '#1f2937' }}>{branch.branch_name}</h4>
-                                    <p style={{ fontSize: '12px', color: '#6b7280', margin: 0 }}>📍 {branch.location_city}</p>
-                                    {branch.manager_name && (
-                                        <p style={{ fontSize: '11px', color: '#9ca3af', marginTop: '4px', margin: 0 }}>المدير: {branch.manager_name}</p>
-                                    )}
-                                    <div style={{ display: 'flex', gap: '12px', marginTop: '8px', fontSize: '11px', color: '#6b7280' }}>
-                                        <span><strong>{branch.products_count || 0}</strong> منتج</span>
-                                        <span><strong>{branch.orders_count || 0}</strong> طلب</span>
+                        <div className="w-64 p-0 bg-white" dir="rtl">
+                            <div className={`h-1.5 w-full ${activeMarker.type === 'branch' ? 'bg-[#0058be]' : 'bg-[#e31e24]'}`} />
+                            <div className="p-5">
+                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 block">
+                                    {activeMarker.type === 'branch' ? 'المركز الميداني' : 'ملف تتبع العميل'}
+                                </span>
+                                <h4 className="text-xl font-black text-slate-900 mb-1 tracking-tighter">{activeMarker.type === 'branch' ? activeMarker.data.branch_name : activeMarker.data.name}</h4>
+                                <p className="text-[11px] font-bold text-slate-400 mb-6 italic">{activeMarker.type === 'branch' ? `📍 ${activeMarker.data.location_city}` : `📦 تبعية: ${activeMarker.data.branch_id ? 'فرع محدد' : 'مركزي'}`}</p>
+
+                                <div className="grid grid-cols-2 gap-3 mb-4">
+                                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                        <p className="text-[8px] font-black text-slate-400 mb-1">المبيعات</p>
+                                        <p className="text-sm font-black text-slate-900">{activeMarker.type === 'branch' ? activeMarker.data.total_sales : activeMarker.data.total_spent} <span className="text-[8px] opacity-40">{stats.currency_symbol}</span></p>
+                                    </div>
+                                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                        <p className="text-[8px] font-black text-slate-400 mb-1">الطلبات</p>
+                                        <p className="text-sm font-black text-slate-900">{activeMarker.data.orders_count} <span className="text-[8px] opacity-40">ORD</span></p>
                                     </div>
                                 </div>
-                            </InfoWindow>
-                        )}
-                    </Marker>
-                ))}
+
+                                <Link href={activeMarker.type === 'branch' ? route('branches.index') : route('customers.show', activeMarker.data.id)} 
+                                      className={`w-full flex items-center justify-center py-2.5 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all ${activeMarker.type === 'customer' ? 'hover:bg-[#e31e24]' : 'hover:bg-[#0058be]'}`}>
+                                    {activeMarker.type === 'branch' ? 'معاينة اللوجستيات' : 'عرض السجل المالي'}
+                                </Link>
+                            </div>
+                        </div>
+                    </InfoWindow>
+                )}
             </GoogleMap>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                @keyframes luxury-pulse {
+                    0% { transform: scale(0.6); opacity: 0.8; }
+                    100% { transform: scale(2.5); opacity: 0; }
+                }
+                .animate-luxury-pulse {
+                    animation: luxury-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+                .delay-700 { animation-delay: 0.7s; }
+            `}} />
         </div>
     );
 }

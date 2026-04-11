@@ -4,15 +4,9 @@ import { Link } from '@inertiajs/react';
 export default function GuestLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col items-center bg-slate-50 pt-12 sm:justify-center sm:pt-0" dir="rtl">
-            <div className="mb-10">
-                <Link href="/" className="flex flex-col items-center gap-4 group">
-                    <div className="w-16 h-16 bg-[#e31e24] shadow-2xl shadow-red-200 rounded-[1.5rem] flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-500">
-                        <span className="text-3xl font-black text-white">S</span>
-                    </div>
-                    <div className="text-center">
-                        <h2 className="text-2xl font-black text-[#031633] tracking-tighter uppercase whitespace-nowrap">المخلافي ستور</h2>
-                        <div className="h-1 w-12 bg-[#e31e24] mx-auto mt-1 rounded-full"></div>
-                    </div>
+            <div className="mb-10 flex justify-center">
+                <Link href="/" className="group tracking-tighter">
+                    <ApplicationLogo className="w-24 h-24 object-contain transform group-hover:scale-110 transition-transform duration-500" />
                 </Link>
             </div>
 

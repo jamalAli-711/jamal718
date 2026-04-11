@@ -1,6 +1,7 @@
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 import StatusBadge from '@/Components/StatusBadge';
+import { formatCurrency } from '@/constants';
 
 export default function OrderShow({ order }) {
     const { flash } = usePage().props;
@@ -15,7 +16,7 @@ export default function OrderShow({ order }) {
             header={
                 <div className="flex justify-between items-end">
                     <div>
-                        <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-1 block">Reference No.</span>
+                        <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-1 block">رقم المرجع</span>
                         <h2 className="font-black text-3xl text-[#031633] tracking-tighter">
                             {order.reference_number}
                         </h2>
@@ -42,7 +43,7 @@ export default function OrderShow({ order }) {
                                 </svg>
                             </div>
                             <div>
-                                <span className="text-[10px] font-black uppercase tracking-widest block opacity-50">Success</span>
+                                <span className="text-[10px] font-black uppercase tracking-widest block opacity-50">تم بنجاح</span>
                                 <span className="font-black text-lg">{flash.success}</span>
                             </div>
                         </div>
@@ -58,7 +59,7 @@ export default function OrderShow({ order }) {
                                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                         </svg>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Important Message</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">رسالة هامة من الإدارة</span>
                                     </div>
                                     <h4 className="text-2xl font-black text-rose-900 mb-2">بيان من إدارة المبيعات:</h4>
                                     <p className="text-rose-800 leading-relaxed font-bold text-lg">{order.admin_note}</p>
@@ -69,7 +70,7 @@ export default function OrderShow({ order }) {
                             <div className="card-editorial overflow-hidden">
                                 <div className="p-10 border-b border-gray-50 flex justify-between items-end">
                                     <div>
-                                        <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-1 block">Inventory</span>
+                                        <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-1 block">قائمة الأصناف</span>
                                         <h3 className="font-black text-2xl text-[#031633]">المنتجات المطلوبة</h3>
                                     </div>
                                     <StatusBadge status={order.order_status} />
@@ -91,8 +92,8 @@ export default function OrderShow({ order }) {
                                                 <div className="flex justify-between items-start mb-2">
                                                     <h4 className="text-2xl font-black text-[#031633] group-hover:text-[#0058be] transition-colors line-clamp-1">{item.product?.name || 'منتج غير معروف'}</h4>
                                                     <div className="text-right">
-                                                        <span className="block text-[#0058be] text-2xl font-black">{Number(item.item_total).toLocaleString()}</span>
-                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-[#0058be]/40">Subtotal</span>
+                                                        <span className="block text-[#0058be] text-2xl font-black">{formatCurrency(item.item_total, order.currency?.currency_code_ar)}</span>
+                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-[#0058be]/40">الإجمالي الفرعي</span>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-4">
@@ -110,7 +111,7 @@ export default function OrderShow({ order }) {
                                 
                                 {order.notes && (
                                     <div className="p-10 bg-[#031633] text-white">
-                                        <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] mb-4 block">Your feedback</span>
+                                        <span className="text-[10px] font-black text-white/50 uppercase tracking-[0.3em] mb-4 block">ملاحظاتك</span>
                                         <h4 className="text-xl font-black mb-2 flex items-center gap-2">
                                             <svg className="w-5 h-5 text-[#0058be]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                             ملاحظاتك على هذا الطلب:
@@ -124,21 +125,20 @@ export default function OrderShow({ order }) {
                         <div className="space-y-10">
                             {/* Payment Summary */}
                             <div className="card-editorial p-10 bg-gradient-to-br from-white to-gray-50/50">
-                                <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-6 block">Order Summary</span>
+                                <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-6 block">ملخص الفاتورة</span>
                                 <div className="space-y-6">
                                     <div className="flex justify-between items-end border-b border-gray-100 pb-4">
-                                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Products</span>
-                                        <span className="text-xl font-black text-[#031633]">{Number(order.total_price).toLocaleString()}</span>
+                                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">إجمالي المنتجات</span>
+                                        <span className="text-xl font-black text-[#031633]">{formatCurrency(order.total_price, order.currency?.currency_code_ar)}</span>
                                     </div>
                                     <div className="flex justify-between items-end border-b border-gray-100 pb-4">
-                                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">Delivery Fee</span>
-                                        <span className="text-lg font-black text-emerald-600">Free</span>
+                                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">رسوم التوصيل</span>
+                                        <span className="text-lg font-black text-emerald-600">مجاني</span>
                                     </div>
                                     <div className="pt-4">
-                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 block">Grand Total</span>
+                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 block">المبلغ الإجمالي</span>
                                         <div className="flex items-baseline gap-2">
-                                            <span className="text-5xl font-black text-[#0058be] tracking-tighter">{Number(order.final_amount).toLocaleString()}</span>
-                                            <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Yemen</span>
+                                            <span className="text-5xl font-black text-[#0058be] tracking-tighter">{formatCurrency(order.final_amount, order.currency?.currency_code_ar)}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -146,14 +146,14 @@ export default function OrderShow({ order }) {
 
                             {/* Additional Info */}
                             <div className="card-editorial p-10">
-                                <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-6 block">Details</span>
+                                <span className="text-[10px] font-black text-[#0058be] uppercase tracking-[0.3em] mb-6 block">التفاصيل</span>
                                 <dl className="space-y-6">
                                     <div>
-                                        <dt className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Created At</dt>
+                                        <dt className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">تاريخ الطلب</dt>
                                         <dd className="font-black text-[#031633] text-lg">{formatDate(order.created_at)}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status</dt>
+                                        <dt className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">حالة الطلب</dt>
                                         <dd className="mt-2"><StatusBadge status={order.order_status} /></dd>
                                     </div>
                                 </dl>
@@ -170,7 +170,7 @@ export default function OrderShow({ order }) {
                                     <h4 className="text-2xl font-black text-white mb-2">هل تحتاج للمساعدة؟</h4>
                                     <p className="text-white/60 mb-8 font-medium italic">فريق الدعم الفني جاهز لخدمتكم 24/7</p>
                                     <a href="tel:770000000" className="btn-primary w-full py-4 text-lg">
-                                        تواصل معنا
+                                        تواصل معنا عبر الهاتف
                                     </a>
                                 </div>
                                 <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>

@@ -297,7 +297,9 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                         <div className="text-sm font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">{USER_TYPES[order.customer?.user_type]?.label}</div>
                                     </td>
                                     <td className="px-8 py-6 text-center text-lg font-black">{order.order_items?.length || 0}</td>
-                                    <td className="px-8 py-6 font-black text-slate-900 text-lg">{formatCurrency(order.final_amount)}</td>
+                                    <td className="px-8 py-6 font-black text-slate-900 text-lg">
+                                        {formatCurrency(order.final_amount, order.currency?.currency_code_ar)}
+                                    </td>
                                     <td className="px-8 py-6 text-center"><StatusBadge status={order.order_status} /></td>
                                     <td className="px-8 py-6 text-center">
                                         <div className="flex items-center justify-center gap-2">
@@ -501,8 +503,8 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                         <th>الكمية</th>
                                         <th>فرع الصرف</th>
                                         <th>ملاحظة</th>
-                                        <th>السعر</th>
-                                        <th>الإجمالي</th>
+                                        <th>سعر الوحدة</th>
+                                        <th>الإجمالي المتوقع</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -520,15 +522,39 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                                 )}
                                             </td>
                                             <td className="text-[11px] text-gray-500 italic max-w-[140px] truncate" title={item.notes}>{item.notes || '—'}</td>
-                                            <td>{formatCurrency(item.unit_price)}</td>
-                                            <td className="font-bold text-blue-700">{formatCurrency(item.item_total)}</td>
+                                            <td className="text-right">
+                                                {item.currency_id !== selectedOrder.currency_id ? (
+                                                    <div className="flex flex-col">
+                                                        <div className="text-xs text-gray-400 font-bold mb-0.5">سعر الصنف: {formatCurrency(item.unit_price, item.currency?.currency_code_ar)}</div>
+                                                        <div className="font-black text-slate-900 border-t border-gray-100 pt-0.5">
+                                                            <span className="text-[10px] bg-slate-100 px-1 rounded mr-1">النظام</span>
+                                                            {formatCurrency(item.item_total / (item.quantity || 1), selectedOrder.currency?.currency_code_ar)}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="font-bold text-slate-900">{formatCurrency(item.unit_price, item.currency?.currency_code_ar)}</div>
+                                                )}
+                                            </td>
+                                            <td className="text-right">
+                                                {item.currency_id !== selectedOrder.currency_id ? (
+                                                    <div className="flex flex-col">
+                                                        <div className="text-[10px] text-gray-400 font-bold mb-0.5">الأصل: {formatCurrency(item.unit_price * item.quantity, item.currency?.currency_code_ar)}</div>
+                                                        <div className="font-black text-blue-700 text-lg border-t border-blue-50 pt-1">
+                                                            <span className="text-[10px] bg-blue-50 px-1 rounded mr-1">النظام</span>
+                                                            {formatCurrency(item.item_total, selectedOrder.currency?.currency_code_ar)}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="font-bold text-blue-700">{formatCurrency(item.item_total, selectedOrder.currency?.currency_code_ar)}</div>
+                                                )}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                                 <tfoot>
                                     <tr className="bg-gray-50 border-t-2 border-gray-100">
                                         <td colSpan="7" className="text-left font-bold text-gray-700 px-4 py-3">الإجمالي الصافي</td>
-                                        <td className="font-bold text-blue-700 text-lg px-4 py-3">{formatCurrency(selectedOrder.final_amount)}</td>
+                                        <td className="font-bold text-blue-700 text-lg px-4 py-3">{formatCurrency(selectedOrder.final_amount, selectedOrder.currency?.currency_code_ar)}</td>
                                     </tr>
                                 </tfoot>
                             </table>

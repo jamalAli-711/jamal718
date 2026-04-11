@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 import { USER_TYPES } from '@/constants';
 
 // --- SVG Icon Components ---
@@ -17,6 +18,9 @@ const IconBranch = () => (
 );
 const IconSettings = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" /></svg>
+);
+const IconCustomers = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" /></svg>
 );
 const IconBell = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
@@ -36,6 +40,7 @@ export default function AdminLayout({ user, header, children }) {
         { name: 'لوحة التحكم', href: route('dashboard'), icon: IconDashboard, active: url === '/dashboard' },
         { name: 'الطلبات', href: route('orders.index'), icon: IconOrders, active: url.startsWith('/orders') },
         { name: 'المخزون', href: route('inventory.index'), icon: IconInventory, active: url.startsWith('/inventory') },
+        { name: 'العملاء', href: route('customers.index'), icon: IconCustomers, active: url.startsWith('/customers') },
         { name: 'الفروع', href: route('branches.index'), icon: IconBranch, active: url.startsWith('/branches') },
     ];
 
@@ -51,9 +56,7 @@ export default function AdminLayout({ user, header, children }) {
             {/* Brand */}
             <div className="sidebar-brand">
                 <Link href={route('dashboard')} className="flex items-center gap-3 decoration-none group w-full">
-                    <div className="w-10 h-10 bg-[#e31e24] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                        <span className="text-white font-black text-xl">S</span>
-                    </div>
+                    <ApplicationLogo className="w-10 h-10 object-contain shadow-lg group-hover:scale-105 transition-transform" />
                     <div className="flex flex-col leading-tight">
                         <span className="text-lg font-black text-white tracking-tighter">المخلافي</span>
                         <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Al-Mekhlafi</span>

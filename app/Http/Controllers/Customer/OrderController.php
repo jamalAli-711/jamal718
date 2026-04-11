@@ -17,20 +17,32 @@ class OrderController extends Controller
 {
     public function index()
     {
-        $orders = OrderQueue::where('customer_id', Auth::id())
-            ->with('orderItems.product.images')
+        $userId = Auth::id();
+        $orders = OrderQueue::where('customer_id', $userId)
+            ->with(['orderItems.product.images', 'orderItems.currency', 'currency'])
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $stats = [
+            'total_orders' => OrderQueue::where('customer_id', $userId)->count(),
+            'pending_orders' => OrderQueue::where('customer_id', $userId)
+                                          ->where('order_status', OrderStatus::Pending)
+                                          ->count(),
+            'total_spent' => OrderQueue::where('customer_id', $userId)
+                                       ->where('order_status', OrderStatus::Delivered)
+                                       ->sum('final_amount')
+        ];
+
         return Inertia::render('Customer/Orders/Index', [
-            'orders' => $orders
+            'orders' => $orders,
+            'stats' => $stats
         ]);
     }
 
     public function show($id)
     {
         $order = OrderQueue::where('customer_id', Auth::id())
-            ->with(['orderItems.product.images', 'orderItems.productUnit.unit', 'branch'])
+            ->with(['orderItems.product.images', 'orderItems.productUnit.unit', 'orderItems.currency', 'branch', 'currency'])
             ->findOrFail($id);
 
         return Inertia::render('Customer/Orders/Show', [
@@ -67,32 +79,51 @@ class OrderController extends Controller
         }
 
         $refNumber = 'CUST-' . now()->format('Ymd') . '-' . str_pad(OrderQueue::whereDate('created_at', today())->count() + 1, 3, '0', STR_PAD_LEFT);
-        $totalPrice = 0;
+        
+        // ─── 1. Identify Branch Currency (Target) ───
+        $branch = $customer->branch()->with('currency')->first();
+        $targetCurrency = ($branch && $branch->currency) 
+            ? $branch->currency 
+            : \App\Models\Currency::where('is_default', true)->first();
+        
+        $targetRate = $targetCurrency ? $targetCurrency->exchange_rate : 1;
 
         $order = OrderQueue::create([
             'reference_number' => $refNumber,
             'customer_id'      => $customer->id,
             'order_status'     => OrderStatus::Pending,
-            'total_price'      => 0,
-            'currency_id'      => 1, // Default currency
-            'exchange_rate'    => 1,
+            'total_price'      => 0, // This will be the SUM in Branch Currency
+            'currency_id'      => $targetCurrency->id, 
+            'exchange_rate'    => $targetRate, // Reference rate for the whole order
             'exchange_total'   => 0,
             'final_amount'     => 0,
             'branch_id'        => $customer->branch_id,
             'notes'            => $validated['notes'] ?? null,
         ]);
 
-        foreach ($validated['items'] as $item) {
-            $product = Product::find($item['product_id']);
-            
-            $defaultUnit = $product->units()->where('is_default_sale', true)->first() ?? $product->units()->first();
-            $unitPrice = $defaultUnit ? ($defaultUnit->retail_price ?: $defaultUnit->base_price) : 0;
-            
-            if ($customer->user_type == UserType::Wholesaler->value && $defaultUnit && $defaultUnit->wholesale_price) $unitPrice = $defaultUnit->wholesale_price;
-            elseif ($customer->user_type == UserType::Retailer->value && $defaultUnit && $defaultUnit->retail_price) $unitPrice = $defaultUnit->retail_price;
+        $totalConvertedPrice = 0;
 
-            $itemTotal = $item['quantity'] * $unitPrice;
-            $totalPrice += $itemTotal;
+        foreach ($validated['items'] as $item) {
+            $product = Product::with(['units' => function($q) use ($customer) {
+                $q->where('branch_id', $customer->branch_id)->with('currency');
+            }])->find($item['product_id']);
+            
+            $defaultUnit = $product->units->where('is_default_sale', true)->first() ?? $product->units->first();
+            
+            // Raw price (Source Currency)
+            $originalPrice = $defaultUnit ? ($defaultUnit->retail_price ?: $defaultUnit->base_price) : 0;
+            if ($customer->user_type == UserType::Wholesaler->value && $defaultUnit && $defaultUnit->wholesale_price) $originalPrice = $defaultUnit->wholesale_price;
+            elseif ($customer->user_type == UserType::Retailer->value && $defaultUnit && $defaultUnit->retail_price) $originalPrice = $defaultUnit->retail_price;
+
+            // ─── 2. Universal Conversion ───
+            $sourceCurrency = $defaultUnit ? $defaultUnit->currency : null;
+            $sourceRate = $sourceCurrency ? $sourceCurrency->exchange_rate : 1;
+            
+            // Converted price per unit in Branch Currency
+            $convertedUnitPrice = $originalPrice * ($sourceRate / $targetRate);
+            $itemTotalConverted = $item['quantity'] * $convertedUnitPrice;
+
+            $totalConvertedPrice += $itemTotalConverted;
 
             OrderItem::create([
                 'order_id'          => $order->id,
@@ -100,20 +131,23 @@ class OrderController extends Controller
                 'product_unit_id'   => $defaultUnit?->id,
                 'quantity'          => $item['quantity'],
                 'unit_total'        => $item['quantity'] * ($defaultUnit?->conversion_factor ?: 1),
-                'unit_price'        => $unitPrice,
-                'item_total'        => $itemTotal,
-                'currency_id'       => 1,
-                'exchange_rate'     => 1,
-                'exchange_total'    => $itemTotal,
+                
+                'unit_price'        => round($convertedUnitPrice, 4), // Store converted price to match branch currency
+                'currency_id'       => $targetCurrency->id, // Use Branch default currency
+                'exchange_rate'     => $targetRate, // Use Branch exchange rate snapshot
+                
+                'item_total'        => round($itemTotalConverted, 4), // Total In Branch Currency
+                'exchange_total'    => round($itemTotalConverted, 4), 
+                
                 'branch_id'         => $customer->branch_id,
                 'notes'             => $item['notes'] ?? null,
             ]);
         }
 
         $order->update([
-            'total_price'    => $totalPrice,
-            'exchange_total' => $totalPrice,
-            'final_amount'   => $totalPrice,
+            'total_price'    => round($totalConvertedPrice, 4),
+            'exchange_total' => round($totalConvertedPrice, 4),
+            'final_amount'   => round($totalConvertedPrice, 4),
         ]);
 
         // Dispatch broadcast event for real-time update

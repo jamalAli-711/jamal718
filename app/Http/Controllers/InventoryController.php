@@ -172,23 +172,43 @@ class InventoryController extends Controller
             'units.*.unit_id' => 'required|exists:units,id',
             'units.*.branch_id' => 'required|exists:branches,id',
             'units.*.currency_id' => 'required|exists:currencies,id',
-            'units.*.conversion_factor' => 'required|numeric|min:1',
+            'units.*.conversion_factor' => 'required|numeric|min:0.001',
             'units.*.base_price' => 'required|numeric|min:0',
             'units.*.wholesale_price' => 'required|numeric|min:0',
             'units.*.retail_price' => 'required|numeric|min:0',
             'units.*.is_default_sale' => 'boolean',
         ]);
 
-        ProductUnit::where('product_id', $product->id)->delete();
+        $processedIds = [];
 
         foreach ($validated['units'] as $unitData) {
-            ProductUnit::create([
-                'product_id' => $product->id,
-                ...$unitData
-            ]);
+            $unit = ProductUnit::updateOrCreate(
+                [
+                    'product_id' => $product->id,
+                    'unit_id'    => $unitData['unit_id'],
+                    'branch_id'  => $unitData['branch_id'],
+                ],
+                $unitData
+            );
+            $processedIds[] = $unit->id;
         }
 
-        return redirect()->back()->with('success', 'تم حفظ ربط وتسعير الوحدات الفرعية بنجاح.');
+        // 3. Remove units that were NOT in the request 
+        // BUT ONLY IF they don't have orders (to prevent NULL in order_items)
+        $unitsToRemove = ProductUnit::where('product_id', $product->id)
+            ->whereNotIn('id', $processedIds)
+            ->get();
+
+        foreach ($unitsToRemove as $oldUnit) {
+            $hasOrders = \App\Models\OrderItem::where('product_unit_id', $oldUnit->id)->exists();
+            if (!$hasOrders) {
+                $oldUnit->delete();
+            }
+            // If it has orders, we keep it in the DB to preserve historical data
+            // but it won't be returned in future unit lists (synced via $processedIds)
+        }
+
+        return redirect()->back()->with('success', 'تم حفظ ربط وتسعير الوحدات بنجاح مع الحماية المستمرة لسجل الطلبات.');
     }
 
     public function destroy(Product $product)

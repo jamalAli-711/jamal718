@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
+import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
 import Modal from '@/Components/Modal';
 import CartContent from '@/Components/CartContent';
@@ -61,10 +62,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                         <div className="flex items-center gap-8">
                             {/* Logo */}
                             <div className="shrink-0 flex items-center">
-                                <Link href={route('customer.dashboard')} className="flex items-center gap-3 decoration-none group">
-                                    <div className="w-10 h-10 bg-[#e31e24] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
-                                        <span className="text-white font-black text-xl">S</span>
-                                    </div>
+                                <Link href={route('customer.storefront')} className="flex items-center gap-3 decoration-none group">
+                                    <ApplicationLogo className="w-10 h-10 object-contain shadow-lg group-hover:scale-105 transition-transform" />
                                     <div className="flex flex-col leading-tight">
                                         <span className="text-lg font-black text-[#031633] tracking-tighter">المخلافي</span>
                                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Al-Mekhlafi</span>
@@ -74,12 +73,6 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
                             {/* Navigation Links */}
                             <div className="hidden space-x-8 space-x-reverse sm:flex items-center h-full me-10">
-                                <Link
-                                    href={route('customer.dashboard')}
-                                    className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.dashboard') ? 'text-[#0058be]' : 'text-gray-500 hover:text-gray-900'}`}
-                                >
-                                    الرئيسية
-                                </Link>
                                 <Link
                                     href={route('customer.storefront')}
                                     className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.storefront') ? 'text-[#0058be]' : 'text-gray-500 hover:text-gray-900'}`}

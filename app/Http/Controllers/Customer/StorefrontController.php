@@ -29,7 +29,7 @@ class StorefrontController extends Controller
             $q->where('branch_id', $user->branch_id);
         })
         ->with(['category', 'images', 'units' => function($q) use ($user) {
-            $q->where('branch_id', $user->branch_id)->with('currency');
+            $q->where('branch_id', $user->branch_id)->with(['currency', 'unit']);
         }, 'branches' => function($query) use ($user) {
             $query->where('branch_product.branch_id', $user->branch_id);
         }])->get()->map(function($product) use ($user, $displayCurrency) {
@@ -45,15 +45,13 @@ class StorefrontController extends Controller
                 $price = $defaultUnit->retail_price;
             }
 
-            // Conversion logic (Relative to Display Currency)
+            // Conversion logic (Universal: Price * (SourceRate / TargetRate))
             $unitCurrency = $defaultUnit ? $defaultUnit->currency : null;
-            $isSameAsDisplay = $unitCurrency && $displayCurrency && ($unitCurrency->id === $displayCurrency->id);
-            $convertedPrice = $price;
+            $unitRate = $unitCurrency ? $unitCurrency->exchange_rate : 1;
+            $displayRate = $displayCurrency ? $displayCurrency->exchange_rate : 1;
             
-            if (!$isSameAsDisplay && $unitCurrency) {
-                // Direct multiplier logic as requested by user: Price * Exchange_Rate
-                $convertedPrice = $price * $unitCurrency->exchange_rate;
-            }
+            $convertedPrice = $price * ($unitRate / $displayRate);
+            $isSameAsDisplay = $unitCurrency && $displayCurrency && ($unitCurrency->id === $displayCurrency->id);
 
 
             $branchPivot = $product->branches->first();
@@ -67,6 +65,7 @@ class StorefrontController extends Controller
                 'image_path' => $product->thumbnail,
                 'price' => $convertedPrice, 
                 'original_price' => $price,
+                'default_unit_name' => $defaultUnit && $defaultUnit->unit ? $defaultUnit->unit->unit_name : 'وحدة',
                 'currency_symbol' => $unitCurrency ? $unitCurrency->currency_name : '',
                 'default_currency_symbol' => $displayCurrency ? $displayCurrency->currency_name : '',
                 'is_multi_currency' => !$isSameAsDisplay,
@@ -93,7 +92,7 @@ class StorefrontController extends Controller
             : Currency::where('is_default', true)->first();
 
         $product = Product::with(['category', 'images', 'units' => function($q) use ($user) {
-            $q->where('branch_id', $user->branch_id)->with('currency');
+            $q->where('branch_id', $user->branch_id)->with(['currency', 'unit']);
         }, 'branches' => function($query) use ($user) {
             $query->where('branch_product.branch_id', $user->branch_id);
         }])->findOrFail($id);
@@ -111,13 +110,12 @@ class StorefrontController extends Controller
             $price = $defaultUnit->retail_price;
         }
 
-        // Conversion
+        // Conversion (Universal: Price * (SourceRate / TargetRate))
         $unitCurrency = $defaultUnit ? $defaultUnit->currency : null;
+        $unitRate = $unitCurrency ? $unitCurrency->exchange_rate : 1;
+        $displayRate = $displayCurrency ? $displayCurrency->exchange_rate : 1;
+        $convertedPrice = $price * ($unitRate / $displayRate);
         $isSameAsDisplay = $unitCurrency && $displayCurrency && ($unitCurrency->id === $displayCurrency->id);
-        $convertedPrice = $price;
-        if (!$isSameAsDisplay && $unitCurrency) {
-            $convertedPrice = $price * $unitCurrency->exchange_rate;
-        }
 
 
         $branchPivot = $product->branches->first();
@@ -128,7 +126,7 @@ class StorefrontController extends Controller
             $q->where('branch_id', $user->branch_id);
         })
         ->with(['category', 'images', 'units' => function($q) use ($user) {
-            $q->where('branch_id', $user->branch_id)->with('currency');
+            $q->where('branch_id', $user->branch_id)->with(['currency', 'unit']);
         }, 'branches' => function($q) use ($user) {
             $q->where('branch_product.branch_id', $user->branch_id);
         }])
@@ -144,10 +142,9 @@ class StorefrontController extends Controller
             elseif ($user->user_type == UserType::Retailer && $defUnit && $defUnit->retail_price) $relPrice = $defUnit->retail_price;
             
             $unitCurr = $defUnit ? $defUnit->currency : null;
-            $convPrice = $relPrice;
-            if ($unitCurr && $displayCurrency && $unitCurr->id !== $displayCurrency->id) {
-                $convPrice = $relPrice * $unitCurr->exchange_rate;
-            }
+            $unitRate = $unitCurr ? $unitCurr->exchange_rate : 1;
+            $displayRate = $displayCurrency ? $displayCurrency->exchange_rate : 1;
+            $convPrice = $relPrice * ($unitRate / $displayRate);
 
 
             $branchPivot = $p->branches->first();
@@ -156,6 +153,7 @@ class StorefrontController extends Controller
                 'name' => $p->name,
                 'price' => $convPrice,
                 'image_path' => $p->thumbnail,
+                'default_unit_name' => $defUnit && $defUnit->unit ? $defUnit->unit->unit_name : 'وحدة',
                 'in_stock' => $branchPivot ? $branchPivot->pivot->stock_quantity > 0 : false,
                 'stock_quantity' => $branchPivot ? $branchPivot->pivot->stock_quantity : 0,
                 'category_name' => $p->category ? $p->category->category_name : '',
@@ -180,6 +178,7 @@ class StorefrontController extends Controller
                     'is_primary' => $img->is_primary,
                 ]),
                 'thumbnail'     => $product->thumbnail,
+                'default_unit_name' => $defaultUnit && $defaultUnit->unit ? $defaultUnit->unit->unit_name : 'وحدة',
                 'in_stock'      => $stock > 0,
                 'stock_quantity'=> $stock,
             ],

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CustomerLayout from '@/Layouts/CustomerLayout';
 import { Head, Link } from '@inertiajs/react';
 
@@ -12,11 +12,48 @@ export default function Storefront({ products, categories }) {
     const [quantities, setQuantities] = useState(
         products.reduce((acc, p) => ({ ...acc, [p.id]: 1 }), {})
     );
+    const [cartItems, setCartItems] = useState([]);
     const [toast, setToast] = useState(null);
+
+    // Sync cart from localStorage on mount and when changed
+    const syncCart = () => {
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        setCartItems(cart);
+    };
+
+    useEffect(() => {
+        syncCart();
+        window.addEventListener('cartUpdated', syncCart);
+        return () => window.removeEventListener('cartUpdated', syncCart);
+    }, []);
 
     const showToast = (msg) => {
         setToast(msg);
         setTimeout(() => setToast(null), 3000);
+    };
+
+    const handleManualQuantityChange = (productId, value) => {
+        const product = products.find(p => p.id === productId);
+        const max = product?.stock_quantity || 999;
+        
+        if (value === '') {
+            setQuantities(prev => ({ ...prev, [productId]: '' }));
+            return;
+        }
+
+        let num = parseInt(value);
+        if (!isNaN(num)) {
+            setQuantities(prev => ({
+                ...prev,
+                [productId]: Math.max(1, Math.min(num, max))
+            }));
+        }
+    };
+
+    const handleBlur = (productId) => {
+        if (quantities[productId] === '' || quantities[productId] < 1) {
+            setQuantities(prev => ({ ...prev, [productId]: 1 }));
+        }
     };
 
     const step = (productId, delta) => {
@@ -90,7 +127,7 @@ export default function Storefront({ products, categories }) {
                                 Premium Selection
                             </span>
                             <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight">
-                                منتجات الشركة
+                                مرحباً بك
                             </h1>
                             <p className="text-white/60 text-base md:text-lg max-w-lg leading-relaxed">
                                 نقدم لكم تشكيلة مختارة من أفضل المنتجات العالمية والمحلية بجودة استثنائية وتجربة تسوق عصرية تلبي احتياجاتكم اليومية عبر شركة المخلافي.
@@ -172,15 +209,21 @@ export default function Storefront({ products, categories }) {
                         </div>
                     ) : (
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                            {filtered.map(product => (
-                                <ProductCard
-                                    key={product.id}
-                                    product={product}
-                                    quantity={quantities[product.id] || 1}
-                                    onStep={(delta) => step(product.id, delta)}
-                                    onAddToCart={() => addToCart(product)}
-                                />
-                            ))}
+                             {filtered.map(product => {
+                                 const cartItem = cartItems.find(i => i.product_id === product.id);
+                                 return (
+                                    <ProductCard
+                                        key={product.id}
+                                        product={product}
+                                        quantity={quantities[product.id]}
+                                        inCartQuantity={cartItem ? cartItem.quantity : 0}
+                                        onStep={(delta) => step(product.id, delta)}
+                                        onQuantityChange={(val) => handleManualQuantityChange(product.id, val)}
+                                        onBlur={() => handleBlur(product.id)}
+                                        onAddToCart={() => addToCart(product)}
+                                    />
+                                 );
+                             })}
                         </div>
                     )}
                 </section>
@@ -300,10 +343,17 @@ function CategoryPill({ label, active, onClick }) {
 }
 
 // ─── Product Card ─────────────────────────────────────────────────────────────
-function ProductCard({ product, quantity, onStep, onAddToCart }) {
+function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChange, onBlur, onAddToCart }) {
+    const total = Number(product.price) * (Number(quantity) || 0);
+
     return (
-        <div className="group bg-white rounded-2xl p-4 transition-all duration-300 hover:-translate-y-2 border border-gray-100"
+        <div className="group bg-white rounded-2xl p-4 transition-all duration-300 hover:-translate-y-2 border border-gray-100 relative overflow-hidden"
              style={{boxShadow: '0 12px 32px rgba(26,28,78,0.06)'}}>
+
+            {/* Selection Badge (Blue Circle) - Reflects In-Cart Items */}
+            <div className={`absolute top-4 left-4 z-20 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg shadow-blue-600/30 transition-all duration-300 ${inCartQuantity > 0 ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} title="الكمية في السلة">
+                {inCartQuantity}
+            </div>
 
             {/* Image Area */}
             <Link href={route('customer.storefront.show', product.id)}>
@@ -329,9 +379,9 @@ function ProductCard({ product, quantity, onStep, onAddToCart }) {
                         </span>
                     </div>
 
-                    {/* Out of Stock */}
+                    {/* Out of Stock Overlay */}
                     {!product.in_stock && (
-                        <div className="absolute inset-0 bg-white/75 backdrop-blur-sm flex items-center justify-center">
+                        <div className="absolute inset-0 bg-white/75 backdrop-blur-sm flex items-center justify-center z-10">
                             <span className="bg-gray-700 text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-wider">
                                 نفد المخزون
                             </span>
@@ -343,42 +393,61 @@ function ProductCard({ product, quantity, onStep, onAddToCart }) {
             {/* Info */}
             <div className="space-y-3">
                 <Link href={route('customer.storefront.show', product.id)}>
-                    <h3 className="text-base font-bold text-[#1a1c4e] group-hover:text-[#c00011] transition-colors line-clamp-2 text-right leading-snug">
+                    <h3 className="text-base font-bold text-[#1a1c4e] group-hover:text-[#c00011] transition-colors line-clamp-2 text-right leading-snug h-12">
                         {product.name}
                     </h3>
                 </Link>
 
                 {/* Price + Quantity */}
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center justify-between gap-1">
                     <div className="text-right">
-                        <span className="text-2xl font-black text-[#c00011] leading-none">
-                            {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 0, maximumFractionDigits: 2})}
+                        <span className="text-xl font-black text-[#c00011] leading-none">
+                            {Number(product.price).toLocaleString('ar-SA', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
                         </span>
-                        <span className="text-xs font-bold text-gray-400 mr-1">{product.default_currency_symbol}</span>
+                        <span className="text-[10px] font-bold text-gray-400 mr-1">{product.default_currency_symbol}</span>
+                        <span className="text-[10px] font-bold text-gray-300 mx-1">/</span>
+                        <span className="text-[10px] font-black text-gray-500">{product.default_unit_name}</span>
                     </div>
-
 
                     {/* Qty Stepper */}
                     <div className="flex items-center bg-gray-100 rounded-xl p-1 shrink-0">
                         <button
                             disabled={!product.in_stock}
                             onClick={() => onStep(1)}
-                            className="w-8 h-8 flex items-center justify-center text-[#1a1c4e] hover:bg-white rounded-lg transition-all text-lg font-bold disabled:opacity-30"
+                            className="w-7 h-7 flex items-center justify-center text-[#1a1c4e] hover:bg-white rounded-lg transition-all text-base font-bold disabled:opacity-30"
                         >
                             +
                         </button>
-                        <span className="px-2.5 font-black text-sm text-[#1a1c4e] min-w-6 text-center">
-                            {quantity}
-                        </span>
+                        <input
+                            type="text"
+                            value={quantity}
+                            onChange={(e) => onQuantityChange(e.target.value)}
+                            onBlur={onBlur}
+                            className="w-8 bg-transparent text-center font-black text-xs text-[#1a1c4e] outline-none border-none focus:ring-0 p-0"
+                            disabled={!product.in_stock}
+                        />
                         <button
                             disabled={!product.in_stock || quantity <= 1}
                             onClick={() => onStep(-1)}
-                            className="w-8 h-8 flex items-center justify-center text-[#1a1c4e] hover:bg-white rounded-lg transition-all text-lg font-bold disabled:opacity-30"
+                            className="w-7 h-7 flex items-center justify-center text-[#1a1c4e] hover:bg-white rounded-lg transition-all text-base font-bold disabled:opacity-30"
                         >
                             −
                         </button>
                     </div>
                 </div>
+
+                {/* Reactive Total Display */}
+                {quantity > 1 && (
+                    <div className="bg-blue-50/50 rounded-xl px-4 py-2 flex justify-between items-center animate-in fade-in slide-in-from-top-1 duration-300">
+                        <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">إجمالي الحبات</span>
+                        <div className="text-right">
+                            <span className="text-sm font-black text-blue-600">
+                                {total.toLocaleString('ar-SA', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </span>
+                            <span className="text-[10px] font-bold text-blue-300 mr-1">{product.default_currency_symbol}</span>
+                        </div>
+                    </div>
+                )}
 
                 {/* Add to Cart Button */}
                 <button
@@ -395,3 +464,4 @@ function ProductCard({ product, quantity, onStep, onAddToCart }) {
         </div>
     );
 }
+

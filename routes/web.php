@@ -7,6 +7,7 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CurrenciesController;
+use App\Http\Controllers\CustomersController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -63,6 +64,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/currencies/{currency}', [CurrenciesController::class, 'update'])->name('currencies.update');
         Route::patch('/currencies/{currency}/rate', [CurrenciesController::class, 'updateRate'])->name('currencies.updateRate');
         Route::delete('/currencies/{currency}', [CurrenciesController::class, 'destroy'])->name('currencies.destroy');
+
+        // Customers
+        Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{customer}', [CustomersController::class, 'show'])->name('customers.show');
     });
 
     // Customer App Routes (Available to all authenticated users)

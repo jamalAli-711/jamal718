@@ -20,7 +20,7 @@ class OrdersController extends Controller
 {
     public function index()
     {
-        $orders = OrderQueue::with(['customer', 'orderItems.product', 'orderItems.productUnit.unit', 'branch'])
+        $orders = OrderQueue::with(['customer', 'orderItems.product', 'orderItems.productUnit.unit', 'orderItems.currency', 'branch', 'currency'])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 

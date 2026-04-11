@@ -6,7 +6,7 @@ import BranchesMap from '@/Components/BranchesMap';
 import { useToast } from '@/Components/Toast';
 import { formatCurrency, formatDate, USER_TYPES } from '@/constants';
 
-export default function Dashboard({ auth, stats, ordersCount, productsCount, customersCount, recentOrders, branches }) {
+export default function Dashboard({ auth, stats, ordersCount, productsCount, customersCount, recentOrders, branches, customers }) {
     const toast = useToast();
     const { flash } = usePage().props;
 
@@ -62,17 +62,25 @@ export default function Dashboard({ auth, stats, ordersCount, productsCount, cus
             </div>
 
 
-            {/* Branches Map */}
+            {/* Interactive Intelligence Map */}
             <div className="card-editorial mb-8 overflow-hidden rounded-[2.5rem] border-2 border-slate-50 shadow-2xl">
-                <div className="bg-white px-8 py-5 border-b-2 border-slate-50 flex items-center justify-between">
+                <div className="bg-white px-8 py-5 border-b-2 border-slate-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <h3 className="text-lg font-black text-slate-900 flex items-center gap-3">
-                        <div className="w-1.5 h-6 bg-blue-600 rounded-full"></div>
-                        خارطة التواجد الميداني - مواقع الفروع
+                        <div className="w-1.5 h-6 bg-blue-600 rounded-full animate-pulse"></div>
+                        خارطة التوزيع الميداني - الذكاء اللوجستي
                     </h3>
-                    <Link href={route('branches.index')} className="text-sm font-black text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl transition-all uppercase tracking-widest">إدارة الفروع ←</Link>
+                    <div className="flex items-center gap-4">
+                        <Link href={route('branches.index')} className="text-[10px] font-black text-slate-400 hover:text-blue-600 transition-colors uppercase tracking-[0.2em]">إدارة الفروع</Link>
+                        <Link href={route('customers.index')} className="text-[10px] font-black text-slate-400 hover:text-emerald-600 transition-colors uppercase tracking-[0.2em]">إدارة العملاء</Link>
+                    </div>
                 </div>
-                <div className="p-4 bg-white">
-                    <BranchesMap branches={branches} height="420px" />
+                <div className="p-4 bg-white relative">
+                    <BranchesMap 
+                        branches={branches} 
+                        customers={customers} 
+                        stats={stats}
+                        height="520px" 
+                    />
                 </div>
             </div>
 
