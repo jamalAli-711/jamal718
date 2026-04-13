@@ -27,8 +27,8 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                     <div className="stat-card border-r-4 border-blue-600 relative overflow-hidden">
                          <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">إجمالي المبيعات</p>
-                                <h3 className="text-3xl font-black text-slate-900">{stats.total_sales}</h3>
+                                <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-1">إجمالي المبيعات</p>
+                                <h3 className="text-3xl font-black text-on-surface">{stats.total_sales}</h3>
                             </div>
                             <div className="p-3 bg-blue-50 rounded-2xl text-blue-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,42 +37,42 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                             </div>
                          </div>
                          <div className="mt-4 flex items-center gap-1">
-                            <span className="text-[10px] font-black uppercase bg-blue-50 text-blue-600 px-2 py-0.5 rounded-md">{stats.currency_symbol}</span>
-                            <span className="text-[10px] font-bold text-gray-400">القيمة بالعملة الافتراضية</span>
+                            <span className="text-[10px] font-black uppercase bg-blue-50/10 text-secondary px-2 py-0.5 rounded-md">{stats.currency_symbol}</span>
+                            <span className="text-[10px] font-bold text-on-surface-variant">القيمة بالعملة الافتراضية</span>
                          </div>
                     </div>
 
                     <div className="stat-card border-r-4 border-emerald-500">
-                        <div className="flex justify-between items-start">
+                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">عدد الطلبات</p>
-                                <h3 className="text-3xl font-black text-slate-900">{stats.total_orders}</h3>
+                                <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-1">عدد الطلبات</p>
+                                <h3 className="text-3xl font-black text-on-surface">{stats.total_orders}</h3>
                             </div>
-                            <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">
+                            <div className="p-3 bg-emerald-500/10 rounded-2xl text-emerald-500">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                 </svg>
                             </div>
                         </div>
                         <div className="mt-4 flex items-center gap-1">
-                            <span className="text-[10px] font-bold text-gray-400">إجمالي الحركات المفعلة</span>
+                            <span className="text-[10px] font-bold text-on-surface-variant">إجمالي الحركات المفعلة</span>
                         </div>
                     </div>
 
                     <div className="stat-card border-r-4 border-slate-800">
                         <div className="flex justify-between items-start">
                             <div>
-                                <p className="text-gray-400 text-xs font-black uppercase tracking-widest mb-1">إجمالي العملاء</p>
-                                <h3 className="text-3xl font-black text-slate-900">{stats.total_customers}</h3>
+                                <p className="text-on-surface-variant text-xs font-black uppercase tracking-widest mb-1">إجمالي العملاء</p>
+                                <h3 className="text-3xl font-black text-on-surface">{stats.total_customers}</h3>
                             </div>
-                            <div className="p-3 bg-slate-100 rounded-2xl text-slate-800">
+                            <div className="p-3 bg-on-surface/5 rounded-2xl text-on-surface">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
                         </div>
                         <div className="mt-4 flex items-center gap-1">
-                            <span className="text-[10px] font-bold text-gray-400">جميع الفئات المسجلة</span>
+                            <span className="text-[10px] font-bold text-on-surface-variant">جميع الفئات المسجلة</span>
                         </div>
                     </div>
                 </div>
@@ -86,7 +86,7 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                                 <input 
                                     type="text" 
                                     placeholder="بحث عن عميل بالاسم أو الهاتف..." 
-                                    className="w-full bg-gray-50 border-none rounded-2xl py-3.5 pr-12 pl-4 text-sm focus:ring-2 focus:ring-blue-500/10 transition-all font-bold text-slate-700"
+                                    className="w-full bg-surface-lowest border-2 border-outline-variant rounded-2xl py-3.5 pr-12 pl-4 text-sm focus:ring-4 focus:ring-secondary/5 focus:border-secondary transition-all font-bold text-on-surface placeholder:text-on-surface-variant/30"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -99,7 +99,7 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                             
                             <div className="relative">
                                 <select 
-                                    className="bg-gray-50 border-none rounded-2xl py-3.5 pr-12 pl-6 text-sm focus:ring-2 focus:ring-blue-500/10 transition-all font-black text-slate-800 appearance-none min-w-[180px]"
+                                    className="bg-surface-lowest border-2 border-outline-variant rounded-2xl py-3.5 pr-12 pl-6 text-sm focus:ring-4 focus:ring-secondary/5 focus:border-secondary transition-all font-black text-on-surface appearance-none min-w-[180px]"
                                     value={filters.branch_id || ''}
                                     onChange={handleBranchChange}
                                 >
@@ -108,7 +108,7 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                                         <option key={b.id} value={b.id}>{b.branch_name}</option>
                                     ))}
                                 </select>
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-600 pointer-events-none">
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                                     </svg>
@@ -134,12 +134,12 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                                     <tr key={customer.id} className="group">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 text-lg font-black shadow-sm group-hover:scale-105 transition-transform">
+                                                <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary text-lg font-black shadow-sm group-hover:scale-105 transition-transform">
                                                     {customer.name.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-slate-900 leading-tight mb-1">{customer.name}</span>
-                                                    <span className="text-[11px] font-bold text-gray-400 tracking-wider flex items-center gap-1">
+                                                    <span className="text-sm font-black text-on-surface leading-tight mb-1">{customer.name}</span>
+                                                    <span className="text-[11px] font-bold text-on-surface-variant tracking-wider flex items-center gap-1">
                                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                                         </svg>
@@ -149,12 +149,12 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-center">
-                                            <span className="badge-editorial bg-slate-100 text-slate-600 font-black">
+                                            <span className="badge-editorial bg-on-surface/5 text-on-surface font-black">
                                                 {customer.user_type_label}
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-center">
-                                            <span className="text-xs font-bold text-gray-500">
+                                            <span className="text-xs font-bold text-on-surface-variant">
                                                 {customer.branch?.branch_name || 'غير محدد'}
                                             </span>
                                         </td>
@@ -165,14 +165,14 @@ export default function Index({ auth, customers, stats, branches, filters }) {
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-baseline justify-end gap-1.5">
-                                                <span className="text-base font-black text-slate-900">{parseFloat(customer.total_spent).toLocaleString()}</span>
-                                                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{stats.currency_symbol}</span>
+                                                <span className="text-base font-black text-on-surface">{parseFloat(customer.total_spent).toLocaleString()}</span>
+                                                <span className="text-[10px] font-bold text-secondary uppercase tracking-widest">{stats.currency_symbol}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-left">
                                             <Link 
                                                 href={route('customers.show', customer.id)}
-                                                className="p-2 rounded-xl text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm flex items-center justify-center animate-slide-in"
+                                                className="p-2 rounded-xl text-on-surface-variant hover:bg-secondary hover:text-white transition-all shadow-sm flex items-center justify-center animate-slide-in"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

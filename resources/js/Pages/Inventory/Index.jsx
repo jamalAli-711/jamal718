@@ -267,31 +267,29 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
             {/* Premium Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="relative overflow-hidden bg-white p-6 rounded-3xl border-2 border-slate-100 shadow-sm hover:border-slate-200 transition-all group">
-                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-50/50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="relative overflow-hidden bg-surface p-6 rounded-3xl border-2 border-outline-variant shadow-sm hover:border-secondary/50 transition-all group">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-secondary/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
                     <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                        <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center text-white shadow-lg">
                             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                         </div>
                         <div>
-                            <p className="text-sm font-black text-slate-400 uppercase tracking-widest leading-none mb-2">إجمالي الأصناف</p>
-                            <h3 className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{stats.total_products} <span className="text-base font-black text-slate-300">صنف</span></h3>
+                            <p className="text-sm font-black text-on-surface-variant uppercase tracking-widest leading-none mb-2">إجمالي الأصناف</p>
+                            <h3 className="text-4xl font-black text-on-surface tracking-tighter leading-none">{stats.total_products} <span className="text-base font-black text-on-surface-variant/40">صنف</span></h3>
                         </div>
-
                     </div>
                 </div>
 
-                <div className="relative overflow-hidden bg-white p-6 rounded-3xl border-2 border-rose-50 shadow-sm hover:border-rose-100 transition-all group">
-                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-rose-50/30 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
+                <div className="relative overflow-hidden bg-surface p-6 rounded-3xl border-2 border-primary/20 shadow-sm hover:border-primary/50 transition-all group">
+                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
                     <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-14 h-14 bg-rose-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                        <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg">
                             <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                         </div>
                         <div>
-                            <p className="text-sm font-black text-rose-400 uppercase tracking-widest leading-none mb-2">تنبيهات الانخفاض</p>
-                            <h3 className="text-4xl font-black text-rose-600 tracking-tighter leading-none">{stats.low_stock} <span className="text-base font-black text-rose-300">تنبيه</span></h3>
+                            <p className="text-sm font-black text-primary/60 uppercase tracking-widest leading-none mb-2">تنبيهات الانخفاض</p>
+                            <h3 className="text-4xl font-black text-primary tracking-tighter leading-none">{stats.low_stock} <span className="text-base font-black text-primary/40">تنبيه</span></h3>
                         </div>
-
                     </div>
                 </div>
 
@@ -313,15 +311,15 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
 
             {/* Inventory Table Container */}
-            <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b-2 border-slate-100 bg-slate-50/50 flex flex-wrap gap-4 items-center justify-between">
+            <div className="bg-surface rounded-[2rem] border-2 border-outline-variant shadow-sm overflow-hidden">
+                <div className="p-6 border-b-2 border-outline-variant bg-surface-lowest/50 flex flex-wrap gap-4 items-center justify-between">
                     <div className="flex items-center gap-3 flex-1 min-w-[280px]">
                         <div className="relative flex-1 group">
-                            <svg className="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#e31e24] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            <input type="text" placeholder="البحث باسم المنتج أو الكود SKU..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full border-2 border-slate-200 rounded-2xl text-lg py-4 pr-12 pl-4 focus:border-[#e31e24] focus:ring-4 focus:ring-red-50 transition-all placeholder:text-slate-300 font-extrabold shadow-sm" />
+                            <svg className="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                            <input type="text" placeholder="البحث باسم المنتج أو الكود SKU..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-lg py-4 pr-12 pl-4 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-on-surface-variant/30 font-extrabold shadow-sm text-on-surface" />
                         </div>
                         <div className="relative min-w-[240px]">
-                            <select className="w-full border-2 border-slate-200 rounded-2xl text-lg py-4 pr-4 pl-10 appearance-none focus:border-[#e31e24] transition-all bg-white font-extrabold text-slate-700 shadow-sm cursor-pointer" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                            <select className="w-full border-2 border-outline-variant rounded-2xl text-lg py-4 pr-4 pl-10 appearance-none focus:border-primary transition-all bg-surface-lowest font-extrabold text-on-surface shadow-sm cursor-pointer" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
                                 <option value="">جميع الأقسام</option>
                                 {categories.map(c => <option key={c.id} value={c.id}>{c.category_name}</option>)}
                             </select>
@@ -336,15 +334,15 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
                 </div>
                     <table className="min-w-full border-collapse">
-                        <thead className="bg-slate-100 border-b-2 border-slate-200">
+                        <thead className="bg-surface-lowest border-b-2 border-outline-variant">
                             <tr className="text-right">
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest text-center border-l border-slate-200/50">صورة</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest border-l border-slate-200/50">رمز SKU</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest border-l border-slate-200/50 text-right">المنتج والتفاصيل</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest border-l border-slate-200/50 text-center">المخزون المتوفر</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest border-l border-slate-200/50 text-right">التسعير والوحدات</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest text-center border-l border-slate-200/50 w-32">الحالة</th>
-                                <th className="px-8 py-6 text-base font-black text-slate-800 uppercase tracking-widest text-center">الإدارة</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center border-l border-outline-variant/50">صورة</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50">رمز SKU</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-right">المنتج والتفاصيل</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-center">المخزون المتوفر</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-right">التسعير والوحدات</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center border-l border-outline-variant/50 w-32">الحالة</th>
+                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center">الإدارة</th>
                             </tr>
                         </thead>
 
@@ -355,20 +353,20 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                 return (
                                     <tr key={product.id} className="group hover:bg-slate-50 transition-all duration-300 border-b border-slate-100 last:border-0">
 
-                                        <td className="px-8 py-6 border-l border-slate-50 text-center">
-                                            <div className="w-16 h-16 rounded-2xl bg-white p-2 shadow-sm border-2 border-slate-100 group-hover:border-slate-300 transition-all duration-500 overflow-hidden relative mx-auto">
+                                        <td className="px-8 py-6 border-l border-outline-variant/30 text-center">
+                                            <div className="w-16 h-16 rounded-2xl bg-surface-lowest p-2 shadow-sm border-2 border-outline-variant group-hover:border-secondary transition-all duration-500 overflow-hidden relative mx-auto">
                                                 {product.thumbnail ? (
                                                     <img src={product.thumbnail} alt={product.name} className="w-full h-full object-contain" />
                                                 ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-200">
+                                                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/20">
                                                         <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                                     </div>
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 border-l border-slate-50">
-                                            <span className="text-sm font-black text-slate-400 uppercase tracking-widest block mb-1.5">رمز الصنف</span>
-                                            <span className="font-mono text-lg font-black text-slate-900 bg-slate-100 px-4 py-2 rounded-xl border-2 border-slate-200">{product.sku}</span>
+                                        <td className="px-8 py-6 border-l border-outline-variant/30">
+                                            <span className="text-sm font-black text-on-surface-variant/40 uppercase tracking-widest block mb-1.5 text-xs">رمز الصنف</span>
+                                            <span className="font-mono text-lg font-black text-on-surface bg-surface-lowest px-4 py-2 rounded-xl border-2 border-outline-variant group-hover:border-primary/30 transition-colors uppercase">{product.sku}</span>
                                         </td>
 
                                         <td className="px-8 py-6 border-l border-slate-50">
@@ -420,11 +418,11 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                                         return (
                                                             <div className="flex flex-col mb-3 last:mb-0">
                                                                 <div className="flex justify-between gap-10 whitespace-nowrap items-baseline">
-                                                                    <span className="text-sm font-black text-slate-500 uppercase tracking-widest">{label}</span>
+                                                                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">{label}</span>
                                                                     <span className={`font-black text-lg ${colorClass}`}>{Number(value).toLocaleString()} <span className="opacity-50 text-xs">{unitCurrency?.currency_code_ar}</span></span>
                                                                 </div>
                                                                 {converted && (
-                                                                    <div className="text-sm font-black text-blue-600 font-mono text-left -mt-0.5 opacity-90">
+                                                                    <div className="text-[10px] font-black text-secondary font-mono text-left -mt-1 opacity-70">
                                                                         ≈ {converted} {default_currency?.currency_code_ar}
                                                                     </div>
                                                                 )}
@@ -433,9 +431,9 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                                     };
 
                                                     return (
-                                                        <div className="min-w-[200px] bg-slate-50 p-4 rounded-3xl border-2 border-slate-200 group-hover:border-slate-300 transition-colors">
-                                                            <PriceRow label="سعر التجزئة" value={defUnit.retail_price} colorClass="text-slate-900" />
-                                                            <PriceRow label="سعر الجملة" value={defUnit.wholesale_price} colorClass="text-emerald-700" />
+                                                        <div className="min-w-[200px] bg-surface-lowest p-4 rounded-3xl border-2 border-outline-variant group-hover:border-secondary/20 transition-colors">
+                                                            <PriceRow label="سعر التجزئة" value={defUnit.retail_price} colorClass="text-on-surface" />
+                                                            <PriceRow label="سعر الجملة" value={defUnit.wholesale_price} colorClass="text-secondary" />
                                                         </div>
                                                     );
 

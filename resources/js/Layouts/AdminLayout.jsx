@@ -58,8 +58,8 @@ export default function AdminLayout({ user, header, children }) {
                 <Link href={route('dashboard')} className="flex items-center gap-3 decoration-none group w-full">
                     <ApplicationLogo className="w-10 h-10 object-contain shadow-lg group-hover:scale-105 transition-transform" />
                     <div className="flex flex-col leading-tight">
-                        <span className="text-lg font-black text-white tracking-tighter">المخلافي</span>
-                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em]">Al-Mekhlafi</span>
+                        <span className="text-lg font-black text-on-primary tracking-tighter">المخلافي</span>
+                        <span className="text-[10px] font-bold text-on-primary/40 uppercase tracking-[0.2em]">Al-Mekhlafi</span>
                     </div>
                 </Link>
             </div>
@@ -87,16 +87,16 @@ export default function AdminLayout({ user, header, children }) {
             </nav>
 
             {/* User Account (bottom) */}
-            <div className="border-t border-white/10 p-3 mt-auto">
+            <div className="border-t border-outline-variant p-3 mt-auto">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                         {user?.name?.charAt(0) || 'U'}
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-white truncate">{user?.name || 'مدير النظام'}</p>
-                        <p className="text-xs text-slate-400 truncate">{user?.email || ''}</p>
+                        <p className="text-xs text-on-surface-variant truncate">{user?.email || ''}</p>
                     </div>
-                    <Link href={route('logout')} method="post" as="button" className="text-slate-400 hover:text-white transition-colors p-1" title="تسجيل الخروج">
+                    <Link href={route('logout')} method="post" as="button" className="text-on-surface-variant hover:text-white transition-colors p-1" title="تسجيل الخروج">
                         <IconLogout />
                     </Link>
                 </div>
@@ -105,7 +105,7 @@ export default function AdminLayout({ user, header, children }) {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50" dir="rtl">
+        <div className="min-h-screen bg-surface" dir="rtl">
             {/* Desktop Sidebar */}
             <div className="sidebar hidden md:flex">
                 <SidebarContent />
@@ -124,19 +124,19 @@ export default function AdminLayout({ user, header, children }) {
             {/* Main Content */}
             <div className="md:mr-64 min-h-screen flex flex-col">
                 {/* Top Bar */}
-                <header className="glass-nav h-16 flex items-center justify-between px-4 lg:px-8 border-b border-gray-100">
+                <header className="glass-nav h-16 flex items-center justify-between px-4 lg:px-8 border-b border-outline-variant">
                     <div className="flex items-center gap-4">
-                        <button className="md:hidden text-gray-500 hover:text-gray-700" onClick={() => setSidebarOpen(true)}>
+                        <button className="md:hidden text-on-surface-variant hover:text-on-surface" onClick={() => setSidebarOpen(true)}>
                             <IconMenu />
                         </button>
-                        {header && <h1 className="text-lg font-black text-[#031633] tracking-tight">{header}</h1>}
+                        {header && <h1 className="text-lg font-black text-on-surface tracking-tight">{header}</h1>}
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex flex-col text-left items-end">
-                            <span className="text-sm font-bold text-[#031633]">{user?.name}</span>
-                            <span className="text-[10px] font-bold text-[#0058be] bg-blue-50 px-2 py-0.5 rounded-full">{USER_TYPES[user?.user_type]?.label || user?.user_type}</span>
+                            <span className="text-sm font-bold text-on-surface">{user?.name}</span>
+                            <span className="text-[10px] font-bold text-secondary bg-secondary-container/10 px-2 py-0.5 rounded-full">{USER_TYPES[user?.user_type]?.label || user?.user_type}</span>
                         </div>
-                        <div className="w-10 h-10 rounded-full bg-gray-100 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-[#031633] font-bold">
+                        <div className="w-10 h-10 rounded-full bg-surface-low border-2 border-outline-variant shadow-sm overflow-hidden flex items-center justify-center text-on-surface font-bold">
                             {user?.name?.charAt(0)}
                         </div>
                     </div>

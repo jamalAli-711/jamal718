@@ -19,7 +19,11 @@ class Branch extends Model
         'branch_lat',
         'branch_lon',
         'currency_id',
+        'boundary_coordinates',
+    ];
 
+    protected $casts = [
+        'boundary_coordinates' => 'array',
     ];
 
     public function users()

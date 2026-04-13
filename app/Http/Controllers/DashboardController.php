@@ -20,7 +20,15 @@ class DashboardController extends Controller
         $currencySymbol = $defaultCurrency ? $defaultCurrency->currency_code_ar : 'ر.ي';
 
         $stats = [
-            'totalSales' => number_format(OrderQueue::where('order_status', OrderStatus::Delivered)->sum('final_amount'), 2),
+            'sales_yer' => number_format(OrderQueue::where('order_status', OrderStatus::Delivered)
+                ->whereHas('currency', fn($q) => $q->where('currency_code_en', 'YER'))
+                ->sum('total_price'), 2),
+            'sales_sar' => number_format(OrderQueue::where('order_status', OrderStatus::Delivered)
+                ->whereHas('currency', fn($q) => $q->where('currency_code_en', 'SAR'))
+                ->sum('total_price'), 2),
+            'sales_usd' => number_format(OrderQueue::where('order_status', OrderStatus::Delivered)
+                ->whereHas('currency', fn($q) => $q->where('currency_code_en', 'USD'))
+                ->sum('total_price'), 2),
             'currency_symbol' => $currencySymbol
         ];
 
@@ -45,12 +53,14 @@ class DashboardController extends Controller
                 'total_sales' => number_format($branch->orders()->where('order_status', OrderStatus::Delivered)->sum('final_amount'), 2),
                 'location_city' => $branch->location_city,
                 'manager_name' => $branch->manager_name,
+                'boundary_coordinates' => $branch->boundary_coordinates,
             ];
         });
 
         // Customers with latest locations and stats for the map
         $customers = User::whereIn('user_type', [UserType::Wholesaler, UserType::Retailer, UserType::Customer])
             ->with(['locations' => fn($q) => $q->latest()])
+            ->withMax('orders', 'created_at')
             ->get()
             ->map(function($user) {
                 $loc = $user->locations->first();
@@ -64,6 +74,7 @@ class DashboardController extends Controller
                     'total_spent' => number_format($user->orders()->sum('final_amount'), 2),
                     'lat' => $loc?->latitude,
                     'lng' => $loc?->longitude,
+                    'last_order_at' => $user->orders_max_created_at,
                 ];
             })
             ->filter(fn($c) => $c['lat'] && $c['lng'])

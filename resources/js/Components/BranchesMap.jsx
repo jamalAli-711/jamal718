@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useMemo } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Autocomplete, OverlayView } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Autocomplete, OverlayView, Polygon } from '@react-google-maps/api';
 import { Link } from '@inertiajs/react';
 
 const YEMEN_CENTER = { lat: 15.3694, lng: 44.1910 };
@@ -17,6 +17,9 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
     const [viewMode, setViewMode] = useState('all'); // 'branches', 'customers', 'all'
     const [filterBranchId, setFilterBranchId] = useState('all');
     const [showPoi, setShowPoi] = useState(false);
+    const [selectedBoundary, setSelectedBoundary] = useState(null);
+    const [inactivityDays, setInactivityDays] = useState(30);
+    const [isTrackingInactivity, setIsTrackingInactivity] = useState(false);
     
     const mapRef = useRef(null);
     const autocompleteRef = useRef(null);
@@ -84,25 +87,44 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
     };
 
     // Custom Icons
-    const branchIcon = useMemo(() => ({
-        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-        fillColor: "#0058be",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "#ffffff",
-        scale: 2,
-        anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 22) : null,
-    }), []);
+    const branchIcon = useMemo(() => {
+        if (!isLoaded || !window.google) return null;
+        return {
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#0058be",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#ffffff",
+            scale: 2,
+            anchor: new window.google.maps.Point(12, 22),
+        };
+    }, [isLoaded]);
 
-    const customerIcon = useMemo(() => ({
-        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
-        fillColor: "#e31e24", // Royal Red
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "#ffffff",
-        scale: 1.5,
-        anchor: (window.google && window.google.maps) ? new window.google.maps.Point(12, 22) : null,
-    }), []);
+    const customerIcon = useMemo(() => {
+        if (!isLoaded || !window.google) return null;
+        return {
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#e31e24", // Royal Red
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#ffffff",
+            scale: 1.5,
+            anchor: new window.google.maps.Point(12, 22),
+        };
+    }, [isLoaded]);
+
+    const inactiveCustomerIcon = useMemo(() => {
+        if (!isLoaded || !window.google) return null;
+        return {
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#eab308", // Golden Yellow
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "#ffffff",
+            scale: 1.7, // Slightly larger to highlight
+            anchor: new window.google.maps.Point(12, 22),
+        };
+    }, [isLoaded]);
 
     if (!isLoaded) return <div style={{ height }} className="rounded-[2rem] bg-slate-50 animate-pulse border-2 border-slate-100" />;
 
@@ -133,6 +155,23 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
                         {showPoi ? 'إخفاء المعالم' : 'إظهار المحلات'}
                     </button>
                 </div>
+
+                <div className="bg-white/90 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-white/20 flex items-center pointer-events-auto transition-all hover:scale-[1.02]">
+                    <span className="px-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">تحليل الخمول:</span>
+                    <input 
+                        type="number" 
+                        value={inactivityDays} 
+                        onChange={(e) => setInactivityDays(parseInt(e.target.value) || 0)}
+                        className="w-16 bg-transparent border-none text-[11px] font-black text-slate-900 focus:ring-0 p-1"
+                    />
+                    <span className="text-[9px] font-bold text-slate-400 ml-2">يوم</span>
+                    <button 
+                        onClick={() => setIsTrackingInactivity(!isTrackingInactivity)} 
+                        className={`ml-2 px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isTrackingInactivity ? 'bg-yellow-500 text-white shadow-lg' : 'bg-gray-100 text-slate-500'}`}
+                    >
+                        {isTrackingInactivity ? 'إيقاف التتبع' : 'تتبع الخمول'}
+                    </button>
+                </div>
             </div>
 
             <GoogleMap
@@ -140,6 +179,11 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
                 center={YEMEN_CENTER}
                 zoom={6}
                 onLoad={onLoad}
+                onClick={() => {
+                    setHoveredMarker(null);
+                    setSelectedMarker(null);
+                    setSelectedBoundary(null);
+                }}
                 options={{
                     streetViewControl: false, mapTypeControl: false, fullscreenControl: true, zoomControl: true,
                     styles: [
@@ -167,35 +211,56 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
                         key={`branch-${branch.id}`}
                         position={{ lat: parseFloat(branch.branch_lat), lng: parseFloat(branch.branch_lon) }}
                         icon={branchIcon}
+                        optimized={false}
                         onMouseOver={() => handleMouseOver(branch, 'branch')}
                         onMouseOut={handleMouseOut}
-                        onClick={() => setSelectedMarker({ id: branch.id, type: 'branch', data: branch })}
+                        onClick={() => {
+                            setSelectedMarker({ id: branch.id, type: 'branch', data: branch });
+                            setSelectedBoundary(branch.boundary_coordinates);
+                        }}
                     />
                 ))}
 
                 {/* Customer Markers with Luxury Pulse */}
-                {filteredCustomers.map((customer) => (
-                    <React.Fragment key={`cust-group-${customer.id}`}>
-                        {/* Pulse Effect */}
-                        <OverlayView
-                            position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
-                            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-                        >
-                            <div className="relative flex items-center justify-center -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                                <div className="absolute w-6 h-6 bg-red-500/30 rounded-full animate-luxury-pulse pointer-events-none" />
-                                <div className="absolute w-12 h-12 bg-red-400/20 rounded-full animate-luxury-pulse delay-700 pointer-events-none" />
-                            </div>
-                        </OverlayView>
-                        
-                        <Marker
-                            position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
-                            icon={customerIcon}
-                            onMouseOver={() => handleMouseOver(customer, 'customer')}
-                            onMouseOut={handleMouseOut}
-                            onClick={() => setSelectedMarker({ id: customer.id, type: 'customer', data: customer })}
-                        />
-                    </React.Fragment>
-                ))}
+                {filteredCustomers.map((customer) => {
+                    const lastOrderDate = customer.last_order_at ? new Date(customer.last_order_at) : null;
+                    const diffDays = lastOrderDate ? Math.floor((new Date() - lastOrderDate) / (1000 * 60 * 60 * 24)) : 999;
+                    const isInactive = isTrackingInactivity && diffDays >= inactivityDays;
+
+                    return (
+                        <React.Fragment key={`cust-group-${customer.id}`}>
+                            {/* Pulse Effect */}
+                            <OverlayView
+                                position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
+                                mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+                            >
+                                <div className="relative flex items-center justify-center pointer-events-none">
+                                    {/* Pulse Effect */}
+                                    <div className={`absolute w-6 h-6 ${isInactive ? 'bg-yellow-500/50' : 'bg-red-500/30'} rounded-full animate-luxury-pulse pointer-events-none -translate-x-1/2 -translate-y-1/2`} />
+                                    <div className={`absolute w-12 h-12 ${isInactive ? 'bg-yellow-400/30' : 'bg-red-400/20'} rounded-full animate-luxury-pulse delay-700 pointer-events-none -translate-x-1/2 -translate-y-1/2`} />
+                                    
+                                    {/* Shop Name Label */}
+                                    <div className="absolute bottom-[42px] whitespace-nowrap px-2 py-0.5 bg-white/95 backdrop-blur-md rounded-md border border-slate-200 shadow-xl pointer-events-none -translate-x-1/2 select-none z-50">
+                                        <span className="text-[9px] font-black text-slate-800 uppercase tracking-tight">{customer.name}</span>
+                                    </div>
+                                </div>
+                            </OverlayView>
+                            
+                            <Marker
+                                position={{ lat: parseFloat(customer.lat), lng: parseFloat(customer.lng) }}
+                                icon={isInactive ? inactiveCustomerIcon : customerIcon}
+                                optimized={false}
+                                onMouseOver={() => handleMouseOver(customer, 'customer')}
+                                onMouseOut={handleMouseOut}
+                                onClick={() => {
+                                    setSelectedMarker({ id: customer.id, type: 'customer', data: customer });
+                                    setSelectedBoundary(null);
+                                }}
+                                zIndex={isInactive ? 100 : 10}
+                            />
+                        </React.Fragment>
+                    );
+                })}
 
                 {activeMarker && (
                     <InfoWindow 
@@ -204,11 +269,12 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
                             : { lat: parseFloat(activeMarker.data.lat), lng: parseFloat(activeMarker.data.lng) }
                         }
                         options={{
-                            pixelOffset: new window.google.maps.Size(0, -35)
+                            pixelOffset: (isLoaded && window.google) ? new window.google.maps.Size(0, -35) : null
                         }}
                         onCloseClick={() => {
                             setHoveredMarker(null);
                             setSelectedMarker(null);
+                            setSelectedBoundary(null);
                         }}
                     >
                         <div className="w-64 p-0 bg-white" dir="rtl">
@@ -238,6 +304,19 @@ export default function BranchesMap({ branches = [], customers = [], stats = {},
                             </div>
                         </div>
                     </InfoWindow>
+                )}
+                {selectedBoundary && (
+                    <Polygon
+                        paths={selectedBoundary}
+                        options={{
+                            strokeColor: "#e31e24",
+                            strokeOpacity: 0.8,
+                            strokeWeight: 4,
+                            fillColor: "#e31e24",
+                            fillOpacity: 0.1,
+                            geodesic: true,
+                        }}
+                    />
                 )}
             </GoogleMap>
 

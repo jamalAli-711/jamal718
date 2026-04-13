@@ -29,13 +29,56 @@
     --shadow-ambient: 0 12px 32px rgba(25, 28, 30, 0.06);
 }
 
+.dark {
+    --primary: #0a1a33;
+    --primary-container: #1e293b;
+    --on-primary: #f8fafc;
+    
+    --secondary: #3b82f6;
+    --secondary-container: #1d4ed8;
+    --on-secondary: #ffffff;
+
+    --surface: #020617;
+    --surface-low: #0f172a;
+    --surface-lowest: #1e293b;
+    --on-surface: #f1f5f9;
+    --on-surface-variant: #94a3b8;
+    
+    --outline-variant: rgba(148, 163, 184, 0.1);
+    --shadow-ambient: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
 @keyframes slide-in {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+}
+
 .animate-slide-in {
     animation: slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.shimmer {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.05) 50%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
+    animation: shimmer 2s infinite linear;
+}
+
+.dark .shimmer {
+    background: linear-gradient(90deg, 
+        rgba(255, 255, 255, 0) 0%, 
+        rgba(255, 255, 255, 0.03) 50%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
 }
 
 @layer base {
@@ -62,7 +105,8 @@
     /* Editorial Artisan Navigation (Glassmorphism) */
     .glass-nav {
         @apply sticky top-0 z-50;
-        background: rgba(248, 249, 251, 0.82);
+        background: var(--surface);
+        background: color-mix(in srgb, var(--surface) 82%, transparent);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         border-bottom: 1px solid var(--outline-variant);
@@ -93,13 +137,13 @@
         @apply w-full text-sm text-right border-separate border-spacing-0;
     }
     .data-table thead th {
-        @apply px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest bg-transparent border-b border-gray-100;
+        @apply px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest bg-transparent border-b border-outline-variant;
     }
     .data-table tbody td {
-        @apply px-6 py-5 border-b border-gray-50/50 text-gray-700 transition-colors;
+        @apply px-6 py-5 border-b border-outline-variant text-on-surface transition-colors;
     }
     .data-table tbody tr:hover td {
-        @apply bg-gray-50/50;
+        @apply bg-surface-low;
     }
     .data-table tbody tr:last-child td {
         @apply border-b-0;
@@ -107,7 +151,7 @@
 
     /* Editorial Artisan Statistics */
     .stat-card {
-        @apply bg-white p-6 transition-all duration-300 flex flex-col gap-1;
+        @apply bg-surface-lowest p-6 transition-all duration-300 flex flex-col gap-1 text-on-surface;
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-ambient);
     }
@@ -127,7 +171,7 @@
         box-shadow: 0 8px 20px rgba(0, 88, 190, 0.3);
     }
     .btn-secondary {
-        @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-gray-700 text-sm font-bold border transition-all duration-200 active:scale-95;
+        @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-surface text-on-surface text-sm font-bold border transition-all duration-200 active:scale-95;
         border-color: var(--outline-variant);
         border-radius: var(--radius-md);
     }
@@ -137,7 +181,7 @@
 
     /* High-End Components */
     .card-editorial {
-        @apply bg-white overflow-hidden transition-all duration-300;
+        @apply bg-surface-lowest overflow-hidden transition-all duration-300 text-on-surface;
         border-radius: var(--radius-xl);
         box-shadow: var(--shadow-ambient);
     }

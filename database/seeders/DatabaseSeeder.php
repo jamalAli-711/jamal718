@@ -92,13 +92,23 @@ class DatabaseSeeder extends Seeder
             'branch_id' => $mainBranch->id,
         ]);
 
-        $customer = User::create([
+        $retailer = User::create([
             'name' => 'سالم للمواد الغذائية (تجزئة)',
             'email' => 'retail@maklfih.com',
             'password' => Hash::make('password'),
             'user_type' => UserType::Retailer,
             'phone' => '777444555',
             'address_desc' => 'شارع حدة',
+            'branch_id' => $mainBranch->id,
+        ]);
+
+        $appUser = User::create([
+            'name' => 'محمد علي (عميل تطبيق)',
+            'email' => 'customer@maklfih.com',
+            'password' => Hash::make('password'),
+            'user_type' => UserType::Customer,
+            'phone' => '771122334',
+            'address_desc' => 'صنعاء - الحي السياسي',
             'branch_id' => $mainBranch->id,
         ]);
 
@@ -163,7 +173,7 @@ class DatabaseSeeder extends Seeder
 
         $order2 = OrderQueue::create([
             'reference_number' => 'ORD-20260403-002',
-            'customer_id' => $customer->id,
+            'customer_id' => $retailer->id,
             'order_status' => OrderStatus::OutForDelivery,
             'total_price' => 5700,
             'currency_id' => $yer->id,
@@ -215,7 +225,7 @@ class DatabaseSeeder extends Seeder
                     'customer_id'      => $appCustomer->id,
                     'order_status'     => OrderStatus::Pending,
                     'total_price'      => 0, // Will be calculated
-                    'currency_id'      => $defaultCurrency->id ?? null,
+                    'currency_id'      => $yer->id ?? null,
                     'exchange_rate'    => 1,
                     'exchange_total'   => 0,
                     'final_amount'     => 0,

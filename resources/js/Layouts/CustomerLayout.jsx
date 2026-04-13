@@ -54,7 +54,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
     }, [auth.user]);
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col" dir="rtl">
+        <div className="min-h-screen bg-surface flex flex-col" dir="rtl">
             {/* Top Navigation */}
             <nav className="glass-nav sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,8 +65,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <Link href={route('customer.storefront')} className="flex items-center gap-3 decoration-none group">
                                     <ApplicationLogo className="w-10 h-10 object-contain shadow-lg group-hover:scale-105 transition-transform" />
                                     <div className="flex flex-col leading-tight">
-                                        <span className="text-lg font-black text-[#031633] tracking-tighter">المخلافي</span>
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Al-Mekhlafi</span>
+                                        <span className="text-lg font-black text-on-surface tracking-tighter">المخلافي</span>
+                                        <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Al-Mekhlafi</span>
                                     </div>
                                 </Link>
                             </div>
@@ -75,13 +75,13 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             <div className="hidden space-x-8 space-x-reverse sm:flex items-center h-full me-10">
                                 <Link
                                     href={route('customer.storefront')}
-                                    className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.storefront') ? 'text-[#0058be]' : 'text-gray-500 hover:text-gray-900'}`}
+                                    className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.storefront') ? 'text-secondary' : 'text-on-surface-variant hover:text-on-surface'}`}
                                 >
                                     المنتجات
                                 </Link>
                                 <Link
                                     href={route('customer.orders')}
-                                    className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.orders*') ? 'text-[#0058be]' : 'text-gray-500 hover:text-gray-900'}`}
+                                    className={`inline-flex items-center px-1 text-sm font-bold transition-all duration-200 ${route().current('customer.orders*') ? 'text-secondary' : 'text-on-surface-variant hover:text-on-surface'}`}
                                 >
                                     طلباتي
                                 </Link>
@@ -92,7 +92,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             {/* Cart Icon */}
                             <button 
                                 onClick={() => setIsCartModalOpen(true)}
-                                className="relative p-2 text-gray-600 hover:text-blue-600 transition-colors mr-4"
+                                className="relative p-2 text-on-surface-variant hover:text-secondary transition-colors mr-4"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -111,7 +111,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                         <span className="inline-flex rounded-md">
                                             <button
                                                 type="button"
-                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-on-surface-variant bg-surface-lowest hover:text-on-surface focus:outline-none transition ease-in-out duration-150"
                                             >
                                                 {auth.user.name}
 
@@ -146,7 +146,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
             {/* Page Header */}
             {header && (
-                <header className="bg-white shadow">
+                <header className="bg-surface-lowest shadow">
                     <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">{header}</div>
                 </header>
             )}
@@ -156,8 +156,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
             {/* Footer */}
             {!hideFooter && (
-                <footer className="bg-white border-t border-gray-200 mt-auto">
-                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-500">
+                <footer className="bg-surface-lowest border-t border-outline-variant mt-auto">
+                    <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-on-surface-variant">
                         &copy; {new Date().getFullYear()} نظام مكلفة للمخازن. جميع الحقوق محفوظة.
                     </div>
                 </footer>

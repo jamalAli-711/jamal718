@@ -33,19 +33,19 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                 <div className="card-editorial p-0 overflow-hidden relative border-none shadow-2xl">
                     <div className="absolute top-0 right-0 w-full h-1.5 bg-gradient-to-l from-blue-600 to-indigo-700" />
                     <div className="p-8 md:p-10 flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-28 h-28 rounded-[2rem] bg-slate-900 flex items-center justify-center text-white text-4xl font-black shadow-xl shrink-0 group hover:rotate-3 transition-transform duration-500">
+                        <div className="w-28 h-28 rounded-[2rem] bg-on-surface/5 flex items-center justify-center text-on-surface text-4xl font-black shadow-xl shrink-0 group hover:rotate-3 transition-transform duration-500">
                             {customer.name.charAt(0)}
                         </div>
                         <div className="flex-1 text-center md:text-right space-y-3 min-w-0">
                             <div className="flex flex-col md:flex-row md:items-center gap-3">
-                                <h2 className="text-3xl font-black text-slate-900 truncate">{customer.name}</h2>
-                                <span className="badge-editorial bg-blue-50 text-blue-600 px-5 py-1.5 border border-blue-100/50 w-fit mx-auto md:mx-0">
+                                <h2 className="text-3xl font-black text-on-surface truncate">{customer.name}</h2>
+                                <span className="badge-editorial bg-secondary/10 text-secondary px-5 py-1.5 border border-outline-variant w-fit mx-auto md:mx-0">
                                     {customer.user_type_label || customer.user_type}
                                 </span>
                             </div>
-                            <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm font-bold text-gray-500">
+                            <div className="flex flex-wrap justify-center md:justify-start gap-6 text-sm font-bold text-on-surface-variant">
                                 <span className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-blue-600">
+                                    <div className="w-8 h-8 rounded-xl bg-surface-low flex items-center justify-center text-secondary">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C10.077 18 2 9.923 2 2V3z" />
                                         </svg>
@@ -53,7 +53,7 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                     {customer.phone || 'غير مسجل'}
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-blue-600">
+                                    <div className="w-8 h-8 rounded-xl bg-surface-low flex items-center justify-center text-secondary">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
@@ -62,7 +62,7 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                     <span className="truncate max-w-[200px]">{customer.email}</span>
                                 </span>
                                 <span className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-xl bg-gray-50 flex items-center justify-center text-blue-600">
+                                    <div className="w-8 h-8 rounded-xl bg-surface-low flex items-center justify-center text-secondary">
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1h3v10H5v1a1 1 0 102 0v-1h3v1a1 1 0 102 0v-1h3a1 1 0 100-2h-3V4h3V3a1 1 0 00-1-1H6zm4 2v10H7V4h3z" clipRule="evenodd" />
                                         </svg>
@@ -80,60 +80,60 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
 
                 {/* 2. Stats Grid - Responsive 3 Columns */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="stat-card border-r-4 border-blue-600 p-8">
+                    <div className="stat-card border-r-4 border-secondary p-8">
                         <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-400 text-[11px] font-black uppercase tracking-widest">إجمالي الإنفاق</span>
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
+                            <span className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest">إجمالي الإنفاق</span>
+                            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                                 </svg>
                             </div>
                         </div>
                         <div className="flex items-baseline gap-2">
-                             <h4 className="text-3xl font-black text-slate-900 tracking-tighter">{stats.total_spent}</h4>
-                             <span className="text-xs font-black text-blue-500 uppercase">{stats.currency_symbol}</span>
+                             <h4 className="text-3xl font-black text-on-surface tracking-tighter">{stats.total_spent}</h4>
+                             <span className="text-xs font-black text-secondary tracking-widest uppercase opacity-70">{stats.currency_symbol}</span>
                         </div>
                     </div>
 
-                    <div className="stat-card border-r-4 border-emerald-500 p-8">
+                    <div className="stat-card border-r-4 border-primary p-8">
                         <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-400 text-[11px] font-black uppercase tracking-widest">عدد الطلبيات</span>
-                            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+                            <span className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest">عدد الطلبيات</span>
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 100-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
                                 </svg>
                             </div>
                         </div>
-                        <h4 className="text-3xl font-black text-slate-900 tracking-tighter">{stats.orders_count} <span className="text-base font-bold text-gray-400">طلب</span></h4>
+                        <h4 className="text-3xl font-black text-on-surface tracking-tighter">{stats.orders_count} <span className="text-base font-bold text-on-surface-variant">طلب</span></h4>
                     </div>
 
-                    <div className="stat-card border-r-4 border-slate-900 p-8">
+                    <div className="stat-card border-r-4 border-on-surface/30 p-8">
                         <div className="flex items-center justify-between mb-4">
-                            <span className="text-gray-400 text-[11px] font-black uppercase tracking-widest">الفرع المخدم</span>
-                            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-800">
+                            <span className="text-on-surface-variant text-[11px] font-black uppercase tracking-widest">الفرع المخدم</span>
+                            <div className="w-10 h-10 rounded-xl bg-on-surface/5 flex items-center justify-center text-on-surface">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clipRule="evenodd" />
                                 </svg>
                             </div>
                         </div>
-                        <h4 className="text-xl font-black text-slate-900 leading-tight">{customer.branch?.branch_name || 'غير محدد'}</h4>
+                        <h4 className="text-xl font-black text-on-surface leading-tight">{customer.branch?.branch_name || 'غير محدد'}</h4>
                     </div>
                 </div>
 
                 {/* 3. Orders Section - High-end Table Card */}
                 <div className="card-editorial min-h-[600px] shadow-2xl">
-                    <div className="p-8 md:p-10 border-b border-gray-100 bg-gray-50/20">
+                    <div className="p-8 md:p-10 border-b border-outline-variant bg-surface-low/50">
                         <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-4">
                             <div className="flex items-center gap-4">
-                                <div className="w-2 h-8 bg-slate-900 rounded-full" />
-                                <h3 className="text-2xl font-black text-slate-900">سجل طلبات العميل</h3>
+                                <div className="w-2 h-8 bg-on-surface rounded-full" />
+                                <h3 className="text-2xl font-black text-on-surface">سجل طلبات العميل</h3>
                             </div>
                             
                             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0 px-1">
                                 <button 
                                     onClick={() => setFilterStatus('all')}
-                                    className={`px-6 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap border
-                                        ${filterStatus === 'all' ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-500 border-gray-100 hover:border-gray-200'}`}
+                                    className={`px-6 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap border-2
+                                        ${filterStatus === 'all' ? 'bg-on-surface text-surface border-on-surface shadow-xl' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:border-on-surface/20'}`}
                                 >
                                     عرض الكل
                                 </button>
@@ -141,8 +141,8 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                     <button 
                                         key={status.value}
                                         onClick={() => setFilterStatus(status.value)}
-                                        className={`px-6 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-3 border
-                                            ${filterStatus == status.value ? 'bg-slate-900 text-white border-slate-900 shadow-xl' : 'bg-white text-slate-500 border-gray-100 hover:border-gray-200'}`}
+                                        className={`px-6 py-2.5 rounded-2xl text-xs font-black transition-all whitespace-nowrap flex items-center gap-3 border-2
+                                            ${filterStatus == status.value ? 'bg-secondary text-white border-secondary shadow-xl' : 'bg-surface-lowest text-on-surface-variant border-outline-variant hover:border-on-surface/20'}`}
                                     >
                                         <div className={`w-2 h-2 rounded-full 
                                             ${status.color === 'green' ? 'bg-emerald-500' :
@@ -175,15 +175,15 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                     <tr key={order.id} className="group transition-all duration-300">
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                                                <div className="w-9 h-9 rounded-xl bg-surface-low flex items-center justify-center text-on-surface-variant group-hover:bg-secondary group-hover:text-white transition-colors duration-300">
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                                     </svg>
                                                 </div>
-                                                <span className="text-sm font-black text-slate-800">ORD-{order.reference_number}</span>
+                                                <span className="text-sm font-black text-on-surface">ORD-{order.reference_number}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 text-center text-xs font-bold text-gray-500 uppercase tracking-widest italic">
+                                        <td className="px-6 py-5 text-center text-xs font-bold text-on-surface-variant uppercase tracking-widest italic">
                                             {new Date(order.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' })}
                                         </td>
                                         <td className="px-6 py-5 text-center">
@@ -197,18 +197,18 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 text-center">
-                                            <span className="text-xs font-black text-slate-600">{order.branch?.branch_name}</span>
+                                            <span className="text-xs font-black text-on-surface-variant">{order.branch?.branch_name}</span>
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="flex items-baseline justify-end gap-1.5">
-                                                <span className="text-lg font-black text-slate-900 tracking-tighter">{parseFloat(order.converted_total).toLocaleString()}</span>
-                                                <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest opacity-60">{stats.currency_symbol}</span>
+                                                <span className="text-lg font-black text-on-surface tracking-tighter">{parseFloat(order.converted_total).toLocaleString()}</span>
+                                                <span className="text-[10px] font-black text-secondary tracking-widest uppercase opacity-60">{stats.currency_symbol}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-left">
                                             <button 
                                                 onClick={() => openInvoice(order)}
-                                                className="p-3 rounded-2xl bg-gray-50 text-slate-400 hover:bg-slate-900 hover:text-white transition-all shadow-sm group-hover:shadow-lg"
+                                                className="p-3 rounded-2xl bg-surface-low text-on-surface-variant hover:bg-on-surface hover:text-surface transition-all shadow-sm group-hover:shadow-lg"
                                                 title="عرض السجل التفصيلي"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -250,10 +250,10 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                         </div>
 
                         {/* Modal Header */}
-                        <div className="flex justify-between items-start mb-12 pb-8 border-b border-gray-100 relative z-10">
+                        <div className="flex justify-between items-start mb-12 pb-8 border-b border-outline-variant relative z-10">
                             <div>
-                                <h2 className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">سند مبيعات مالي</h2>
-                                <p className="text-xs font-black text-blue-600 tracking-[0.3em] uppercase opacity-70">CONFIRMED RECORD: #{selectedOrder.reference_number}</p>
+                                <h2 className="text-3xl font-black text-on-surface mb-1 tracking-tighter">سند مبيعات مالي</h2>
+                                <p className="text-xs font-black text-secondary tracking-[0.3em] uppercase opacity-70">CONFIRMED RECORD: #{selectedOrder.reference_number}</p>
                             </div>
                             <div className="flex items-center gap-3">
                                 <button onClick={handlePrint} className="btn-primary py-3.5 px-10 text-xs shadow-none">
@@ -262,7 +262,7 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                                     </svg>
                                     طباعة فورية
                                 </button>
-                                <button onClick={() => setIsInvoiceModalOpen(false)} className="w-12 h-12 rounded-2xl bg-gray-50 text-slate-400 hover:bg-red-50 hover:text-red-500 transition-all flex items-center justify-center">
+                                <button onClick={() => setIsInvoiceModalOpen(false)} className="w-12 h-12 rounded-2xl bg-surface-low text-on-surface-variant hover:bg-primary/20 hover:text-primary transition-all flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
@@ -272,45 +272,45 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
 
                         {/* Metadata grid */}
                         <div className="grid grid-cols-2 gap-12 mb-12 relative z-10">
-                            <div className="p-8 bg-gray-50/50 rounded-[2.5rem] border border-gray-100 shadow-inner">
-                                <h4 className="text-[10px] font-black text-gray-400 tracking-widest uppercase italic mb-6">بيانات الطرف المستفيد</h4>
+                            <div className="p-8 bg-surface-low/50 rounded-[2.5rem] border border-outline-variant shadow-inner">
+                                <h4 className="text-[10px] font-black text-on-surface-variant tracking-widest uppercase italic mb-6">بيانات الطرف المستفيد</h4>
                                 <div className="space-y-2">
-                                    <p className="text-xl font-black text-slate-900">{customer.name}</p>
-                                    <p className="text-sm font-bold text-slate-500 italic">هاتف: {customer.phone}</p>
-                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-tight">{customer.email}</p>
+                                    <p className="text-xl font-black text-on-surface">{customer.name}</p>
+                                    <p className="text-sm font-bold text-on-surface-variant italic">هاتف: {customer.phone}</p>
+                                    <p className="text-xs font-bold text-on-surface-variant/40 uppercase tracking-tight">{customer.email}</p>
                                 </div>
                             </div>
                             <div className="text-left flex flex-col justify-center items-end text-right">
-                                <h4 className="text-[10px] font-black text-gray-400 tracking-widest uppercase italic mb-6">طابع التوثيق</h4>
-                                <div className="space-y-2 text-sm font-black text-slate-800">
+                                <h4 className="text-[10px] font-black text-on-surface-variant tracking-widest uppercase italic mb-6">طابع التوثيق</h4>
+                                <div className="space-y-3 text-sm font-black text-on-surface">
                                     <div className="flex items-center gap-3">
                                         <span className="opacity-40 italic">التاريخ المالي :</span>
                                         <span>{new Date(selectedOrder.created_at).toLocaleDateString('ar-EG')}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="opacity-40 italic">الفرع المصدّر :</span>
-                                        <span className="text-blue-600">{selectedOrder.branch?.branch_name}</span>
+                                        <span className="text-secondary">{selectedOrder.branch?.branch_name}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="opacity-40 italic">حالة السند :</span>
-                                        <div className="bg-slate-900 text-white px-3 py-0.5 rounded-lg text-[10px] uppercase">{selectedOrder.status_label}</div>
+                                        <div className="bg-on-surface text-surface px-3 py-1 rounded-lg text-[10px] uppercase">{selectedOrder.status_label}</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Items Table In Modal */}
-                        <div className="mb-12 overflow-hidden rounded-[2rem] border border-gray-100 relative z-10 shadow-sm">
+                        <div className="mb-12 overflow-hidden rounded-[2rem] border-2 border-outline-variant relative z-10 shadow-sm transition-all duration-500">
                             <table className="w-full text-right border-separate border-spacing-0">
                                 <thead>
-                                    <tr className="bg-slate-900 text-white">
-                                        <th className="px-6 py-5 text-[10px] font-black tracking-[0.2em] border-none uppercase">اسم المنتج والوحدة</th>
-                                        <th className="px-6 py-5 text-[10px] font-black tracking-[0.2em] border-none text-center uppercase">الكمية</th>
-                                        <th className="px-6 py-5 text-[10px] font-black tracking-[0.2em] border-none text-left uppercase">سعر الوحدة</th>
-                                        <th className="px-6 py-5 text-[10px] font-black tracking-[0.2em] border-none text-left uppercase">القيمة الكلية</th>
+                                    <tr className="bg-on-surface text-surface">
+                                        <th className="px-6 py-6 text-[10px] font-black tracking-[0.2em] border-none uppercase">اسم المنتج والوحدة</th>
+                                        <th className="px-6 py-6 text-[10px] font-black tracking-[0.2em] border-none text-center uppercase">الكمية</th>
+                                        <th className="px-6 py-6 text-[10px] font-black tracking-[0.2em] border-none text-left uppercase">سعر الوحدة</th>
+                                        <th className="px-6 py-6 text-[10px] font-black tracking-[0.2em] border-none text-left uppercase">القيمة الكلية</th>
                                     </tr>
                                 </thead>
-                                <tbody className="bg-white">
+                                <tbody className="bg-surface-lowest">
                                     {selectedOrder.order_items.map((item, idx) => (
                                         <tr key={item.id} className={idx % 2 === 0 ? 'bg-gray-50/20' : 'bg-white'}>
                                             <td className="px-6 py-5 border-b border-gray-50">
@@ -332,17 +332,17 @@ export default function Show({ auth, customer, orders, stats, default_currency, 
                         </div>
 
                         {/* Summary Totals Area */}
-                        <div className="flex flex-col items-end gap-4 max-w-sm mr-auto ml-0 relative z-10 animate-slide-in">
-                             <div className="flex justify-between items-center w-full px-8 py-4 bg-gray-100 rounded-[1.5rem] border border-gray-200/50">
-                                <span className="text-xs font-bold text-gray-500 italic">إجمالي طلب العميل ({selectedOrder.currency.currency_code_ar})</span>
-                                <span className="text-2xl font-black text-slate-900 tracking-tighter">{parseFloat(selectedOrder.total_price).toLocaleString()}</span>
+                        <div className="flex flex-col items-end gap-6 max-w-sm mr-auto ml-0 relative z-10 animate-slide-in">
+                             <div className="flex justify-between items-center w-full px-8 py-5 bg-surface-low rounded-[1.5rem] border-2 border-outline-variant">
+                                <span className="text-xs font-black text-on-surface-variant italic">إجمالي طلب العميل ({selectedOrder.currency.currency_code_ar})</span>
+                                <span className="text-2xl font-black text-on-surface tracking-tighter">{parseFloat(selectedOrder.total_price).toLocaleString()}</span>
                              </div>
-                             <div className="flex justify-between items-center w-full px-8 py-7 bg-slate-900 rounded-[2rem] text-white shadow-2xl relative overflow-hidden group">
-                                <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-                                <span className="text-xs font-black uppercase tracking-[0.3em] opacity-50 z-10">قيمة التحويل الموحدة</span>
+                             <div className="flex justify-between items-center w-full px-8 py-8 bg-secondary rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+                                <span className="text-xs font-black uppercase tracking-[0.3em] opacity-80 z-10">قيمة التحويل الموحدة</span>
                                 <div className="flex items-baseline gap-2 z-10">
                                     <span className="text-4xl font-black italic tracking-tighter">{parseFloat(selectedOrder.converted_total).toLocaleString()}</span>
-                                    <span className="text-xs font-black text-blue-400 uppercase tracking-widest">{stats.currency_symbol}</span>
+                                    <span className="text-xs font-black text-white/50 uppercase tracking-widest">{stats.currency_symbol}</span>
                                 </div>
                              </div>
                         </div>
