@@ -17,41 +17,26 @@ export default function CategoriesIndex({ auth, categories, branches }) {
         if (flash?.error) toast.error(flash.error);
     }, [flash]);
 
-    // --- Add Form ---
-    const addForm = useForm({
-        category_name: '', description: '', branch_id: '',
-    });
+    const addForm = useForm({ category_name: '', description: '', branch_id: '', });
 
     const submitAdd = (e) => {
         e.preventDefault();
-        addForm.post(route('categories.store'), {
-            onSuccess: () => { setShowAddModal(false); addForm.reset(); },
-        });
+        addForm.post(route('categories.store'), { onSuccess: () => { setShowAddModal(false); addForm.reset(); }, });
     };
 
-    // --- Edit Form ---
-    const editForm = useForm({
-        category_name: '', description: '', branch_id: '',
-    });
+    const editForm = useForm({ category_name: '', description: '', branch_id: '', });
 
     const openEditModal = (cat) => {
         setEditingCategory(cat);
-        editForm.setData({
-            category_name: cat.category_name,
-            description: cat.description || '',
-            branch_id: cat.branch_id || '',
-        });
+        editForm.setData({ category_name: cat.category_name, description: cat.description || '', branch_id: cat.branch_id || '', });
         setShowEditModal(true);
     };
 
     const submitEdit = (e) => {
         e.preventDefault();
-        editForm.put(route('categories.update', editingCategory.id), {
-            onSuccess: () => setShowEditModal(false),
-        });
+        editForm.put(route('categories.update', editingCategory.id), { onSuccess: () => setShowEditModal(false), });
     };
 
-    // --- Delete ---
     const deleteCategory = (cat) => {
         if (confirm(`هل أنت متأكد من حذف الفئة "${cat.category_name}"؟`)) {
             router.delete(route('categories.destroy', cat.id));
@@ -59,124 +44,121 @@ export default function CategoriesIndex({ auth, categories, branches }) {
     };
 
     return (
-        <AdminLayout user={auth.user} header="الفئات">
-            <Head title="إدارة الفئات" />
+        <AdminLayout user={auth.user} header="التصنيفات">
+            <Head title="تصنيفات المخزون — إدارة الأصناف" />
 
-            <div className="flex justify-between items-center mb-10 bg-surface p-8 rounded-[2.5rem] border-2 border-outline-variant shadow-xl relative overflow-hidden group">
-                <div className="absolute -left-10 -top-10 w-40 h-40 bg-secondary/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-                <div className="relative z-10">
-                    <h2 className="text-3xl font-black text-on-surface tracking-tighter uppercase">تصنيفات المخزون</h2>
-                    <p className="text-sm font-black text-on-surface-variant mt-1 uppercase tracking-widest">تنسيق وترتيب المنتجات حسب الأقسام (مشروبات، معلبات، منظفات...)</p>
+            <div className="pb-32 animate-in fade-in duration-1000" dir="rtl">
+                
+                {/* VIP Header Section */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-10 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="relative z-10 space-y-4">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-purple-400/10 border border-purple-400/20 rounded-full text-purple-500 tracking-[0.4em] text-[10px] font-black uppercase">
+                            تصنيف عالمي للأصول
+                            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse" />
+                        </div>
+                        <h2 className="text-6xl font-black text-white tracking-tighter leading-none">إدارة تصنيفات المخزون</h2>
+                        <p className="text-white/20 font-bold text-xl italic pr-6 border-r-4 border-purple-400/20">تنظيم الهياكل السلعية، تعريف الأقسام، وتخصيص النطاقات التشغيلية.</p>
+                    </div>
+                    <button onClick={() => setShowAddModal(true)} className="group px-12 py-6 bg-gradient-to-r from-purple-400 to-purple-600 text-black font-black rounded-[2rem] flex items-center gap-4 shadow-2xl shadow-purple-400/20 hover:scale-105 active:scale-95 transition-all relative z-10">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                        <span className="text-xs uppercase tracking-[0.2em]">إضافة تصنيف جديد</span>
+                    </button>
                 </div>
-                <button className="bg-secondary text-white h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl shadow-secondary/20 hover:bg-slate-900 transition-all active:scale-95 relative z-10" onClick={() => setShowAddModal(true)}>
-                    + إضافة تصنيف جديد
-                </button>
-            </div>
 
-
-            <div className="bg-surface rounded-[3rem] border-2 border-outline-variant shadow-2xl overflow-hidden mb-12">
-                <div className="overflow-x-auto">
-                    <table className="data-table">
-                        <thead className="bg-surface-lowest border-b-2 border-outline-variant">
-                            <tr>
-                                <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">اسم القسم / الفئة</th>
-                                <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">توصيف القسم</th>
-                                <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">الفرع المرتبط</th>
-                                <th className="px-8 py-5 text-xs font-black text-on-surface-variant uppercase tracking-widest text-center">إجراءات التحكم</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y-2 divide-outline-variant">
-                            {categories.map((cat) => (
-                                <tr key={cat.id} className="hover:bg-surface-lowest/50 transition-colors">
-                                    <td className="px-8 py-6 font-black text-on-surface text-lg">{cat.category_name}</td>
-                                    <td className="px-8 py-6 text-on-surface-variant font-bold">{cat.description || '—'}</td>
-                                    <td className="px-8 py-6">
-                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${cat.branch_id ? 'bg-secondary/10 text-secondary border border-secondary/20' : 'bg-surface-lowest text-on-surface-variant/40 border border-outline-variant'}`}>
-                                            {cat.branch_id && <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></div>}
-                                            {cat.branch?.branch_name || 'قسم عام لكل الفروع'}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center justify-center gap-3">
-                                            <button onClick={() => openEditModal(cat)} className="w-10 h-10 rounded-xl bg-surface-lowest text-on-surface-variant flex items-center justify-center hover:bg-secondary hover:text-white transition-all border border-outline-variant">
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                            </button>
-                                            <button onClick={() => deleteCategory(cat)} className="w-10 h-10 rounded-xl bg-surface-lowest text-on-surface-variant flex items-center justify-center hover:bg-primary hover:text-white transition-all border border-outline-variant">
-                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
-                                        </div>
-                                    </td>
+                {/* VIP Ledger Table */}
+                <div className="bg-[#0c0c0e]/80 backdrop-blur-3xl rounded-[4rem] border border-white/5 overflow-hidden shadow-2xl">
+                    <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-right border-collapse">
+                            <thead>
+                                <tr className="bg-white/[0.01]">
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">اسم التصنيف</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">الوصف</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">الفرع</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">الإجراءات</th>
                                 </tr>
-                            ))}
-                            {categories.length === 0 && (
-                                <tr><td colSpan="4" className="text-center py-20 text-slate-300 font-black uppercase tracking-widest">لم يتم إنشاء أي أقسام مخزنية حتى الآن</td></tr>
-                            )}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/[0.03]">
+                                {categories.map((cat) => (
+                                    <tr key={cat.id} className="group hover:bg-white/[0.01] transition-colors">
+                                        <td className="px-12 py-10">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-3xl font-black text-white tracking-tighter group-hover:text-purple-400 transition-colors uppercase leading-none">{cat.category_name}</span>
+                                                <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.3em]">ID_CAT: #{cat.id}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-12 py-10">
+                                            <span className="text-lg font-black text-white/40 leading-none tracking-tight">{cat.description || 'GENERIC_CONTENT'}</span>
+                                        </td>
+                                        <td className="px-12 py-10">
+                                            <span className={`inline-flex items-center gap-3 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border ${cat.branch_id ? 'bg-purple-400/10 text-purple-400 border-purple-400/20' : 'bg-white/5 text-white/20 border-white/10'}`}>
+                                                {cat.branch_id && <div className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)] animate-pulse" />}
+                                                {cat.branch?.branch_name || 'مشترك عام'}
+                                            </span>
+                                        </td>
+                                        <td className="px-12 py-10">
+                                            <div className="flex items-center justify-center gap-4">
+                                                <OpButton onClick={() => openEditModal(cat)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>} color="blue-400" />
+                                                <button onClick={() => deleteCategory(cat)} className="w-12 h-12 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-center text-white/20 hover:text-rose-500 hover:border-rose-500/20 transition-all active:scale-90 shadow-xl">
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-
-            {/* ========== ADD MODAL ========== */}
-            <Modal show={showAddModal} onClose={() => setShowAddModal(false)} title="إضافة فئة جديدة" maxWidth="sm">
-                <form onSubmit={submitAdd}>
-                    <Modal.Body className="p-8">
-                        <div className="space-y-6">
-                            <div>
-                                <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">اسم الفئة *</label>
-                                <input type="text" className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-lg py-4 px-6 focus:border-secondary transition-all font-black text-on-surface uppercase" value={addForm.data.category_name} onChange={e => addForm.setData('category_name', e.target.value)} required />
-                                {addForm.errors.category_name && <p className="text-xs font-black text-primary mt-2 uppercase">{addForm.errors.category_name}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">وصف الفئة</label>
-                                <textarea className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-sm py-4 px-6 focus:border-secondary transition-all font-bold text-on-surface h-32" value={addForm.data.description} onChange={e => addForm.setData('description', e.target.value)} />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">الفرع التابع (اختياري)</label>
-                                <select className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-sm py-4 px-6 focus:border-secondary transition-all font-black text-on-surface appearance-none" value={addForm.data.branch_id} onChange={e => addForm.setData('branch_id', e.target.value)}>
-                                    <option value="">كل الفروع (عام)</option>
-                                    {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
+            {/* VIP Category Modal */}
+            <Modal show={showAddModal || showEditModal} onClose={() => { setShowAddModal(false); setShowEditModal(false); }} title={showAddModal ? "إضافة تصنيف جديد" : "تعديل التصنيف"} maxWidth="sm">
+                <div className="bg-[#0c0c0e] text-white overflow-hidden rounded-[3rem] border border-white/5 p-12" dir="rtl">
+                    <form onSubmit={showAddModal ? submitAdd : submitEdit} className="space-y-8">
+                        <div>
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4 mb-3">اسم التصنيف *</label>
+                            <input type="text" className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-8 text-xl font-black text-white focus:outline-none focus:border-purple-500/30 transition-all shadow-inner uppercase" value={(showAddModal ? addForm : editForm).data.category_name} onChange={e => (showAddModal ? addForm : editForm).setData('category_name', e.target.value)} required />
+                            {(showAddModal ? addForm : editForm).errors.category_name && <p className="text-[10px] font-black text-rose-500 mt-2 uppercase tracking-widest">{(showAddModal ? addForm : editForm).errors.category_name}</p>}
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4 mb-3">الوصف</label>
+                            <textarea className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-8 text-lg font-bold text-white focus:outline-none focus:border-purple-500/30 transition-all shadow-inner h-32" value={(showAddModal ? addForm : editForm).data.description} onChange={e => (showAddModal ? addForm : editForm).setData('description', e.target.value)} />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block pr-4 mb-3">الفرع (اختياري)</label>
+                            <div className="relative">
+                                <select className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-8 text-lg font-black text-white focus:outline-none focus:border-purple-500/30 transition-all appearance-none cursor-pointer" value={(showAddModal ? addForm : editForm).data.branch_id} onChange={e => (showAddModal ? addForm : editForm).setData('branch_id', e.target.value)}>
+                                    <option value="" className="bg-[#111114]">مشترك (عام)</option>
+                                    {branches.map(b => <option key={b.id} value={b.id} className="bg-[#111114]">{b.branch_name}</option>)}
                                 </select>
+                                <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/10"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div>
                             </div>
                         </div>
-                    </Modal.Body>
-                    <Modal.Footer className="px-8 py-6 border-t-2 border-outline-variant">
-                        <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary h-12 px-6 rounded-xl font-black uppercase text-xs">إلغاء</button>
-                        <button type="submit" disabled={addForm.processing} className="bg-secondary text-white h-12 px-8 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-slate-900 transition-all">إضافة الفئة</button>
-                    </Modal.Footer>
-                </form>
+
+                        <div className="flex gap-6 mt-12 pt-8 border-t border-white/5">
+                            <button type="button" onClick={() => { setShowAddModal(false); setShowEditModal(false); }} className="flex-1 py-7 rounded-[2rem] bg-white/5 text-white/40 font-black uppercase text-xs tracking-[0.4em] hover:bg-white/10 transition-all leading-none">إلغاء</button>
+                            <button type="submit" disabled={(showAddModal ? addForm : editForm).processing} className="flex-[2] py-7 rounded-[2rem] bg-purple-500 text-black font-black uppercase text-xs tracking-[0.4em] hover:bg-purple-400 shadow-2xl shadow-purple-500/20 disabled:opacity-50 transition-all leading-none">
+                                {(showAddModal ? addForm : editForm).processing ? 'جاري الحفظ...' : 'حفظ التصنيف'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </Modal>
 
-            {/* ========== EDIT MODAL ========== */}
-            <Modal show={showEditModal} onClose={() => setShowEditModal(false)} title="تعديل الفئة" maxWidth="sm">
-                {editingCategory && (
-                    <form onSubmit={submitEdit}>
-                        <Modal.Body className="p-8">
-                            <div className="space-y-6">
-                                <div>
-                                    <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">اسم الفئة *</label>
-                                    <input type="text" className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-lg py-4 px-6 focus:border-secondary transition-all font-black text-on-surface uppercase" value={editForm.data.category_name} onChange={e => editForm.setData('category_name', e.target.value)} required />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">وصف الفئة</label>
-                                    <textarea className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-sm py-4 px-6 focus:border-secondary transition-all font-bold text-on-surface h-32" value={editForm.data.description} onChange={e => editForm.setData('description', e.target.value)} />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-black text-on-surface-variant uppercase tracking-[0.2em] mb-3">الفرع التابع (اختياري)</label>
-                                    <select className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-sm py-4 px-6 focus:border-secondary transition-all font-black text-on-surface appearance-none" value={editForm.data.branch_id} onChange={e => editForm.setData('branch_id', e.target.value)}>
-                                        <option value="">كل الفروع (عام)</option>
-                                        {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                        </Modal.Body>
-                        <Modal.Footer className="px-8 py-6 border-t-2 border-outline-variant">
-                            <button type="button" onClick={() => setShowEditModal(false)} className="btn-secondary h-12 px-6 rounded-xl font-black uppercase text-xs">إلغاء</button>
-                            <button type="submit" disabled={editForm.processing} className="bg-primary text-white h-12 px-8 rounded-xl font-black uppercase text-xs shadow-xl hover:bg-slate-900 transition-all">حفظ التعديلات</button>
-                        </Modal.Footer>
-                    </form>
-                )}
-            </Modal>
+            <style dangerouslySetInnerHTML={{ __html: `
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+            ` }} />
         </AdminLayout>
+    );
+}
+
+function OpButton({ onClick, icon, color }) {
+    return (
+        <button onClick={onClick} className={`w-12 h-12 bg-white/[0.03] border border-white/5 rounded-xl flex items-center justify-center text-white/20 hover:text-${color} hover:border-${color}/20 transition-all active:scale-90 shadow-xl`}>
+            {icon}
+        </button>
     );
 }

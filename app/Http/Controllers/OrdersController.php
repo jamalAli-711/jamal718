@@ -15,9 +15,17 @@ use Illuminate\Support\Str;
 use App\Events\OrderUpdated;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
+use App\Services\OfferService;
 
 class OrdersController extends Controller
 {
+    protected $offerService;
+
+    public function __construct(OfferService $offerService)
+    {
+        $this->offerService = $offerService;
+    }
+
     public function index()
     {
         $orders = OrderQueue::with(['customer', 'orderItems.product', 'orderItems.productUnit.unit', 'orderItems.currency', 'branch', 'currency'])
@@ -70,6 +78,7 @@ class OrdersController extends Controller
             'items.*.quantity'    => 'required|integer|min:1',
             'items.*.notes'       => 'nullable|string',
             'notes'               => 'nullable|string',
+            'coupon'              => 'nullable|string|max:20',
         ]);
 
         $customer = User::findOrFail($validated['customer_id']);
@@ -140,6 +149,34 @@ class OrdersController extends Controller
             }
 
             $itemTotal = $item['quantity'] * $unitPrice;
+
+            // --- OFFER LOGIC START ---
+            // Prepare data for OfferService
+            $cartItems = collect($validated['items'])->map(function($i) use ($customer) {
+                // We need to determine the base unit price for the offer service
+                $product = Product::find($i['product_id']);
+                $pUnit = $i['product_unit_id'] ? \App\Models\ProductUnit::find($i['product_unit_id']) : ($product->units()->where('is_default_sale', true)->first() ?? $product->units()->first());
+                $price = $pUnit ? ($pUnit->retail_price ?: $pUnit->base_price) : 0;
+                if ($customer->user_type === UserType::Wholesaler && $pUnit?->wholesale_price > 0) $price = $pUnit->wholesale_price;
+                if ($customer->user_type === UserType::Retailer && $pUnit?->retail_price > 0) $price = $pUnit->retail_price;
+
+                return [
+                    'product_id' => $i['product_id'],
+                    'quantity'   => $i['quantity'],
+                    'unit_price' => $price,
+                ];
+            });
+
+            $offerResult = $this->offerService->applyOffers($customer, $cartItems, $validated['coupon'] ?? null);
+
+            // Update current item price if a discount was applied
+            $processedTarget = collect($offerResult['items'])->firstWhere('product_id', $item['product_id']);
+            if ($processedTarget) {
+                $unitPrice = $processedTarget->unit_price;
+                $itemTotal = $item['quantity'] * $unitPrice;
+            }
+            // --- OFFER LOGIC END ---
+
             $totalPrice += $itemTotal;
 
             OrderItem::create([
@@ -163,6 +200,32 @@ class OrdersController extends Controller
             'exchange_total' => $totalPrice * $exchangeRate,
             'final_amount'   => $totalPrice,
         ]);
+
+        // --- ADD BONUS ITEMS FROM OFFERS ---
+        if (!empty($offerResult['bonuses'])) {
+            foreach ($offerResult['bonuses'] as $bonus) {
+                OrderItem::create([
+                    'order_id'          => $order->id,
+                    'product_id'        => $bonus['product_id'],
+                    'product_unit_id'   => null, // Optional: find a product_unit_id matching the bonus_unit_id
+                    'quantity'          => $bonus['quantity'],
+                    'unit_total'        => $bonus['quantity'], // assuming primary unit for now
+                    'unit_price'        => 0,
+                    'item_total'        => 0,
+                    'currency_id'       => $validated['currency_id'],
+                    'exchange_rate'     => $exchangeRate,
+                    'exchange_total'    => 0,
+                    'branch_id'         => $customer->branch_id,
+                    'notes'             => 'هدية: ' . $bonus['title'],
+                ]);
+            }
+        }
+
+        // Decrement Offer Limits
+        if (!empty($offerResult['applied_offers'])) {
+             $this->offerService->decrementOfferLimits(collect($offerResult['applied_offers'])->pluck('id')->toArray());
+        }
+        // --- END BONUSES ---
 
         return redirect()->back()->with('success', 'تم إنشاء الطلب بنجاح — ' . $refNumber);
     }

@@ -15,172 +15,171 @@ export default function Dashboard({ auth, stats, ordersCount, productsCount, cus
     }, [flash]);
 
     return (
-        <AdminLayout user={auth.user} header="لوحة التحكم">
-            <Head title="لوحة التحكم" />
+        <AdminLayout user={auth.user} header="مركز القيادة">
+            <Head title="لوحة التحكم الاستراتيجية — نخبة الإدارة" />
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-4 md:gap-6 mb-8">
-                {/* YEM Sales Card */}
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-secondary transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-secondary">مبيعات يمني</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center font-black text-[9px] md:text-[10px] group-hover:bg-secondary group-hover:text-white transition-all shadow-sm">YEM</div>
+            <div className="pb-32 animate-in fade-in duration-1000" dir="rtl">
+                
+                {/* VIP Hero Section */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-12 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
+                    <div className="relative z-10 space-y-5">
+                        <div className="inline-flex items-center gap-4 px-6 py-2.5 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.5em] text-[10px] font-black uppercase">
+                            وحدة الاستخبارات التشغيلية
+                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
+                        </div>
+                        <h2 className="text-7xl font-black text-white tracking-tighter leading-none uppercase">منصة القيادة الاستراتيجية</h2>
+                        <p className="text-white/20 font-bold text-2xl italic pr-8 border-r-4 border-amber-400/20 max-w-3xl">رصد شامل لتدفق السيولة، الأصول المخزنية، والتوسع الجغرافي للمنظومة في الوقت الفعلي.</p>
                     </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{stats?.sales_yer || '0'}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">ريال يمني</div>
                 </div>
 
-                {/* SAR Sales Card */}
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-emerald-500 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-emerald-500">مبيعات سعودي</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black text-[9px] md:text-[10px] group-hover:bg-emerald-500 group-hover:text-white transition-all shadow-sm">SAR</div>
-                    </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{stats?.sales_sar || '0'}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">ريال سعودي</div>
+                {/* VIP KPI Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-8 mb-16">
+                    <KpiCard label="مبيعات يمني" value={stats?.sales_yer || '0'} unit="ريال يمني" color="text-amber-400" bg="bg-amber-400/5" />
+                    <KpiCard label="مبيعات سعودي" value={stats?.sales_sar || '0'} unit="ريال سعودي" color="text-emerald-400" bg="bg-emerald-400/5" />
+                    <KpiCard label="مبيعات دولار" value={stats?.sales_usd || '0'} unit="دولار" color="text-blue-400" bg="bg-blue-400/5" />
+                    <KpiCard label="طلبات نشطة" value={ordersCount} unit="طلب" color="text-purple-400" bg="bg-purple-400/5" isPulse />
+                    <KpiCard label="الأصناف المسجلة" value={productsCount} unit="صنف" color="text-white" bg="bg-white/5" />
+                    <KpiCard label="قاعدة العملاء" value={customersCount} unit="عميل" color="text-amber-500" bg="bg-amber-500/5" />
                 </div>
 
-                {/* USD Sales Card */}
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-amber-500 transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-amber-500">مبيعات دولار</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-black text-[9px] md:text-[10px] group-hover:bg-amber-500 group-hover:text-white transition-all shadow-sm">USD</div>
-                    </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{stats?.sales_usd || '0'}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">دولار أمريكي</div>
-                </div>
-
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-secondary transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-secondary">طلبات نشطة</span>
-                        <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-secondary animate-pulse"></div>
-                    </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{ordersCount}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">قيد المعالجة</div>
-                </div>
-
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-secondary transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-secondary">إجمالي المنتجات</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-on-surface/5 text-on-surface-variant flex items-center justify-center group-hover:bg-on-surface group-hover:text-surface transition-all">
-                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                {/* Intelligence Map Section */}
+                <div className="bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden mb-16 relative group">
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
+                    <div className="p-12 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                        <div>
+                            <h3 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase">ذكاء اللوجستيات الوطنية</h3>
+                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">تحليل التوزيع الجغرافي للمراكز والعملاء</p>
+                        </div>
+                        <div className="flex items-center gap-8">
+                            <Link href={route('branches.index')} className="px-8 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-amber-400 hover:border-amber-400/20 transition-all">إدارة الفروع</Link>
+                            <Link href={route('customers.index')} className="px-8 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-emerald-400 hover:border-emerald-400/20 transition-all">قاعدة العملاء</Link>
                         </div>
                     </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{productsCount}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">صنف مسجل</div>
-                </div>
-
-                <div className="stat-card p-4 md:p-6 bg-surface-lowest rounded-[1.5rem] md:rounded-[2rem] border-2 border-outline-variant shadow-xl group hover:border-primary transition-all duration-500">
-                    <div className="flex items-center justify-between mb-3 md:mb-4">
-                        <span className="text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest group-hover:text-primary">قاعدة العملاء</span>
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
-                            <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <div className="p-8 relative">
+                        <div className="rounded-[3.5rem] overflow-hidden border border-white/10 shadow-inner group-hover:border-white/20 transition-all duration-1000 grayscale-[0.8] hover:grayscale-0">
+                            <BranchesMap branches={branches} customers={customers} stats={stats} height="600px" />
+                        </div>
+                        <div className="absolute bottom-16 right-16 p-6 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl z-10 space-y-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                             <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> <span className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">المراكز الرئيسية (الفروع)</span></div>
+                             <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /> <span className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">العملاء والشركاء</span></div>
                         </div>
                     </div>
-                    <div className="text-xl md:text-3xl font-black text-on-surface transition-colors tracking-tighter">{customersCount}</div>
-                    <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 mt-1 md:mt-2 uppercase tracking-[0.2em]">عميد مسجل</div>
                 </div>
-            </div>
 
-
-            {/* Interactive Intelligence Map */}
-            <div className="card-editorial mb-8 overflow-hidden rounded-[2.5rem] border-2 border-outline-variant shadow-2xl">
-                <div className="bg-surface-lowest px-8 py-6 border-b-2 border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h3 className="text-xl font-black text-on-surface flex items-center gap-3 tracking-tighter">
-                        <div className="w-2 h-6 bg-secondary rounded-full animate-pulse"></div>
-                        خارطة التوزيع الميداني - الذكاء اللوجستي
-                    </h3>
-                    <div className="flex items-center gap-6">
-                        <Link href={route('branches.index')} className="text-[10px] font-black text-on-surface-variant hover:text-secondary transition-colors uppercase tracking-[0.2em]">إدارة الفروع</Link>
-                        <Link href={route('customers.index')} className="text-[10px] font-black text-on-surface-variant hover:text-primary transition-colors uppercase tracking-[0.2em]">إدارة العملاء</Link>
-                    </div>
-                </div>
-                <div className="p-4 bg-surface-lowest relative">
-                    <BranchesMap 
-                        branches={branches} 
-                        customers={customers} 
-                        stats={stats}
-                        height="520px" 
-                    />
-                </div>
-            </div>
-
-
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                {/* Recent Orders */}
-                <div className="card-editorial xl:col-span-2 overflow-hidden rounded-[2.5rem] border-2 border-outline-variant shadow-2xl bg-surface">
-                    <div className="px-8 py-6 border-b-2 border-outline-variant flex items-center justify-between bg-surface-lowest/50">
-                        <h3 className="text-xl font-black text-on-surface tracking-tighter">سجل أحدث الطلبات</h3>
-                        <Link href={route('orders.index')} className="text-xs font-black text-secondary hover:bg-secondary/5 px-6 py-3 rounded-2xl transition-all uppercase tracking-widest border-2 border-outline-variant">المزيد من التفاصيل ←</Link>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="data-table">
-                            <thead className="bg-surface-lowest border-b-2 border-outline-variant">
-                                <tr>
-                                    <th className="px-4 md:px-8 py-5 text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">الرقم المرجعي</th>
-                                    <th className="px-4 md:px-8 py-5 text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">العميل</th>
-                                    <th className="px-4 md:px-8 py-5 text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">المبلغ</th>
-                                    <th className="px-4 md:px-8 py-5 text-[10px] md:text-xs font-black text-on-surface-variant uppercase tracking-widest text-center">حالة الطلب</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y-2 divide-outline-variant">
-                                {recentOrders?.length > 0 ? recentOrders.map((order) => (
-                                    <tr key={order.id} className="hover:bg-surface-lowest/50 transition-colors">
-                                        <td className="px-4 md:px-8 py-4 md:py-6 font-black text-on-surface text-base md:text-lg">{order.reference_number}</td>
-                                        <td className="px-4 md:px-8 py-4 md:py-6">
-                                            <div className="font-black text-on-surface text-sm md:text-base">{order.customer?.name}</div>
-                                            <div className="text-[9px] md:text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">{USER_TYPES[order.customer?.user_type]?.label}</div>
-                                        </td>
-                                        <td className="px-4 md:px-8 py-4 md:py-6 font-black text-base md:text-lg text-on-surface">{formatCurrency(order.final_amount)}</td>
-                                        <td className="px-4 md:px-8 py-4 md:py-6 text-center"><StatusBadge status={order.order_status} /></td>
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
+                    {/* Recent Transaction Ledger */}
+                    <div className="xl:col-span-2 bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden">
+                        <div className="p-12 border-b border-white/5 flex items-center justify-between">
+                            <h3 className="text-3xl font-black text-white tracking-tighter uppercase whitespace-nowrap">آخر المبيعات المسجلة</h3>
+                            <Link href={route('orders.index')} className="px-10 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-amber-400 hover:border-amber-400/20 transition-all">عرض كامل السجل</Link>
+                        </div>
+                        <div className="overflow-x-auto custom-scrollbar">
+                            <table className="w-full text-right border-collapse">
+                                <thead>
+                                    <tr className="bg-white/[0.02]">
+                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">رقم الطلب</th>
+                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">بيانات العميل</th>
+                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">قيمة المبيعة</th>
+                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">حالة الطلب</th>
                                     </tr>
-                                )) : (
-                                    <tr><td colSpan="4" className="text-center py-12 text-on-surface-variant/20 font-black uppercase tracking-widest">لا توجد سجلات حالية للاستعراض</td></tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-white/[0.03]">
+                                    {recentOrders?.length > 0 ? recentOrders.map((order) => (
+                                        <tr key={order.id} className="group hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-12 py-10">
+                                                <span className="text-2xl font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors">#{order.reference_number}</span>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-lg font-black text-white leading-none tracking-tight">{order.customer?.name}</span>
+                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{USER_TYPES[order.customer?.user_type]?.label} Network</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <span className="text-2xl font-black text-white tracking-tighter">{formatCurrency(order.final_amount)}</span>
+                                            </td>
+                                            <td className="px-12 py-10 text-center">
+                                                <div className="transform scale-90 opacity-60 group-hover:opacity-100 group-hover:scale-100 transition-all origin-center">
+                                                    <StatusBadge status={order.order_status} />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )) : (
+                                        <tr><td colSpan="4" className="text-center py-24 text-white/5 font-black uppercase tracking-[0.6em]">لا توجد معاملات بعد</td></tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
-
-                {/* Quick Actions */}
-                <div className="card-editorial overflow-hidden rounded-[2.5rem] border-2 border-outline-variant shadow-2xl bg-surface-lowest transition-all hover:shadow-secondary/5">
-                    <div className="px-8 py-6 border-b-2 border-outline-variant bg-surface-lowest">
-                        <h3 className="text-xl font-black text-on-surface tracking-tighter">إجراءات سريعة</h3>
-                    </div>
-                    <div className="p-6 space-y-4">
-                        <Link href={route('orders.index')} className="w-full text-right flex items-center gap-4 p-5 rounded-[1.5rem] bg-surface-low border-2 border-outline-variant hover:border-secondary hover:bg-surface-lowest transition-all group">
-                            <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center flex-shrink-0 group-hover:bg-secondary group-hover:text-surface transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6"><path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" /></svg>
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-base font-black text-on-surface mb-0.5">طلب بيع جديد</div>
-                                <div className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">إنشاء فاتورة فورية</div>
-                            </div>
-                        </Link>
-                        
-                        <Link href={route('inventory.index')} className="w-full text-right flex items-center gap-4 p-5 rounded-[1.5rem] bg-surface-low border-2 border-outline-variant hover:border-emerald-500 hover:bg-surface-lowest transition-all group">
-                            <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500 group-hover:text-surface transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" /><path fillRule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" /></svg>
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-base font-black text-on-surface mb-0.5">إدارة المخزون</div>
-                                <div className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">تحديث الأصناف والكميات</div>
-                            </div>
-                        </Link>
-
-                        <Link href={route('branches.index')} className="w-full text-right flex items-center gap-4 p-5 rounded-[1.5rem] bg-surface-low border-2 border-outline-variant hover:border-primary hover:bg-surface-lowest transition-all group">
-                            <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 group-hover:bg-primary group-hover:text-surface transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-6 h-6"><path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4z" clipRule="evenodd" /></svg>
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-base font-black text-on-surface mb-0.5">إدارة الفروع</div>
-                                <div className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-widest">توسيع نطاق العمل</div>
-                            </div>
-                        </Link>
+                    {/* Elite Quick Actions Grid */}
+                    <div className="bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden p-12 space-y-12">
+                        <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pb-6 border-b border-white/5">وصول سريع للبروتوكولات</h3>
+                        <div className="flex flex-col gap-8">
+                            <ActionCard 
+                                href={route('orders.index')} 
+                                title="إنشاء طلب بيع فوري" 
+                                desc="تسوية مبيعات جديدة" 
+                                color="amber-400" 
+                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>} 
+                            />
+                            <ActionCard 
+                                href={route('inventory.index')} 
+                                title="إدارة الأصول والمخزون" 
+                                desc="التحكم الشامل بالأصناف" 
+                                color="emerald-400" 
+                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} 
+                            />
+                            <ActionCard 
+                                href={route('branches.index')} 
+                                title="توسيع الشبكة والمراكز" 
+                                desc="مراكز التوسع الجغرافي" 
+                                color="blue-500" 
+                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>} 
+                            />
+                        </div>
+                        <div className="pt-10 border-t border-white/5 flex justify-center">
+                             <div className="w-32 h-1 bg-white/[0.02] rounded-full overflow-hidden relative">
+                                <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent animate-shimmer" />
+                             </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+                @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+                .animate-shimmer { animation: shimmer 3s infinite linear; }
+            ` }} />
         </AdminLayout>
+    );
+}
+
+function KpiCard({ label, value, unit, color, bg, isPulse }) {
+    return (
+        <div className={`group p-10 rounded-[4rem] border border-white/5 ${bg} hover:border-white/10 transition-all duration-700 shadow-2xl relative overflow-hidden`}>
+            {isPulse && <div className="absolute top-0 right-0 p-10 opacity-10 animate-pulse"><div className={`w-3 h-3 rounded-full bg-current ${color}`} /></div>}
+            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block mb-6">{label}</span>
+            <div className="flex items-baseline gap-4">
+                <span className={`text-4xl font-black ${color} tracking-tighter leading-none group-hover:scale-110 transition-transform origin-right`}>{value}</span>
+                <span className="text-[10px] font-black text-white/10 tracking-[0.3em] uppercase">{unit}</span>
+            </div>
+        </div>
+    );
+}
+
+function ActionCard({ href, title, desc, color, icon }) {
+    return (
+        <Link href={href} className="flex items-center gap-8 p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
+            <div className={`w-16 h-16 rounded-2xl bg-${color}/10 text-${color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-2xl`}>{icon}</div>
+            <div className="flex-1 text-right">
+                <div className="text-xl font-black text-white mb-1 uppercase tracking-tight">{title}</div>
+                <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">{desc}</div>
+            </div>
+        </Link>
     );
 }

@@ -12,9 +12,17 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use App\Events\OrderPlaced;
+use App\Services\OfferService;
 
 class OrderController extends Controller
 {
+    protected $offerService;
+
+    public function __construct(OfferService $offerService)
+    {
+        $this->offerService = $offerService;
+    }
+
     public function index()
     {
         $userId = Auth::id();
@@ -58,6 +66,7 @@ class OrderController extends Controller
             'items.*.quantity' => 'required|integer|min:1',
             'items.*.notes' => 'nullable|string',
             'notes' => 'nullable|string',
+            'coupon' => 'nullable|string|max:20',
         ]);
 
         $customer = Auth::user();
@@ -125,6 +134,42 @@ class OrderController extends Controller
 
             $totalConvertedPrice += $itemTotalConverted;
 
+            // --- OFFER LOGIC START ---
+            // Prepare data for OfferService
+            $cartItems = collect($validated['items'])->map(function($i) use ($customer, $targetRate) {
+                $product = Product::with(['units' => function($q) use ($customer) {
+                    $q->where('branch_id', $customer->branch_id)->with('currency');
+                }])->find($i['product_id']);
+                
+                $defaultUnit = $product->units->where('is_default_sale', true)->first() ?? $product->units->first();
+                $originalPrice = $defaultUnit ? ($defaultUnit->retail_price ?: $defaultUnit->base_price) : 0;
+                
+                if ($customer->user_type == UserType::Wholesaler->value && $defaultUnit && $defaultUnit->wholesale_price) $originalPrice = $defaultUnit->wholesale_price;
+                elseif ($customer->user_type == UserType::Retailer->value && $defaultUnit && $defaultUnit->retail_price) $originalPrice = $defaultUnit->retail_price;
+
+                $sourceCurrency = $defaultUnit ? $defaultUnit->currency : null;
+                $sourceRate = $sourceCurrency ? $sourceCurrency->exchange_rate : 1;
+                $convertedUnitPrice = $originalPrice * ($sourceRate / $targetRate);
+
+                return [
+                    'product_id' => $i['product_id'],
+                    'quantity'   => $i['quantity'],
+                    'unit_price' => $convertedUnitPrice,
+                ];
+            });
+
+            $offerResult = $this->offerService->applyOffers($customer, $cartItems, $validated['coupon'] ?? null);
+
+            // Update current item price if a discount was applied
+            $processedTarget = collect($offerResult['items'])->firstWhere('product_id', $item['product_id']);
+            if ($processedTarget) {
+                // Since convertedUnitPrice was used, we update convertedUnitPrice
+                $convertedUnitPrice = $processedTarget->unit_price;
+                $itemTotalConverted = $item['quantity'] * $convertedUnitPrice;
+                // Re-calculate the totalConvertedPrice would be tricky inside loop without carefulness
+            }
+            // --- OFFER LOGIC END ---
+
             OrderItem::create([
                 'order_id'          => $order->id,
                 'product_id'        => $item['product_id'],
@@ -132,23 +177,52 @@ class OrderController extends Controller
                 'quantity'          => $item['quantity'],
                 'unit_total'        => $item['quantity'] * ($defaultUnit?->conversion_factor ?: 1),
                 
-                'unit_price'        => round($convertedUnitPrice, 4), // Store converted price to match branch currency
-                'currency_id'       => $targetCurrency->id, // Use Branch default currency
-                'exchange_rate'     => $targetRate, // Use Branch exchange rate snapshot
+                'unit_price'        => round($convertedUnitPrice, 4),
+                'currency_id'       => $targetCurrency->id,
+                'exchange_rate'     => $targetRate,
                 
-                'item_total'        => round($itemTotalConverted, 4), // Total In Branch Currency
-                'exchange_total'    => round($itemTotalConverted, 4), 
+                'item_total'        => round($itemTotalConverted, 4),
+                'exchange_total'    => round($itemTotalConverted, 4),
                 
                 'branch_id'         => $customer->branch_id,
                 'notes'             => $item['notes'] ?? null,
             ]);
         }
 
+        // Recalculate totalConvertedPrice from all items to account for discounts
+        $totalConvertedPrice = $order->orderItems()->sum('item_total');
+
         $order->update([
             'total_price'    => round($totalConvertedPrice, 4),
             'exchange_total' => round($totalConvertedPrice, 4),
             'final_amount'   => round($totalConvertedPrice, 4),
         ]);
+
+        // --- ADD BONUS ITEMS FROM OFFERS ---
+        if (!empty($offerResult['bonuses'])) {
+            foreach ($offerResult['bonuses'] as $bonus) {
+                OrderItem::create([
+                    'order_id'          => $order->id,
+                    'product_id'        => $bonus['product_id'],
+                    'product_unit_id'   => null,
+                    'quantity'          => $bonus['quantity'],
+                    'unit_total'        => $bonus['quantity'], 
+                    'unit_price'        => 0,
+                    'item_total'        => 0,
+                    'currency_id'       => $targetCurrency->id,
+                    'exchange_rate'     => $targetRate,
+                    'exchange_total'    => 0,
+                    'branch_id'         => $customer->branch_id,
+                    'notes'             => 'هدية: ' . $bonus['title'],
+                ]);
+            }
+        }
+
+        // Decrement Offer Limits
+        if (!empty($offerResult['applied_offers'])) {
+             $this->offerService->decrementOfferLimits(collect($offerResult['applied_offers'])->pluck('id')->toArray());
+        }
+        // --- END BONUSES ---
 
         // Dispatch broadcast event for real-time update
         event(new OrderPlaced($order));

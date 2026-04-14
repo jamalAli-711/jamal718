@@ -1,8 +1,5 @@
 import { useState } from 'react';
 import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import Modal from '@/Components/Modal';
 import MapPicker from '@/Components/MapPicker';
@@ -13,239 +10,153 @@ export default function Register() {
     const [isMapModalOpen, setIsMapModalOpen] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: '',
-        email: '',
-        phone: '',
-        branch_id: '',
-        user_type: 4, // Default to Customer
-        password: '',
-        password_confirmation: '',
-        lat: '',
-        lng: '',
+        name: '', email: '', phone: '', branch_id: '',
+        user_type: 4, password: '', password_confirmation: '',
+        lat: '', lng: '',
     });
 
     const userTypes = [
-        { id: 4, label: 'عميل', desc: 'لطلب المنتجات الشخصية', icon: (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-        )},
-        { id: 3, label: 'تاجر تجزئة', desc: 'لأصحاب المحلات الصغيرة', icon: (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-        )},
-        { id: 2, label: 'تاجر جملة', desc: 'للكميات والموزعين الكبار', icon: (
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-        )},
+        { id: 4, label: 'عميل فردي', desc: 'مشتريات شخصية', icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg> },
+        { id: 3, label: 'شريك تجزئة', desc: 'نشاط تجاري قياسي', icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> },
+        { id: 2, label: 'تاجر جملة', desc: 'توزيع النخبة', icon: <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg> },
     ];
 
     const submit = (e) => {
         e.preventDefault();
-
-        post(route('register'), {
-            onFinish: () => reset('password', 'password_confirmation'),
-        });
+        post(route('register'), { onFinish: () => reset('password', 'password_confirmation'), });
     };
 
     return (
         <GuestLayout>
-            <Head title="تسجيل حساب جديد" />
+            <Head title="إعداد الهوية — شبكة النخبة" />
 
-            <div className="text-center mb-10">
-                <h1 className="text-4xl font-black text-[#031633] tracking-tighter uppercase">إنشاء حساب جديد</h1>
-                <p className="text-xs font-black text-slate-400 mt-2 uppercase tracking-[0.1em]">اختر نوع العضوية وابدأ رحلتك التجارية معنا</p>
-                <div className="h-1.5 w-16 bg-[#e31e24] mx-auto mt-4 rounded-full"></div>
+            <div className="text-center mb-16">
+                <h1 className="text-6xl font-black text-white tracking-tighter uppercase leading-none mb-4 italic">إنشاء هوية</h1>
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">سجل حضورك ضمن شبكة التوريد الخاصة بالنخبة</p>
+                <div className="h-1 w-20 bg-gradient-to-r from-transparent via-amber-400 to-transparent mx-auto mt-8 opacity-40"></div>
             </div>
 
-
-            <form onSubmit={submit} className="space-y-6">
-                {/* User Type Selection Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <form onSubmit={submit} className="space-y-12">
+                {/* VIP Role Selection Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
                     {userTypes.map((type) => (
                         <button
-                            key={type.id}
-                            type="button"
-                            onClick={() => setData('user_type', type.id)}
-                            className={`relative text-right p-6 rounded-[2rem] border-2 transition-all duration-500 flex flex-col gap-3 group ${
+                            key={type.id} type="button" onClick={() => setData('user_type', type.id)}
+                            className={`relative text-right p-8 rounded-[2.5rem] border transition-all duration-700 flex flex-col gap-5 group overflow-hidden ${
                                 data.user_type === type.id 
-                                ? 'border-[#e31e24] bg-white shadow-2xl shadow-red-100 ring-8 ring-red-50' 
-                                : 'border-slate-50 bg-slate-50 hover:border-slate-200'
+                                ? 'border-amber-400/40 bg-white/[0.04] shadow-2xl' 
+                                : 'border-white/5 bg-white/[0.01] hover:border-white/10'
                             }`}
                         >
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                                data.user_type === type.id ? 'bg-[#e31e24] text-white scale-110 rotate-3' : 'bg-white text-slate-400 group-hover:bg-slate-900 group-hover:text-white'
+                            {/* Role Icon Wrapper */}
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-700 ${
+                                data.user_type === type.id ? 'bg-amber-400 text-black scale-110' : 'bg-white/5 text-white/20 group-hover:text-white'
                             }`}>
                                 {type.icon}
                             </div>
                             <div>
-                                <h3 className={`font-black text-sm uppercase tracking-widest ${data.user_type === type.id ? 'text-[#e31e24]' : 'text-[#031633]'}`}>
-                                    {type.label}
-                                </h3>
-                                <p className="text-[10px] font-black text-slate-400 mt-1 leading-tight uppercase tracking-tight">{type.desc}</p>
+                                <h3 className={`font-black text-xs uppercase tracking-widest ${data.user_type === type.id ? 'text-amber-400' : 'text-white/40'}`}>{type.label}</h3>
+                                <p className="text-[9px] font-black text-white/10 mt-1 uppercase tracking-tighter">{type.desc}</p>
                             </div>
                             {data.user_type === type.id && (
-                                <div className="absolute top-4 left-4 bg-[#e31e24] text-white rounded-full p-1 shadow-lg animate-in zoom-in">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 13l4 4L19 7" /></svg>
-                                </div>
+                                <div className="absolute top-6 left-6 w-3 h-3 bg-amber-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
                             )}
                         </button>
                     ))}
                 </div>
 
-                <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">الاسم بالكامل</label>
-                            <TextInput
-                                id="name"
-                                name="name"
-                                value={data.name}
-                                className="w-full !border-2 !border-slate-50 !bg-slate-50 !rounded-2xl !py-4 !px-5 !text-base !font-black focus:!border-[#e31e24] focus:!bg-white focus:!ring-8 focus:!ring-red-50 transition-all"
-                                autoComplete="name"
-                                isFocused={true}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.name} className="mt-2" />
+                <div className="space-y-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <VIPField label="الاسم القانوني الكامل" value={data.name} onChange={v => setData('name', v)} error={errors.name} />
+                        <VIPField label="الاتصال المباشر (رقم الجوال)" value={data.phone} onChange={v => setData('phone', v)} error={errors.phone} placeholder="77XXXXXXX" dir="ltr" />
+                    </div>
+
+                    <VIPField label="الوصول الآمن (البريد الإلكتروني)" type="email" value={data.email} onChange={v => setData('email', v)} error={errors.email} placeholder="EMAIL@DOMAIN.COM" dir="ltr" />
+
+                    <div className="space-y-4">
+                        <label className="block text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pr-4">عقدة التوزيع الأساسية (الفرع)</label>
+                        <div className="relative group">
+                            <select
+                                value={data.branch_id} onChange={(e) => setData('branch_id', e.target.value)}
+                                className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-6 px-10 text-lg font-black text-white/60 focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer group-hover:bg-white/[0.05]"
+                            >
+                                <option value="" className="bg-[#111114]">-- اختر المركز الإقليمي --</option>
+                                {branches?.map(branch => <option key={branch.id} value={branch.id} className="bg-[#111114]">{branch.branch_name} ({branch.location_city})</option>)}
+                            </select>
+                            <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/10"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div>
                         </div>
-
-                        <div className="space-y-2">
-                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">رقم الجوال</label>
-                            <TextInput
-                                id="phone"
-                                name="phone"
-                                value={data.phone}
-                                className="w-full !border-2 !border-slate-50 !bg-slate-50 !rounded-2xl !py-4 !px-5 !text-base !font-black focus:!border-[#e31e24] focus:!bg-white focus:!ring-8 focus:!ring-red-50 transition-all text-left"
-                                dir="ltr"
-                                placeholder="770000000"
-                                onChange={(e) => setData('phone', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.phone} className="mt-2" />
-                        </div>
+                        <InputError message={errors.branch_id} className="mt-2 text-[10px] uppercase tracking-widest text-rose-500 pr-4 font-black text-right" />
                     </div>
 
-                    <div className="space-y-2">
-                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">البريد الإلكتروني</label>
-                        <TextInput
-                            id="email"
-                            type="email"
-                            name="email"
-                            value={data.email}
-                            className="w-full !border-2 !border-slate-50 !bg-slate-50 !rounded-2xl !py-4 !px-5 !text-base !font-black focus:!border-[#e31e24] focus:!bg-white focus:!ring-8 focus:!ring-red-50 transition-all text-left"
-                            dir="ltr"
-                            autoComplete="username"
-                            onChange={(e) => setData('email', e.target.value)}
-                            required
-                        />
-                        <InputError message={errors.email} className="mt-2" />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">المنطقة / الفرع الأقرب</label>
-                        <select
-                            id="branch_id"
-                            name="branch_id"
-                            value={data.branch_id}
-                            className="w-full border-2 border-slate-50 bg-slate-50 rounded-2xl py-4 px-5 text-base font-black focus:border-[#e31e24] focus:bg-white focus:ring-8 focus:ring-red-50 transition-all appearance-none"
-                            onChange={(e) => setData('branch_id', e.target.value)}
-                            required
-                        >
-                            <option value="">-- اختر المنطقة --</option>
-                            {branches?.map(branch => (
-                                <option key={branch.id} value={branch.id}>
-                                    {branch.branch_name} ({branch.location_city})
-                                </option>
-                            ))}
-                        </select>
-                        <InputError message={errors.branch_id} className="mt-2" />
-                    </div>
-
-                    <div className="space-y-3">
-                        <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">الموقع الجغرافي للمحل</label>
+                    {/* VIP Map Trigger */}
+                    <div className="space-y-4">
+                        <label className="block text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pr-4">تحديد الموقع الجغرافي (COORDINATES)</label>
                         <button
-                            type="button"
-                            onClick={() => setIsMapModalOpen(true)}
-                            className={`w-full py-4 rounded-2xl border-2 flex items-center justify-center gap-3 transition-all duration-500 font-black text-sm uppercase tracking-widest ${
-                                data.lat ? 'border-emerald-100 bg-emerald-50 text-emerald-600' : 'border-slate-100 bg-white text-[#031633] hover:border-[#e31e24] hover:text-[#e31e24]'
+                            type="button" onClick={() => setIsMapModalOpen(true)}
+                            className={`w-full py-6 rounded-[2rem] border transition-all duration-700 flex items-center justify-center gap-4 text-xs font-black uppercase tracking-[0.3em] overflow-hidden relative group/map ${
+                                data.lat ? 'border-emerald-500/20 bg-emerald-500/5 text-emerald-400' : 'border-white/5 bg-white/[0.02] text-white/20 hover:border-amber-400/20 hover:text-amber-400 shadow-xl'
                             }`}
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                            {data.lat ? 'تم تحديد الموقع بنجاح' : 'تحديد الموقع على الخارطة'}
+                             <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover/map:translate-x-full transition-transform duration-1000`} />
+                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                             {data.lat ? 'تم قفل الإحداثيات بنجاح' : 'تفعيل بروتوكول الموقع'}
                         </button>
-                        <InputError message={errors.lat || errors.lng} className="mt-2" />
+                        <InputError message={errors.lat || errors.lng} className="mt-2 text-[10px] uppercase tracking-widest text-rose-500 pr-4 font-black text-right" />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-4">
-                        <div className="space-y-2">
-                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">كلمة المرور</label>
-                            <TextInput
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                className="w-full !border-2 !border-slate-50 !bg-slate-50 !rounded-2xl !py-4 !px-5 !text-base !font-black focus:!border-[#e31e24] focus:!bg-white focus:!ring-8 focus:!ring-red-50 transition-all text-left"
-                                dir="ltr"
-                                autoComplete="new-password"
-                                onChange={(e) => setData('password', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.password} className="mt-2" />
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="block text-[11px] font-black text-slate-400 uppercase tracking-widest mr-2">تأكيد كلمة المرور</label>
-                            <TextInput
-                                id="password_confirmation"
-                                type="password"
-                                name="password_confirmation"
-                                value={data.password_confirmation}
-                                className="w-full !border-2 !border-slate-50 !bg-slate-50 !rounded-2xl !py-4 !px-5 !text-base !font-black focus:!border-[#e31e24] focus:!bg-white focus:!ring-8 focus:!ring-red-50 transition-all text-left"
-                                dir="ltr"
-                                autoComplete="new-password"
-                                onChange={(e) => setData('password_confirmation', e.target.value)}
-                                required
-                            />
-                            <InputError message={errors.password_confirmation} className="mt-2" />
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8 border-t border-white/5">
+                        <VIPField label="رمز الوصول (كلمة المرور)" type="password" value={data.password} onChange={v => setData('password', v)} error={errors.password} placeholder="••••••••" dir="ltr" />
+                        <VIPField label="تأكيد رمز الوصول" type="password" value={data.password_confirmation} onChange={v => setData('password_confirmation', v)} error={errors.password_confirmation} placeholder="••••••••" dir="ltr" />
                     </div>
                 </div>
 
-                <div className="mt-10 pt-8 border-t-2 border-slate-50 flex flex-col items-center gap-6">
-                    <button className="w-full bg-[#031633] text-white py-5 rounded-[1.5rem] font-black text-lg uppercase tracking-[0.2em] shadow-2xl hover:bg-[#e31e24] hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-50" disabled={processing || !data.lat}>
-                        {processing ? 'جاري المعالجة...' : 'تأكيد وإنشاء الحساب'}
+                <div className="mt-16 pt-12 flex flex-col items-center gap-8">
+                    <button 
+                        className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-amber-400 text-black py-7 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.5em] shadow-2xl shadow-amber-500/20 hover:scale-[1.02] active:scale-95 transition-all duration-500 disabled:opacity-20 disabled:grayscale" 
+                        disabled={processing || !data.lat}
+                    >
+                        {processing ? 'جاري تثبيت السجل...' : 'بدء تفعيل الهوية'}
                     </button>
                     
-                    <Link
-                        href={route('login')}
-                        className="text-xs font-black text-slate-400 uppercase tracking-widest hover:text-[#e31e24] transition-colors"
-                    >
-                        لديك حساب بالفعل؟ <span className="underline underline-offset-4">سجل دخولك هنا</span>
+                    <Link href={route('login')} className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] hover:text-amber-400 transition-colors py-4">
+                        مسجل بالفعل ضمن الشبكة؟ <span className="text-amber-500 border-b border-amber-500/20 pb-0.5">تسجيل الدخول</span>
                     </Link>
                 </div>
-
             </form>
 
-            <Modal show={isMapModalOpen} onClose={() => setIsMapModalOpen(false)} title="تحديد موقع المحل" maxWidth="2xl">
-                <div className="p-4">
-                    <div className="mb-4 text-sm text-gray-600">
-                        يرجى سحب العلامة الحمراء أو استخدام مربع البحث لتحديد موقع محلك بدقة. هذه الخطوة ضرورية لضمان توصيل الطلبات إليك بشكل أسرع.
+            <Modal show={isMapModalOpen} onClose={() => setIsMapModalOpen(false)} maxWidth="2xl">
+                <div className="bg-[#0c0c0e] p-10 rounded-[4rem] border border-white/10 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)] text-right" dir="rtl">
+                    <div className="flex justify-between items-center mb-10">
+                        <h3 className="text-3xl font-black text-white tracking-tighter uppercase">رسم الإحداثيات</h3>
+                        <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-white/20 hover:bg-rose-500 hover:text-white transition-all"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
                     </div>
-                    <MapPicker 
-                        lat={data.lat} 
-                        lng={data.lng} 
-                        onLocationChange={(lat, lng) => {
-                            setData(prev => ({...prev, lat, lng}));
-                        }}
-                        height="400px" 
-                    />
-                    <div className="mt-4 flex justify-end">
-                        <PrimaryButton type="button" onClick={() => setIsMapModalOpen(false)}>
-                            حفظ وإغلاق
-                        </PrimaryButton>
+                    <div className="mb-8 p-6 bg-amber-400/5 rounded-3xl border border-amber-400/10">
+                        <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-widest leading-relaxed text-right">يرجى تحديد موقع المحل بدقة على الخارطة لضمان ترقية حسابك إلى وضعية الشريك التجاري الفعّال.</p>
+                    </div>
+                    <div className="rounded-[2.5rem] overflow-hidden border border-white/5 shadow-inner">
+                        <MapPicker lat={data.lat} lng={data.lng} onLocationChange={(lat, lng) => setData(prev => ({...prev, lat, lng}))} height="400px" />
+                    </div>
+                    <div className="mt-10">
+                        <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-full py-6 bg-white/5 text-white font-black text-xs uppercase tracking-[0.4em] rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 shadow-xl">
+                            قفل الموقع الجغرافي
+                        </button>
                     </div>
                 </div>
             </Modal>
         </GuestLayout>
+    );
+}
+
+function VIPField({ label, value, onChange, type = "text", placeholder = "", dir = "rtl", error }) {
+    return (
+        <div className="space-y-4">
+            <label className="block text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pr-4">{label}</label>
+            <input
+                type={type} value={value} onChange={(e) => onChange(e.target.value)}
+                className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-6 px-10 text-xl font-black text-white placeholder:text-white/5 focus:outline-none focus:border-amber-400/30 transition-all shadow-inner text-right"
+                placeholder={placeholder} dir={dir}
+            />
+            <InputError message={error} className="mt-2 text-[10px] uppercase tracking-widest text-rose-500 pr-4 font-black text-right" />
+        </div>
     );
 }

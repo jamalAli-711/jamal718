@@ -15,7 +15,6 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
     const [showUnitsModal, setShowUnitsModal] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
-    // Filters
     const [searchQuery, setSearchQuery] = useState('');
     const [filterCategory, setFilterCategory] = useState('');
 
@@ -24,141 +23,70 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
         if (flash?.error) toast.error(flash.error);
     }, [flash]);
 
-    // --- Add Product Form ---
+    // --- Forms Logic (Preserved) ---
     const addForm = useForm({
-        sku: '', name: '',
-        stock_quantity: 0, branch_id: branches[0]?.id || '', category_id: '',
+        sku: '', name: '', stock_quantity: 0, branch_id: branches[0]?.id || '', category_id: '',
         images: [], primary_index: 0,
     });
-
     const [addPreviews, setAddPreviews] = useState([]);
 
     const handleAddImagesChange = (e) => {
         const files = Array.from(e.target.files);
-        const newPreviews = files.map(file => ({
-            file,
-            url: URL.createObjectURL(file)
-        }));
+        const newPreviews = files.map(file => ({ file, url: URL.createObjectURL(file) }));
         setAddPreviews([...addPreviews, ...newPreviews]);
         addForm.setData('images', [...addForm.data.images, ...files]);
     };
 
     const removeAddImage = (index) => {
-        const newPreviews = [...addPreviews];
-        newPreviews.splice(index, 1);
-        setAddPreviews(newPreviews);
-
-        const newImages = [...addForm.data.images];
-        newImages.splice(index, 1);
-        addForm.setData('images', newImages);
-
-        if (addForm.data.primary_index === index) {
-            addForm.setData('primary_index', 0);
-        } else if (addForm.data.primary_index > index) {
-            addForm.setData('primary_index', addForm.data.primary_index - 1);
-        }
+        const newPreviews = [...addPreviews]; newPreviews.splice(index, 1); setAddPreviews(newPreviews);
+        const newImages = [...addForm.data.images]; newImages.splice(index, 1); addForm.setData('images', newImages);
+        if (addForm.data.primary_index === index) addForm.setData('primary_index', 0);
+        else if (addForm.data.primary_index > index) addForm.setData('primary_index', addForm.data.primary_index - 1);
     };
 
     const submitAdd = (e) => {
         e.preventDefault();
-        addForm.post(route('inventory.store'), {
-            forceFormData: true,
-            onSuccess: () => {
-                setShowAddModal(false);
-                addForm.reset();
-                setAddPreviews([]);
-            },
-        });
+        addForm.post(route('inventory.store'), { forceFormData: true, onSuccess: () => { setShowAddModal(false); addForm.reset(); setAddPreviews([]); }, });
     };
 
-    // --- Edit Product Form ---
-    const editForm = useForm({
-        name: '', category_id: '',
-        new_images: [], deleted_images: [], primary_image_id: null, _method: 'PUT'
-    });
-
-    const [editPreviews, setEditPreviews] = useState([]); // For newly added files
-    const [existingImages, setExistingImages] = useState([]); // From product.images
-
-    const openEditModal = (product) => {
-        setSelectedProduct(product);
-        setExistingImages(product.images.map(img => ({ ...img, isDeleted: false })));
-        setEditPreviews([]);
-
-        const primaryImg = product.images.find(img => img.is_primary);
-
-        editForm.setData({
-            name: product.name,
-            category_id: product.category_id || '',
-            new_images: [],
-            deleted_images: [],
-            primary_image_id: primaryImg ? primaryImg.id : null,
-            _method: 'PUT'
-        });
-        setShowEditModal(true);
-    };
+    const editForm = useForm({ name: '', category_id: '', new_images: [], deleted_images: [], primary_image_id: null, _method: 'PUT' });
+    const [editPreviews, setEditPreviews] = useState([]); const [existingImages, setExistingImages] = useState([]);
 
     const handleEditNewImagesChange = (e) => {
         const files = Array.from(e.target.files);
-        const newPreviews = files.map(file => ({
-            file,
-            url: URL.createObjectURL(file)
-        }));
-        setEditPreviews([...editPreviews, ...newPreviews]);
+        const newPreviews = files.map(file => ({ file, url: URL.createObjectURL(file) }));
+        setEditPreviews(prev => [...prev, ...newPreviews]);
         editForm.setData('new_images', [...editForm.data.new_images, ...files]);
     };
 
-    const toggleDeleteExisting = (id) => {
-        const isCurrentlyDeleted = editForm.data.deleted_images.includes(id);
-        const newDeleted = isCurrentlyDeleted
-            ? editForm.data.deleted_images.filter(did => did !== id)
-            : [...editForm.data.deleted_images, id];
-
-        editForm.setData('deleted_images', newDeleted);
-        setExistingImages(existingImages.map(img => img.id === id ? { ...img, isDeleted: !isCurrentlyDeleted } : img));
-
-        // If we delete the primary, we should probably pick another one
-        if (!isCurrentlyDeleted && editForm.data.primary_image_id === id) {
-            editForm.setData('primary_image_id', null);
-        }
+    const removeEditNewImage = (index) => {
+        const newPreviews = [...editPreviews]; newPreviews.splice(index, 1); setEditPreviews(newPreviews);
+        const newImgs = [...editForm.data.new_images]; newImgs.splice(index, 1); editForm.setData('new_images', newImgs);
     };
 
-    const removeEditNewImage = (index) => {
-        const newPreviews = [...editPreviews];
-        newPreviews.splice(index, 1);
-        setEditPreviews(newPreviews);
+    const toggleDeleteExisting = (imgId) => {
+        setExistingImages(prev => prev.map(img => img.id === imgId ? { ...img, isDeleted: !img.isDeleted } : img));
+        const deletedIds = existingImages.map(img => img.id === imgId ? { ...img, isDeleted: !img.isDeleted } : img)
+            .filter(img => img.isDeleted).map(img => img.id);
+        editForm.setData('deleted_images', deletedIds);
+    };
 
-        const newImages = [...editForm.data.new_images];
-        newImages.splice(index, 1);
-        editForm.setData('new_images', newImages);
-
-        if (editForm.data.primary_image_id === `new_${index}`) {
-            editForm.setData('primary_image_id', null);
-        }
+    const openEditModal = (product) => {
+        setSelectedProduct(product); setExistingImages(product.images.map(img => ({ ...img, isDeleted: false }))); setEditPreviews([]);
+        const primaryImg = product.images.find(img => img.is_primary);
+        editForm.setData({ name: product.name, category_id: product.category_id || '', new_images: [], deleted_images: [], primary_image_id: primaryImg ? primaryImg.id : null, _method: 'PUT' });
+        setShowEditModal(true);
     };
 
     const submitEdit = (e) => {
         e.preventDefault();
-        editForm.post(route('inventory.update', selectedProduct.id), {
-            forceFormData: true,
-            onSuccess: () => setShowEditModal(false),
-        });
+        editForm.post(route('inventory.update', selectedProduct.id), { forceFormData: true, onSuccess: () => setShowEditModal(false), });
     };
 
-    // --- Stock Update Form ---
-    const stockForm = useForm({
-        branch_id: '', stock_quantity: 0,
-    });
-
+    const stockForm = useForm({ branch_id: '', stock_quantity: 0 });
     const openStockModal = (product) => {
-        setSelectedProduct(product);
-        stockForm.setData({
-            branch_id: branches[0]?.id || '',
-            stock_quantity: 0,
-        });
-        setShowStockModal(true);
+        setSelectedProduct(product); stockForm.setData({ branch_id: branches[0]?.id || '', stock_quantity: 0 }); setShowStockModal(true);
     };
-
     useEffect(() => {
         if (showStockModal && selectedProduct && stockForm.data.branch_id) {
             const branchPivot = selectedProduct.branches?.find(b => b.id == stockForm.data.branch_id);
@@ -168,638 +96,389 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
     const submitStockMode = (e) => {
         e.preventDefault();
-        stockForm.put(route('inventory.updateStock', selectedProduct.id), {
-            onSuccess: () => setShowStockModal(false),
-        });
+        stockForm.put(route('inventory.updateStock', selectedProduct.id), { onSuccess: () => setShowStockModal(false), });
     };
 
-    // --- Units Setup Form ---
-    const unitsForm = useForm({
-        units: []
-    });
-
+    const unitsForm = useForm({ units: [] });
     const openUnitsModal = (product) => {
         setSelectedProduct(product);
-        // Load existing units or an empty one
         if (product.units && product.units.length > 0) {
             unitsForm.setData('units', product.units.map(u => ({
-                id: u.id, // optional
-                unit_id: u.unit_id,
-                branch_id: u.branch_id || branches[0]?.id || '',
-                currency_id: u.currency_id || currencies[0]?.id || '',
-                conversion_factor: u.conversion_factor,
-                base_price: u.base_price,
-                wholesale_price: u.wholesale_price,
-                retail_price: u.retail_price,
+                id: u.id, unit_id: u.unit_id, branch_id: u.branch_id || branches[0]?.id || '',
+                currency_id: u.currency_id || currencies[0]?.id || '', conversion_factor: u.conversion_factor,
+                base_price: u.base_price, wholesale_price: u.wholesale_price, retail_price: u.retail_price,
                 is_default_sale: u.is_default_sale ? true : false,
             })));
         } else {
-            unitsForm.setData('units', [
-                { unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: true }
-            ]);
+            unitsForm.setData('units', [{ unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: true }]);
         }
         setShowUnitsModal(true);
     };
 
-    const addUnitRow = () => {
-        unitsForm.setData('units', [...unitsForm.data.units, { unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: false }]);
-    };
-
-    const removeUnitRow = (index) => {
-        const newUnits = [...unitsForm.data.units];
-        newUnits.splice(index, 1);
-        unitsForm.setData('units', newUnits);
-    };
-
     const updateUnitRow = (index, field, value) => {
-        const newUnits = [...unitsForm.data.units];
-        newUnits[index][field] = value;
-        unitsForm.setData('units', newUnits);
+        const newUnits = [...unitsForm.data.units]; newUnits[index][field] = value; unitsForm.setData('units', newUnits);
     };
 
     const submitUnitsForm = (e) => {
         e.preventDefault();
-        unitsForm.post(route('inventory.updateUnits', selectedProduct.id), {
-            onSuccess: () => setShowUnitsModal(false),
-        });
+        unitsForm.post(route('inventory.updateUnits', selectedProduct.id), { onSuccess: () => setShowUnitsModal(false), });
     };
 
-    // --- Delete ---
     const deleteProduct = (product) => {
-        if (confirm(`هل أنت متأكد من حذف "${product.name}"؟`)) {
-            router.delete(route('inventory.destroy', product.id));
-        }
+        if (confirm(`هل أنت متأكد من حذف "${product.name}"؟`)) { router.delete(route('inventory.destroy', product.id)); }
     };
 
     const getStockLevel = (qty) => {
-        if (qty <= 10) return { color: 'bg-red-500', text: 'text-red-600', label: 'نفاد', badge: 'bg-red-100 text-red-700' };
-        if (qty <= 50) return { color: 'bg-amber-400', text: 'text-amber-600', label: 'منخفض', badge: 'bg-amber-100 text-amber-700' };
-        return { color: 'bg-green-500', text: 'text-green-600', label: 'متوفر', badge: 'bg-green-100 text-green-700' };
+        if (qty <= 10) return { color: 'bg-rose-500', text: 'text-rose-500', glow: 'shadow-[0_0_15px_rgba(244,63,94,0.3)]' };
+        if (qty <= 50) return { color: 'bg-amber-400', text: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.2)]' };
+        return { color: 'bg-emerald-500', text: 'text-emerald-500', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.2)]' };
     };
 
-    // Filters
-    let filteredProducts = products.data;
-    if (searchQuery) {
-        filteredProducts = filteredProducts.filter(p => p.name.includes(searchQuery) || p.sku.includes(searchQuery));
-    }
-    if (filterCategory) {
-        filteredProducts = filteredProducts.filter(p => p.category_id == filterCategory);
-    }
+    const filteredProducts = products.data.filter(p => {
+        const searchMatch = !searchQuery || p.name.includes(searchQuery) || p.sku.includes(searchQuery);
+        const catMatch = !filterCategory || p.category_id == filterCategory;
+        return searchMatch && catMatch;
+    });
 
     return (
-        <AdminLayout user={auth.user} header="المخزون">
-            <Head title="إدارة المخزون" />
+        <AdminLayout user={auth.user} header="خزنة الأصول">
+            <Head title="إدارة المخزون — النخبة اللوجستية" />
 
-            <div className="animate-slide-in">
-
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 translate-y-0 animate-in fade-in duration-700">
-                <div>
-                    <h2 className="text-4xl font-black text-[#031633] tracking-tighter">إدارة المخزون والأصناف</h2>
-                    <p className="text-slate-500 font-bold text-base mt-2 uppercase tracking-tight">مراقبة دقيقة للأرصدة، الأسعار، وحركة المنتجات عبر الفروع</p>
-
-
+            <div className="pb-32 animate-in fade-in duration-1000" dir="rtl">
+                
+                {/* VIP Header Section */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-10 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl overflow-hidden relative">
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
+                    <div className="relative z-10 space-y-4">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.4em] text-[10px] font-black uppercase">
+                            ذكاء سلسلة التوريد العالمية
+                            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+                        </div>
+                        <h2 className="text-6xl font-black text-white tracking-tighter leading-none">إدارة مستودعات الأصول</h2>
+                        <p className="text-white/20 font-bold text-xl italic pr-6 border-r-4 border-amber-400/20">تتبع حي للمخزون، تقييم القيمة الرأسمالية، وإدارة وحدات التداول للفروع.</p>
+                    </div>
+                    <button onClick={() => setShowAddModal(true)} className="group px-12 py-6 bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black rounded-[2rem] flex items-center gap-4 shadow-2xl shadow-amber-400/20 hover:scale-105 active:scale-95 transition-all relative z-10">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
+                        <span className="text-xs uppercase tracking-[0.2em]">إضافة صنف جديد</span>
+                    </button>
                 </div>
-                <button onClick={() => setShowAddModal(true)} className="btn-primary h-12 px-6 rounded-xl flex items-center gap-2 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1">
-                    <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    <span className="font-bold text-sm tracking-wide">إضافة صنف جديد</span>
-                </button>
-            </div>
 
-            {/* Premium Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="relative overflow-hidden bg-surface p-6 rounded-3xl border-2 border-outline-variant shadow-sm hover:border-secondary/50 transition-all group">
-                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-secondary/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center text-white shadow-lg">
-                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
-                        </div>
-                        <div>
-                            <p className="text-sm font-black text-on-surface-variant uppercase tracking-widest leading-none mb-2">إجمالي الأصناف</p>
-                            <h3 className="text-4xl font-black text-on-surface tracking-tighter leading-none">{stats.total_products} <span className="text-base font-black text-on-surface-variant/40">صنف</span></h3>
-                        </div>
+                {/* VIP Stats Section */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
+                    <StatCard label="حجم الكتالوج" value={stats.total_products} unit="صنف" icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} color="amber-400" />
+                    <StatCard label="قرب النفاد" value={stats.low_stock} unit="تنبيه" icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>} color="rose-500" />
+                    <StatCard label="التقييم الرأسمالي" value={stats.total_value.toLocaleString()} unit={stats.currency_symbol} icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} color="emerald-500" />
+                </div>
+
+                {/* VIP Search Box */}
+                <div className="mb-12 flex flex-col md:flex-row gap-8 items-center justify-between p-8 bg-white/[0.01] rounded-[3rem] border border-white/5">
+                    <div className="flex-1 w-full relative group">
+                        <input type="text" placeholder="ابحث في السجلات..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-14 py-6 text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all text-right group-hover:bg-white/[0.05]" />
+                        <svg className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-white/10 group-hover:text-amber-400/40 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <div className="relative w-full md:w-96 group">
+                        <select className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-8 py-6 text-sm font-black text-white/40 focus:outline-none focus:border-amber-400/30 transition-all cursor-pointer appearance-none group-hover:bg-white/[0.05]" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                            <option value="" className="bg-[#111114]">جميع التصنيفات</option>
+                            {categories.map(c => <option key={c.id} value={c.id} className="bg-[#111114]">{c.category_name}</option>)}
+                        </select>
+                        <svg className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                     </div>
                 </div>
 
-                <div className="relative overflow-hidden bg-surface p-6 rounded-3xl border-2 border-primary/20 shadow-sm hover:border-primary/50 transition-all group">
-                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-700"></div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-white shadow-lg">
-                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                        </div>
-                        <div>
-                            <p className="text-sm font-black text-primary/60 uppercase tracking-widest leading-none mb-2">تنبيهات الانخفاض</p>
-                            <h3 className="text-4xl font-black text-primary tracking-tighter leading-none">{stats.low_stock} <span className="text-base font-black text-primary/40">تنبيه</span></h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="relative overflow-hidden bg-slate-900 p-6 rounded-3xl shadow-xl border-t border-white/10 group">
-                    <div className="absolute -right-6 -bottom-6 w-32 h-32 bg-[#e31e24]/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-1000"></div>
-                    <div className="relative z-10 flex items-center gap-4">
-                        <div className="w-14 h-14 bg-[#e31e24] rounded-2xl flex items-center justify-center text-white shadow-[0_0_20px_rgba(227,30,36,0.3)]">
-                            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <div>
-                            <p className="text-sm font-black text-white/40 uppercase tracking-widest leading-none mb-2">إجمالي قيمة المخزون</p>
-                            <h3 className="text-4xl font-black text-white tracking-tighter leading-none">{stats.total_value} <span className="text-xl font-black text-[#e31e24] underline underline-offset-4 decoration-2">{stats.currency_symbol}</span></h3>
-                        </div>
-
-
-                    </div>
-                </div>
-            </div>
-
-
-            {/* Inventory Table Container */}
-            <div className="bg-surface rounded-[2rem] border-2 border-outline-variant shadow-sm overflow-hidden">
-                <div className="p-6 border-b-2 border-outline-variant bg-surface-lowest/50 flex flex-wrap gap-4 items-center justify-between">
-                    <div className="flex items-center gap-3 flex-1 min-w-[280px]">
-                        <div className="relative flex-1 group">
-                            <svg className="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                            <input type="text" placeholder="البحث باسم المنتج أو الكود SKU..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full border-2 border-outline-variant bg-surface-lowest rounded-2xl text-lg py-4 pr-12 pl-4 focus:border-primary focus:ring-4 focus:ring-primary/5 transition-all placeholder:text-on-surface-variant/30 font-extrabold shadow-sm text-on-surface" />
-                        </div>
-                        <div className="relative min-w-[240px]">
-                            <select className="w-full border-2 border-outline-variant rounded-2xl text-lg py-4 pr-4 pl-10 appearance-none focus:border-primary transition-all bg-surface-lowest font-extrabold text-on-surface shadow-sm cursor-pointer" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                                <option value="">جميع الأقسام</option>
-                                {categories.map(c => <option key={c.id} value={c.id}>{c.category_name}</option>)}
-                            </select>
-                            <svg className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" /></svg>
-                        </div>
-
-                    </div>
-
-                    {searchQuery || filterCategory ? (
-                        <button onClick={() => {setSearchQuery(''); setFilterCategory('');}} className="text-base font-black text-[#e31e24] hover:bg-red-50 px-4 py-2 rounded-xl transition-colors border-2 border-rose-100">مسح كافة الفلاتر</button>
-                    ) : null}
-
-                </div>
-                    <table className="min-w-full border-collapse">
-                        <thead className="bg-surface-lowest border-b-2 border-outline-variant">
-                            <tr className="text-right">
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center border-l border-outline-variant/50">صورة</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50">رمز SKU</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-right">المنتج والتفاصيل</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-center">المخزون المتوفر</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest border-l border-outline-variant/50 text-right">التسعير والوحدات</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center border-l border-outline-variant/50 w-32">الحالة</th>
-                                <th className="px-8 py-6 text-base font-black text-on-surface uppercase tracking-widest text-center">الإدارة</th>
-                            </tr>
-                        </thead>
-
-
-                        <tbody className="divide-y divide-slate-100">
-                            {filteredProducts.map((product) => {
-                                const level = getStockLevel(product.total_stock);
-                                return (
-                                    <tr key={product.id} className="group hover:bg-slate-50 transition-all duration-300 border-b border-slate-100 last:border-0">
-
-                                        <td className="px-8 py-6 border-l border-outline-variant/30 text-center">
-                                            <div className="w-16 h-16 rounded-2xl bg-surface-lowest p-2 shadow-sm border-2 border-outline-variant group-hover:border-secondary transition-all duration-500 overflow-hidden relative mx-auto">
-                                                {product.thumbnail ? (
-                                                    <img src={product.thumbnail} alt={product.name} className="w-full h-full object-contain" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-on-surface-variant/20">
-                                                        <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                {/* VIP Asset Ledger */}
+                <div className="bg-[#0c0c0e]/80 backdrop-blur-3xl rounded-[4rem] border border-white/5 overflow-hidden shadow-2xl">
+                    <div className="overflow-x-auto custom-scrollbar">
+                        <table className="w-full text-right border-collapse">
+                            <thead>
+                                <tr className="bg-white/[0.01]">
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">الصورة</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">رمز SKU</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">اسم الصنف</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">مؤشر المخزون</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">التسعير</th>
+                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/[0.03]">
+                                {filteredProducts.map((product) => {
+                                    const level = getStockLevel(product.total_stock);
+                                    return (
+                                        <tr key={product.id} className="group hover:bg-white/[0.01] transition-colors">
+                                            <td className="px-12 py-10">
+                                                <div className="w-24 h-24 bg-white/[0.02] border border-white/5 rounded-3xl p-4 shadow-inner flex items-center justify-center group-hover:scale-110 transition-transform duration-700 overflow-hidden relative">
+                                                    <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
+                                                    {product.thumbnail ? <img src={product.thumbnail} className="w-full h-full object-contain relative z-10" /> : <svg className="w-10 h-10 text-white/5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+                                                </div>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <span className="text-2xl font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors uppercase leading-none">#{product.sku}</span>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <div className="flex flex-col gap-1">
+                                                    <h4 className="text-2xl font-black text-white leading-none tracking-tighter uppercase whitespace-normal max-w-xs">{product.name}</h4>
+                                                    <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.3em]">{product.category?.category_name || 'GENERIC_ASSET'}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <div className="flex flex-col items-center gap-3">
+                                                    <div className="flex items-baseline gap-2">
+                                                        <span className={`text-4xl font-black ${level.text} tracking-tighter leading-none`}>{product.total_stock || 0}</span>
+                                                        <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">وحدة</span>
                                                     </div>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6 border-l border-outline-variant/30">
-                                            <span className="text-sm font-black text-on-surface-variant/40 uppercase tracking-widest block mb-1.5 text-xs">رمز الصنف</span>
-                                            <span className="font-mono text-lg font-black text-on-surface bg-surface-lowest px-4 py-2 rounded-xl border-2 border-outline-variant group-hover:border-primary/30 transition-colors uppercase">{product.sku}</span>
-                                        </td>
-
-                                        <td className="px-8 py-6 border-l border-slate-50">
-                                            <div className="max-w-[250px]">
-                                                <h4 className="font-black text-xl text-slate-900 group-hover:text-[#e31e24] transition-colors line-clamp-2 leading-snug">{product.name}</h4>
-                                                <span className="inline-flex items-center gap-1.5 text-xs font-black text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg mt-2 uppercase tracking-widest border border-blue-100">
-                                                    {product.category?.category_name || 'بدون قسم'}
-                                                </span>
-                                            </div>
-                                        </td>
-
-
-                                        <td className="px-8 py-6 border-l border-slate-50 bg-slate-50/20">
-                                            <div className="flex flex-col gap-2">
-                                                <div className="flex justify-between items-end mb-2">
-                                                    <span className="text-sm font-black text-slate-500 uppercase tracking-widest">إجمالي المتوفر</span>
-                                                    <span className={`text-2xl font-black ${level.text}`}>{product.total_stock || 0}</span>
+                                                    <div className="w-32 bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5 shadow-inner">
+                                                        <div className={`h-full ${level.color} transition-all duration-1000 ${level.glow}`} style={{ width: `${Math.min(100, (product.total_stock / 200) * 100)}%` }} />
+                                                    </div>
+                                                    <button onClick={() => openStockModal(product)} className="text-[9px] font-black text-white/20 hover:text-amber-400 uppercase tracking-[0.4em] transition-all bg-white/[0.02] px-4 py-1.5 rounded-full border border-white/5">ضبط المخزون</button>
                                                 </div>
-
-
-                                                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
-                                                    <div className={`h-full rounded-full ${level.color} transition-all duration-1000 ease-out shadow-sm`} style={{ width: `${Math.min(100, (product.total_stock / 200) * 100)}%` }}></div>
-                                                </div>
-                                                <button onClick={() => openStockModal(product)} className="text-xs font-black text-blue-600 hover:text-blue-800 uppercase tracking-widest flex items-center gap-1.5 transition-colors mt-2 bg-blue-50/50 px-2 py-1 rounded-lg border border-blue-100/50">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
-                                                    تعديل الرصيد
-                                                </button>
-
-                                            </div>
-                                        </td>
-
-                                        <td className="px-8 py-6 border-l border-slate-50">
-                                            <div className="text-sm">
+                                            </td>
+                                            <td className="px-12 py-10">
                                                 {(() => {
                                                     const defUnit = product.units?.find(u => u.is_default_sale) || product.units?.[0];
-                                                    if (!defUnit) return <span className="text-xs font-black text-slate-300 uppercase italic">غير مسعر</span>;
-
+                                                    if (!defUnit) return <span className="text-[10px] italic text-white/5 uppercase tracking-[0.4em]">التسعير غير متاح</span>;
                                                     const unitCurrency = currencies.find(c => c.id === defUnit.currency_id) || default_currency;
-                                                    const isDifferentCurrency = unitCurrency && default_currency && unitCurrency.id !== default_currency.id;
-
-                                                    const convert = (val) => {
-                                                        if (!isDifferentCurrency) return null;
-                                                        const converted = val * (unitCurrency.exchange_rate / default_currency.exchange_rate);
-                                                        return Number(converted).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-                                                    };
-
-                                                    const PriceRow = ({ label, value, colorClass = "" }) => {
-                                                        const converted = convert(value);
-                                                        return (
-                                                            <div className="flex flex-col mb-3 last:mb-0">
-                                                                <div className="flex justify-between gap-10 whitespace-nowrap items-baseline">
-                                                                    <span className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest">{label}</span>
-                                                                    <span className={`font-black text-lg ${colorClass}`}>{Number(value).toLocaleString()} <span className="opacity-50 text-xs">{unitCurrency?.currency_code_ar}</span></span>
-                                                                </div>
-                                                                {converted && (
-                                                                    <div className="text-[10px] font-black text-secondary font-mono text-left -mt-1 opacity-70">
-                                                                        ≈ {converted} {default_currency?.currency_code_ar}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        );
-                                                    };
-
                                                     return (
-                                                        <div className="min-w-[200px] bg-surface-lowest p-4 rounded-3xl border-2 border-outline-variant group-hover:border-secondary/20 transition-colors">
-                                                            <PriceRow label="سعر التجزئة" value={defUnit.retail_price} colorClass="text-on-surface" />
-                                                            <PriceRow label="سعر الجملة" value={defUnit.wholesale_price} colorClass="text-secondary" />
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex justify-between items-baseline gap-10">
+                                                                <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">سعر التجزئة</span>
+                                                                <span className="text-2xl font-black text-white tracking-tighter">{Number(defUnit.retail_price).toLocaleString()} <span className="text-[10px] text-white/30 uppercase ml-1">{unitCurrency?.currency_code_ar}</span></span>
+                                                            </div>
+                                                            <div className="flex justify-between items-baseline gap-10 border-t border-white/[0.03] pt-1.5">
+                                                                <span className="text-[10px] font-black text-white/5 uppercase tracking-widest">سعر الجملة</span>
+                                                                <span className="text-lg font-black text-white/20 tracking-tighter italic">{Number(defUnit.wholesale_price).toLocaleString()} <span className="text-[8px] opacity-20 ml-1">{unitCurrency?.currency_code_ar}</span></span>
+                                                            </div>
                                                         </div>
                                                     );
-
                                                 })()}
-                                            </div>
-                                        </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button onClick={() => openUnitsModal(product)} className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center hover:bg-purple-600 hover:text-white transition-all shadow-sm border-2 border-purple-100" title="تخصيص الوحدات والتسعير">
-                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
-                                                </button>
-                                                <button onClick={() => openEditModal(product)} className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm border-2 border-blue-100" title="تعديل البيانات">
-                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                </button>
-                                                <button onClick={() => deleteProduct(product)} className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all shadow-sm border-2 border-red-100" title="حذف بالكامل">
-                                                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                            {filteredProducts.length === 0 && (
-                                <tr>
-                                    <td colSpan="7" className="px-8 py-24 text-center">
-                                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed border-gray-200">
-                                            <svg className="w-10 h-10 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                                        </div>
-                                        <h4 className="font-black text-2xl text-slate-900">لا توجد منتجات مطابقة للبحث</h4>
-                                        <button onClick={() => {setSearchQuery(''); setFilterCategory('');}} className="text-base font-black text-blue-600 underline mt-4 uppercase tracking-widest">إلغاء كافة الفلاتر</button>
-
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                            </td>
+                                            <td className="px-12 py-10">
+                                                <div className="flex items-center justify-center gap-4">
+                                                    <OpBtn onClick={() => openUnitsModal(product)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>} color="amber-400" />
+                                                    <OpBtn onClick={() => openEditModal(product)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>} color="blue-400" />
+                                                    <OpBtn onClick={() => deleteProduct(product)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>} color="rose-500" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <div className="px-8 py-5 border-t-2 border-slate-200 text-sm font-black text-slate-900 bg-slate-50 flex justify-between items-center rounded-b-3xl">
-                    <span>عرض {filteredProducts.length} من {products.total} صنف في المخزن</span>
-                    <span className="text-slate-400 uppercase tracking-widest text-[10px]">Inventory Lifecycle Manager</span>
-                </div>
+            </div>
 
+            {/* VIP Modals */}
 
-
-            {/* ========== ADD PRODUCT MODAL ========== */}
-            <Modal show={showAddModal} onClose={() => setShowAddModal(false)} title="إضافة صنف جديد (مع أول رصيد فرعي)" maxWidth="xl">
-                <form onSubmit={submitAdd}>
-                    <Modal.Body className="max-h-[65vh] overflow-y-auto px-8 py-6">
-
+            <Modal show={showAddModal} onClose={() => setShowAddModal(false)} maxWidth="xl">
+                <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[3rem] border border-white/5 relative" dir="rtl">
+                    <form onSubmit={submitAdd} className="space-y-12">
+                        <ModalHeader title="تسجيل صنف جديد" onClose={() => setShowAddModal(false)} />
+                        <div className="grid grid-cols-2 gap-10">
+                            <Field label="رمز SKU" value={addForm.data.sku} onChange={v => addForm.setData('sku', v)} placeholder="SKU-XXXXX" />
+                            <Field label="اسم الصنف" value={addForm.data.name} onChange={v => addForm.setData('name', v)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-10">
+                            <Select label="التصنيف" value={addForm.data.category_id} onChange={v => addForm.setData('category_id', v)} options={categories.map(c => ({v:c.id, l:c.category_name}))} />
+                            <Select label="الفرع (Entry Node)" value={addForm.data.branch_id} onChange={v => addForm.setData('branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
+                        </div>
+                        <Field label="رصيد المخزون الافتتاحي" type="number" value={addForm.data.stock_quantity} onChange={v => addForm.setData('stock_quantity', v)} />
+                        
                         <div className="space-y-4">
-                            {/* GALLERY MANAGER */}
-                            <div className="bg-slate-50 p-4 rounded-3xl border-2 border-slate-100">
-                                <label className="block text-xs font-black text-slate-500 uppercase mb-3 tracking-widest">معرض صور المنتج</label>
-
-
-                                <div className="grid grid-cols-3 gap-3 mb-4">
-                                    {addPreviews.map((preview, idx) => (
-                                        <div key={idx} className={`relative group aspect-square rounded-2xl overflow-hidden border-2 transition-all ${addForm.data.primary_index === idx ? 'border-blue-500 ring-4 ring-blue-50' : 'border-slate-200'}`}>
-                                            <img src={preview.url} className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                                <button type="button" onClick={() => addForm.setData('primary_index', idx)} className={`text-xs px-2 py-1 rounded-lg font-bold ${addForm.data.primary_index === idx ? 'bg-blue-500 text-white' : 'bg-white text-slate-900'}`}>
-                                                    {addForm.data.primary_index === idx ? 'الصورة الرئيسية' : 'تعيين كرئيسية'}
-                                                </button>
-
-                                                <button type="button" onClick={() => removeAddImage(idx)} className="bg-rose-500 text-white p-1.5 rounded-full hover:bg-rose-600 transition-colors shadow-lg">
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    <label className="aspect-square border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-100 cursor-pointer transition-all group">
-                                        <svg className="w-7 h-7 text-slate-300 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                                        <span className="text-xs text-slate-400 mt-2 uppercase font-black tracking-widest">إضافة صور</span>
-
-                                        <input type="file" multiple accept="image/*" className="hidden" onChange={handleAddImagesChange} />
-                                    </label>
-                                </div>
-                                <p className="text-xs text-slate-400 font-bold uppercase tracking-tight">بإمكانك إضافة صور متعددة وتحديد الصورة الرئيسية للعرض.</p>
-
-                            </div>
-
-
-                            {/* BASIC INFO */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-1.5">رمز الصنف (SKU) *</label>
-                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900" placeholder="BEV-001" value={addForm.data.sku} onChange={e => addForm.setData('sku', e.target.value)} required />
-                                    {addForm.errors.sku && <p className="text-sm font-black text-rose-500 mt-1 uppercase">{addForm.errors.sku}</p>}
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-1.5">اسم الصنف *</label>
-                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900" value={addForm.data.name} onChange={e => addForm.setData('name', e.target.value)} required />
-                                </div>
-
-                            </div>
-                            <div>
-                                <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-1.5">الفئة القسم</label>
-                                <select className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900" value={addForm.data.category_id} onChange={e => addForm.setData('category_id', e.target.value)}>
-                                    <option value="">بدون فئة</option>
-                                    {categories.map(c => <option key={c.id} value={c.id}>{c.category_name}</option>)}
-                                </select>
-                            </div>
-
-
-
-                            {/* removed legacy pricing logic */}
-
-                            {/* INITIAL STOCK */}
-                            <div className="bg-slate-900 p-4 rounded-3xl border border-slate-800 grid grid-cols-2 gap-4 shadow-xl">
-                                <div className="col-span-2 text-xs font-black text-white/40 uppercase tracking-[0.2em] border-b border-white/5 pb-2">إيداع المخزون الأولي</div>
-
-                                <div>
-                                    <label className="block text-sm font-black text-slate-300 uppercase tracking-widest mb-1.5 text-right">الفرع المستلم</label>
-                                    <select className="w-full border-2 border-slate-700 bg-slate-800 rounded-xl text-lg py-3 px-4 text-white font-black focus:border-[#e31e24] transition-all" value={addForm.data.branch_id} onChange={e => addForm.setData('branch_id', e.target.value)} required>
-                                        <option value="">اختر الفرع...</option>
-                                        {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-black text-slate-300 uppercase tracking-widest mb-1.5 text-right">الكمية المتاحة</label>
-                                    <input type="number" min="0" className="w-full border-2 border-slate-700 bg-slate-800 rounded-xl text-lg py-3 px-4 text-white font-black focus:border-[#e31e24] transition-all text-center" value={addForm.data.stock_quantity} onChange={e => addForm.setData('stock_quantity', e.target.value)} required />
-                                </div>
-
-                            </div>
-
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <button type="button" onClick={() => setShowAddModal(false)} className="btn-secondary">إلغاء</button>
-                        <button type="submit" disabled={addForm.processing} className="btn-primary">{addForm.processing ? 'جاري الحفظ...' : 'حفظ الصنف'}</button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
-
-            {/* ========== EDIT PRODUCT DETAILS MODAL ========== */}
-            <Modal show={showEditModal} onClose={() => setShowEditModal(false)} title={`تعديل معلومات — ${selectedProduct?.name || ''}`} maxWidth="xl">
-                {selectedProduct && (
-                    <form onSubmit={submitEdit}>
-                        <Modal.Body className="max-h-[65vh] overflow-y-auto px-8 py-6">
-
-                            <div className="space-y-4">
-                                {/* GALLERY MANAGER */}
-                                <div className="bg-slate-50 p-4 rounded-3xl border-2 border-slate-100">
-                                    <label className="block text-xs font-black text-slate-500 uppercase mb-3 tracking-widest">معرض الصور الحالي والجديد</label>
-
-
-                                    <div className="grid grid-cols-3 gap-3 mb-4">
-                                        {/* Existing Images */}
-                                        {existingImages.map((img) => (
-                                            <div key={`existing-${img.id}`} className={`relative group aspect-square rounded-2xl overflow-hidden border-2 transition-all ${editForm.data.primary_image_id === img.id ? 'border-blue-500 ring-4 ring-blue-50' : 'border-slate-100'} ${img.isDeleted ? 'opacity-40 grayscale' : ''}`}>
-                                                <img src={`/storage/${img.image_path}`} className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                                    {!img.isDeleted && (
-                                                        <button type="button" onClick={() => editForm.setData('primary_image_id', img.id)} className={`text-xs px-2 py-1 rounded-lg font-bold ${editForm.data.primary_image_id === img.id ? 'bg-blue-500 text-white' : 'bg-white text-slate-900'}`}>
-                                                            {editForm.data.primary_image_id === img.id ? 'الرئيسية' : 'تعيين رئيسية'}
-                                                        </button>
-
-                                                    )}
-                                                    <button type="button" onClick={() => toggleDeleteExisting(img.id)} className={`p-1.5 rounded-full shadow-lg transition-colors ${img.isDeleted ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
-                                                        {img.isDeleted ? (
-                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                                        ) : (
-                                                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                        )}
-                                                    </button>
-                                                </div>
-                                                {img.isDeleted && <div className="absolute inset-0 flex items-center justify-center bg-white/40 backdrop-blur-[2px]"><span className="bg-rose-600 text-xs px-2 py-1 rounded-lg font-black uppercase tracking-widest shadow-lg">سيتم الحذف</span></div>}
-
-                                            </div>
-                                        ))}
-
-                                        {/* New Image Previews */}
-                                        {editPreviews.map((preview, idx) => (
-                                            <div key={`new-${idx}`} className={`relative group aspect-square rounded-2xl overflow-hidden border-2 transition-all ${editForm.data.primary_image_id === `new_${idx}` ? 'border-blue-500 ring-4 ring-blue-50' : 'border-slate-200'}`}>
-                                                <img src={preview.url} className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
-                                                    <button type="button" onClick={() => editForm.setData('primary_image_id', `new_${idx}`)} className={`text-xs px-2 py-1 rounded-lg font-bold ${editForm.data.primary_image_id === `new_${idx}` ? 'bg-blue-500 text-white' : 'bg-white text-slate-900'}`}>
-                                                        تعيين رئيسية
-                                                    </button>
-
-                                                    <button type="button" onClick={() => removeEditNewImage(idx)} className="bg-rose-500 text-white p-1.5 rounded-full hover:bg-rose-600 shadow-lg">
-                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        {/* Add Button */}
-                                        <label className="aspect-square border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center hover:bg-slate-100 cursor-pointer transition-all group">
-                                            <svg className="w-7 h-7 text-slate-300 group-hover:text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" /></svg>
-                                            <span className="text-xs text-slate-400 mt-2 uppercase font-black tracking-widest">رفع صور</span>
-
-                                            <input type="file" multiple accept="image/*" className="hidden" onChange={handleEditNewImagesChange} />
-                                        </label>
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">الصور التوثيقية</label>
+                            <input type="file" multiple onChange={handleAddImagesChange} className="hidden" id="add-images" />
+                            <label htmlFor="add-images" className="flex flex-col items-center justify-center p-12 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-[2.5rem] cursor-pointer hover:bg-white/[0.04] transition-all group">
+                                <svg className="w-12 h-12 text-white/10 group-hover:text-amber-400 group-hover:scale-110 transition-all mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Drag & Drop or Click to Upload High-Fidelity Renders</span>
+                            </label>
+                            <div className="grid grid-cols-4 gap-6 mt-6">
+                                {addPreviews.map((p, i) => (
+                                    <div key={i} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${addForm.data.primary_index === i ? 'border-amber-400' : 'border-white/5'}`}>
+                                        <img src={p.url} className="w-full h-24 object-cover" />
+                                        <button type="button" onClick={() => removeAddImage(i)} className="absolute top-2 left-2 w-6 h-6 bg-rose-500 text-white rounded-lg flex items-center justify-center translate-y-2 opacity-0 group-hover/img:translate-y-0 group-hover/img:opacity-100 transition-all"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                                        <button type="button" onClick={() => addForm.setData('primary_index', i)} className={`absolute inset-0 flex items-center justify-center text-[10px] font-black uppercase tracking-widest transition-all ${addForm.data.primary_index === i ? 'bg-amber-400/20 text-white opacity-100' : 'bg-black/60 text-white/40 opacity-0 group-hover/img:opacity-100'}`}>{addForm.data.primary_index === i ? 'صورة رئيسية' : 'تعيين كرئيسية'}</button>
                                     </div>
-                                </div>
-
-
-                                <div>
-                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-1.5">اسم الصنف *</label>
-                                    <input type="text" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm" value={editForm.data.name} onChange={e => editForm.setData('name', e.target.value)} required />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-black text-slate-500 uppercase tracking-widest mb-1.5">القسم التابع له</label>
-                                    <select className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-4 focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition-all font-black text-slate-900 shadow-sm" value={editForm.data.category_id} onChange={e => editForm.setData('category_id', e.target.value)}>
-                                        <option value="">بدون فئة</option>
-                                        {categories.map(c => <option key={c.id} value={c.id}>{c.category_name}</option>)}
-                                    </select>
-                                </div>
-
-
+                                ))}
                             </div>
-                        </Modal.Body>
-                        <Modal.Footer>
-                            <button type="button" onClick={() => setShowEditModal(false)} className="btn-secondary">إلغاء</button>
-                            <button type="submit" disabled={editForm.processing} className="btn-primary">{editForm.processing ? 'جاري التحديث...' : 'حفظ التعديلات'}</button>
-                        </Modal.Footer>
+                        </div>
+
+                        <ModalFooter onAbort={() => setShowAddModal(false)} submitTxt="تسجيل الصنف" processing={addForm.processing} />
                     </form>
-                )}
+                </div>
             </Modal>
 
-            {/* ========== STOCK DISTRIBUTE MODAL ========== */}
-            <Modal show={showStockModal} onClose={() => setShowStockModal(false)} title={`تعديل أرصدة الفروع للمنتج: ${selectedProduct?.name}`} maxWidth="sm">
-                <form onSubmit={submitStockMode}>
-                    <Modal.Body>
-                        <div className="space-y-6">
-                            <div className="bg-blue-50 text-blue-700 p-6 rounded-3xl border-2 border-blue-100 flex items-start gap-4 shadow-sm">
-                                <svg className="w-6 h-6 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <p className="text-sm font-black uppercase tracking-tight leading-relaxed">يرجى اختيار الفرع لتحديث الرصيد المتوفر فيه. سيتم اعتماد الكمية الجديدة بدلاً من القديمة.</p>
-                            </div>
-
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-1.5 text-right">الفرع المستهدف</label>
-
-                                    <select className="w-full border-2 border-slate-200 rounded-2xl text-sm py-3 px-4 focus:border-blue-500 transition-all bg-white font-bold" value={stockForm.data.branch_id} onChange={e => stockForm.setData('branch_id', e.target.value)} required>
-                                        <option value="">اختر الفرع...</option>
-                                        {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
-                                    </select>
-                                </div>
-                                <div className="relative p-6 bg-slate-50 rounded-[2.5rem] border-2 border-slate-100 shadow-inner">
-                                    <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-3 text-center">الرصيد الفعلي الحالي (قطعة)</label>
-
-                                    <input type="number" min="0" className="w-full border-0 bg-transparent text-5xl py-2 px-3 focus:ring-0 transition-all font-black text-center text-slate-900 placeholder:text-slate-100" placeholder="0" value={stockForm.data.stock_quantity} onChange={e => stockForm.setData('stock_quantity', e.target.value)} required />
-                                    <div className="text-xs font-bold text-slate-400 mt-4 text-center uppercase tracking-[0.2em]">أدخل الكمية الموجودة على الرف حالياً</div>
-
-                                </div>
-                            </div>
-
+            {/* EDIT ASSET MODAL */}
+            <Modal show={showEditModal} onClose={() => setShowEditModal(false)} maxWidth="xl">
+                <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[3rem] border border-white/5 relative" dir="rtl">
+                    <form onSubmit={submitEdit} className="space-y-12">
+                        <ModalHeader title={`تعديل بيانات: ${selectedProduct?.name}`} onClose={() => setShowEditModal(false)} />
+                        <div className="grid grid-cols-2 gap-10">
+                            <Field label="اسم الصنف" value={editForm.data.name} onChange={v => editForm.setData('name', v)} />
+                            <Select label="التصنيف" value={editForm.data.category_id} onChange={v => editForm.setData('category_id', v)} options={categories.map(c => ({v:c.id, l:c.category_name}))} />
                         </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <button type="button" onClick={() => setShowStockModal(false)} className="btn-secondary h-12 px-6 rounded-xl font-bold">إلغاء</button>
-                        <button type="submit" disabled={stockForm.processing} className="btn-primary h-12 px-8 rounded-xl font-black shadow-lg">حفظ واعتماد الرصيد</button>
-                    </Modal.Footer>
-                </form>
-            </Modal>
-
-            {/* ========== UNITS & PRICING MODAL ========== */}
-            <Modal show={showUnitsModal} onClose={() => setShowUnitsModal(false)} title={`الوحدات والتسعير المرن: ${selectedProduct?.name}`} maxWidth="3xl">
-                <form onSubmit={submitUnitsForm}>
-                    <Modal.Body className="max-h-[60vh] overflow-y-auto bg-slate-50/50 p-8 space-y-6">
-
-                        <div className="flex justify-between items-center bg-white text-slate-900 p-6 rounded-[2.5rem] border-2 border-slate-100 shadow-sm relative overflow-hidden group">
-                            <div className="absolute -right-4 -top-4 w-20 h-20 bg-blue-50/50 rounded-full blur-xl group-hover:scale-150 transition-transform duration-1000"></div>
-                            <div className="relative z-10">
-                                <h4 className="text-lg font-black uppercase tracking-widest mb-1">لوحة التحكم في الوحدات والتسعير</h4>
-                                <p className="text-sm font-black text-slate-400 uppercase tracking-tight">إدارة الوحدات، العملات، والعلاوات السعرية لكل وحدة</p>
-
-
-                            </div>
-                            <button type="button" onClick={addUnitRow} className="bg-slate-900 text-white h-12 px-6 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-[#e31e24] transition-all relative z-10">
-                                + إضافة تعريف وحدة
-                            </button>
-                        </div>
-
-
+                        
                         <div className="space-y-6">
-                            {unitsForm.data.units.map((unitRow, index) => (
-                                <div key={index} className="bg-white p-7 rounded-[3rem] border-2 border-slate-100 shadow-sm relative group/row hover:border-slate-300 transition-all duration-500">
-                                    <button type="button" onClick={() => removeUnitRow(index)} className="absolute top-7 left-7 text-slate-200 hover:text-rose-500 hover:scale-125 transition-all p-2 rounded-xl" title="حذف التعريف">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    </button>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-5 pr-2">
-                                        <div>
-                                            <label className="block text-sm font-black text-slate-400 uppercase tracking-widest mb-2">الوحدة البيعية</label>
-                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-lg py-3.5 px-4 focus:border-blue-500 transition-all bg-slate-50 font-black text-slate-900" value={unitRow.unit_id} onChange={e => updateUnitRow(index, 'unit_id', e.target.value)} required>
-                                                <option value="">اختر الوحدة...</option>
-                                                {units.map(u => <option key={u.id} value={u.id}>{u.unit_name}</option>)}
-                                            </select>
+                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">مستودع الصور</label>
+                            <div className="grid grid-cols-4 gap-6">
+                                {existingImages.map((img) => (
+                                    <div key={img.id} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${img.isDeleted ? 'opacity-20 border-rose-500' : editForm.data.primary_image_id === img.id ? 'border-amber-400' : 'border-white/5'}`}>
+                                        <img src={`/storage/${img.image_path}`} className="w-full h-24 object-cover grayscale-[0.2]" />
+                                        <div className="absolute inset-0 bg-black/40 group-hover/img:bg-black/20 transition-all flex flex-col items-center justify-center gap-2">
+                                            {!img.isDeleted && (
+                                                <button type="button" onClick={() => editForm.setData('primary_image_id', img.id)} className="px-3 py-1 bg-white/5 text-[9px] font-black uppercase rounded-lg border border-white/10 hover:bg-amber-400 hover:text-black hover:border-transparent transition-all">Primary</button>
+                                            )}
+                                            <button type="button" onClick={() => toggleDeleteExisting(img.id)} className={`px-3 py-1 text-[9px] font-black uppercase rounded-lg border transition-all ${img.isDeleted ? 'bg-white/5 text-white/40 border-white/10 hover:bg-emerald-500 hover:text-black hover:border-transparent' : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white hover:border-transparent'}`}>
+                                                {img.isDeleted ? 'استرجاع' : 'حذف'}
+                                            </button>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-black text-slate-400 uppercase tracking-widest mb-2">الفرع التابع</label>
-                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-lg py-3.5 px-4 focus:border-blue-500 transition-all bg-slate-50 font-black text-slate-900" value={unitRow.branch_id} onChange={e => updateUnitRow(index, 'branch_id', e.target.value)} required>
-                                                <option value="">اختر الفرع...</option>
-                                                {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-black text-slate-400 uppercase tracking-widest mb-2">عملة التسعير</label>
-                                            <select className="w-full border-2 border-slate-100 rounded-2xl text-lg py-3.5 px-4 focus:border-blue-500 transition-all bg-slate-50 font-black text-slate-900" value={unitRow.currency_id} onChange={e => updateUnitRow(index, 'currency_id', e.target.value)} required>
-                                                <option value="">اختر العملة...</option>
-                                                {currencies.map(c => <option key={c.id} value={c.id}>{c.currency_name}</option>)}
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-black text-slate-400 uppercase tracking-widest mb-2">معامل التحويل</label>
-                                            <input type="number" min="1" step="0.01" className="w-full border-2 border-slate-100 rounded-2xl text-lg py-3.5 px-4 focus:border-blue-500 transition-all bg-slate-50 font-black text-slate-900 text-center" value={unitRow.conversion_factor} onChange={e => updateUnitRow(index, 'conversion_factor', e.target.value)} required />
-                                        </div>
-
                                     </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8 pt-7 border-t border-slate-50 items-end">
-                                        <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                            <label className="block text-sm font-black text-slate-400 uppercase tracking-widest mb-2">سعر التكلفة</label>
-                                            <input type="number" step="0.01" min="0" className="w-full border-2 border-slate-200 rounded-xl text-lg py-3 px-3 focus:border-blue-500 transition-all font-black text-slate-900" value={unitRow.base_price} onChange={e => updateUnitRow(index, 'base_price', e.target.value)} required />
+                                ))}
+                                {editPreviews.map((p, i) => (
+                                    <div key={i} className="relative group/img rounded-2xl overflow-hidden border-2 border-emerald-500/20">
+                                        <img src={p.url} className="w-full h-24 object-cover" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <button type="button" onClick={() => removeEditNewImage(i)} className="w-8 h-8 bg-rose-500 text-white rounded-lg flex items-center justify-center"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
                                         </div>
-                                        <div className="p-4 bg-rose-50/30 rounded-2xl border border-rose-50">
-                                            <label className="block text-sm font-black text-rose-500 uppercase tracking-widest mb-2 text-right">سعر الجملة</label>
-                                            <input type="number" step="0.01" min="0" className="w-full border-2 border-rose-100 rounded-xl text-lg py-3 px-3 focus:border-rose-500 transition-all font-black text-rose-700" value={unitRow.wholesale_price} onChange={e => updateUnitRow(index, 'wholesale_price', e.target.value)} required />
-                                        </div>
-                                        <div className="p-4 bg-emerald-50/30 rounded-2xl border border-emerald-50">
-                                            <label className="block text-sm font-black text-emerald-600 uppercase tracking-widest mb-2 text-right">سعر التجزئة</label>
-                                            <input type="number" step="0.01" min="0" className="w-full border-2 border-emerald-100 rounded-xl text-lg py-3 px-3 focus:border-emerald-500 transition-all font-black text-emerald-800" value={unitRow.retail_price} onChange={e => updateUnitRow(index, 'retail_price', e.target.value)} required />
-                                        </div>
+                                    </div>
+                                ))}
+                                <label className="h-24 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition-all text-white/10 hover:text-amber-400">
+                                    <input type="file" multiple onChange={handleEditNewImagesChange} className="hidden" />
+                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                                </label>
+                            </div>
+                        </div>
 
-                                        <div className="pb-4 pr-2">
-                                            <label className="flex items-center gap-4 cursor-pointer group/check">
-                                                <div className={`w-14 h-8 rounded-full transition-all flex items-center px-1.5 shadow-inner ${unitRow.is_default_sale ? 'bg-emerald-500' : 'bg-slate-200'}`}>
-                                                    <div className={`w-5 h-5 bg-white rounded-full shadow-lg transition-transform duration-300 ${unitRow.is_default_sale ? '-translate-x-6' : 'translate-x-0'}`} />
-                                                </div>
+                        <ModalFooter onAbort={() => setShowEditModal(false)} submitTxt="حفظ التعديلات" processing={editForm.processing} />
+                    </form>
+                </div>
+            </Modal>
 
-                                                <input type="checkbox" className="hidden" checked={unitRow.is_default_sale} onChange={e => updateUnitRow(index, 'is_default_sale', e.target.checked)} />
-                                                <span className="text-xs font-black text-slate-400 uppercase tracking-widest group-hover/check:text-slate-900 transition-colors leading-tight">وحدة البيع<br/>الافتراضية</span>
-                                            </label>
-                                        </div>
+            {/* STOCK ADJUSTMENT MODAL */}
+            <Modal show={showStockModal} onClose={() => setShowStockModal(false)} maxWidth="md">
+                <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[3rem] border border-white/5 relative" dir="rtl">
+                    <form onSubmit={submitStockMode} className="space-y-12">
+                        <ModalHeader title="ضبط مخزون الفرع" onClose={() => setShowStockModal(false)} />
+                        <Select label="اختر الفرع المستهدف" value={stockForm.data.branch_id} onChange={v => stockForm.setData('branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
+                        <Field label="ضبط الكمية" type="number" value={stockForm.data.stock_quantity} onChange={v => stockForm.setData('stock_quantity', v)} />
+                        <div className="p-8 bg-amber-400/5 rounded-3xl border border-amber-400/10 flex items-start gap-4">
+                            <svg className="w-6 h-6 text-amber-400 mt-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <p className="text-[11px] font-black text-amber-400/60 uppercase tracking-widest leading-relaxed">تنبيه: ضبط المخزون يوجب التحقق الدقيق ويلغي قيم السجل المركزي لهذا الفرع.</p>
+                        </div>
+                        <ModalFooter onAbort={() => setShowStockModal(false)} submitTxt="تطبيق التعديل" processing={stockForm.processing} />
+                    </form>
+                </div>
+            </Modal>
 
+            {/* UNITS & PRICING MODAL (VIP ELITE EDITION) */}
+            <Modal show={showUnitsModal} onClose={() => setShowUnitsModal(false)} maxWidth="2xl">
+                <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[4rem] border border-white/5 relative" dir="rtl">
+                    <form onSubmit={submitUnitsForm} className="space-y-12">
+                        <ModalHeader title="إعداد وحدات البيع" onClose={() => setShowUnitsModal(false)} />
+                        
+                        <div className="space-y-8 max-h-[50vh] overflow-y-auto px-4 custom-scrollbar">
+                            {unitsForm.data.units.map((row, idx) => (
+                                <div key={idx} className="p-10 bg-white/[0.02] border border-white/5 rounded-[3rem] relative group/row hover:bg-white/[0.03] transition-all">
+                                    <div className="grid grid-cols-3 gap-8 mb-8">
+                                        <Select label="وحدة البيع" value={row.unit_id} onChange={v => updateUnitRow(idx, 'unit_id', v)} options={units.map(u => ({v:u.id, l:u.unit_name}))} />
+                                        <Select label="الفرع" value={row.branch_id} onChange={v => updateUnitRow(idx, 'branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
+                                        <Select label="العملة" value={row.currency_id} onChange={v => updateUnitRow(idx, 'currency_id', v)} options={currencies.map(c => ({v:c.id, l:c.currency_name}))} />
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-8">
+                                        <Field label="معامل التحويل" type="number" step="0.001" value={row.conversion_factor} onChange={v => updateUnitRow(idx, 'conversion_factor', v)} />
+                                        <Field label="سعر التكلفة" type="number" step="0.01" value={row.base_price} onChange={v => updateUnitRow(idx, 'base_price', v)} />
+                                        <Field label="سعر الجملة" type="number" step="0.01" value={row.wholesale_price} onChange={v => updateUnitRow(idx, 'wholesale_price', v)} />
+                                        <Field label="سعر التجزئة" type="number" step="0.01" value={row.retail_price} onChange={v => updateUnitRow(idx, 'retail_price', v)} />
+                                    </div>
+                                    <div className="absolute -top-4 -left-4 flex gap-2">
+                                        <button type="button" onClick={() => updateUnitRow(idx, 'is_default_sale', !row.is_default_sale)} className={`h-10 px-6 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${row.is_default_sale ? 'bg-amber-400 text-black border-transparent shadow-xl' : 'bg-[#111114] text-white/20 border-white/5 hover:text-white'}`}>
+                                            {row.is_default_sale ? 'وحدة أساسية' : 'تعيين كأساسية'}
+                                        </button>
+                                        <button type="button" onClick={() => removeUnitRow(idx)} className="w-10 h-10 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/row:opacity-100 transition-all active:scale-90"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
                                     </div>
                                 </div>
                             ))}
-
-                            {unitsForm.data.units.length === 0 && (
-                                <div className="text-center py-20 bg-white rounded-[4rem] border-4 border-dashed border-slate-100">
-                                    <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-slate-100 shadow-inner">
-                                        <svg className="w-10 h-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                                    </div>
-                                    <h5 className="text-2xl font-black text-slate-400">لم يتم تعريف أي وحدات بعد</h5>
-                                    <p className="text-sm font-black text-slate-300 uppercase tracking-widest mt-2">ابدأ بالضغط على زر "إضافة وحدة تعريف" أعلاه</p>
-                                </div>
-
-                            )}
+                            <button type="button" onClick={() => unitsForm.setData('units', [...unitsForm.data.units, { unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: false }])} className="w-full py-8 border-2 border-dashed border-white/5 rounded-[3rem] text-[10px] font-black text-white/10 uppercase tracking-[0.4em] hover:bg-white/5 hover:text-amber-400 transition-all group">
+                                + إضافة وحدة جديدة
+                            </button>
                         </div>
-                    </Modal.Body>
-                    <Modal.Footer className="bg-white px-8 py-6 rounded-b-[2.5rem] border-t-2 border-slate-100 flex gap-4">
-                        <button type="button" onClick={() => setShowUnitsModal(false)} className="btn-secondary h-14 px-8 rounded-2xl font-black uppercase tracking-widest text-[11px] border-2">إلغاء الأمر</button>
-                        <button type="submit" disabled={unitsForm.processing} className="bg-slate-900 text-white flex-1 h-14 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-2xl hover:bg-emerald-600 transition-all transform hover:-translate-y-1 active:scale-95">
-                            {unitsForm.processing ? 'جاري المعالجة...' : 'حفظ واعتماد التسعير المحدث'}
-                        </button>
-                    </Modal.Footer>
 
-                </form>
+                        <ModalFooter onAbort={() => setShowUnitsModal(false)} submitTxt="حفظ الوحدات" processing={unitsForm.processing} />
+                    </form>
+                </div>
             </Modal>
-            </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(251,191,36,0.2); }
+                select { background-image: none !important; }
+            ` }} />
         </AdminLayout>
+    );
+}
+
+// Subcomponents
+function StatCard({ label, value, unit, icon, color }) {
+    return (
+        <div className={`group bg-[#111114] p-10 rounded-[3rem] border border-white/5 hover:border-white/10 transition-all duration-700 shadow-2xl relative overflow-hidden`}>
+            <div className={`absolute top-0 right-0 p-8 opacity-5 group-hover:scale-125 transition-transform duration-1000 ${color}`}>{icon}</div>
+            <div className="relative z-10 space-y-4">
+                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">{label}</span>
+                <div className="flex items-baseline gap-3">
+                    <span className="text-6xl font-black text-white tracking-tighter leading-none">{value}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>{unit}</span>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function OpBtn({ onClick, icon, color }) {
+    return (
+        <button onClick={onClick} className={`w-14 h-14 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-${color} hover:border-${color}/20 transition-all active:scale-90 shadow-xl`}>
+            {icon}
+        </button>
+    );
+}
+
+function ModalHeader({ title, onClose }) {
+    return (
+        <div className="flex justify-between items-center pb-8 border-b border-white/5">
+            <h3 className="text-3xl font-black text-white tracking-tighter uppercase">{title}</h3>
+            <button type="button" onClick={onClose} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-white/30"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
+        </div>
+    );
+}
+
+function ModalFooter({ onAbort, submitTxt, processing }) {
+    return (
+        <div className="pt-12 flex gap-8 border-t border-white/5">
+            <button type="button" onClick={onAbort} className="flex-1 py-7 bg-white/5 text-white/40 font-black uppercase text-xs tracking-[0.4em] rounded-[2rem] hover:bg-white/10 transition-all">إلغاء</button>
+            <button type="submit" disabled={processing} className="flex-[2] py-7 bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black uppercase text-xs tracking-[0.4em] rounded-[2rem] shadow-2xl shadow-amber-400/10 active:scale-95 transition-all disabled:opacity-50">
+                {processing ? 'جاري الحفظ...' : submitTxt}
+            </button>
+        </div>
+    );
+}
+
+function Field({ label, value, onChange, type = "text", placeholder = "", step = "1", className = "" }) {
+    return (
+        <div className={`space-y-4 ${className}`}>
+            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
+            <input type={type} step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-6 px-8 text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all shadow-inner" required />
+        </div>
+    );
+}
+
+function Select({ label, value, onChange, options }) {
+    return (
+        <div className="space-y-4">
+            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
+            <div className="relative">
+                <select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-6 px-8 text-lg font-black text-white/60 focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer">
+                    {options.map(o => <option key={o.v} value={o.v} className="bg-[#111114]">{o.l}</option>)}
+                </select>
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 pointer-events-none text-white/10"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div>
+            </div>
+        </div>
     );
 }

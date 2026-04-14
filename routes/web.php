@@ -8,6 +8,7 @@ use App\Http\Controllers\BranchesController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CurrenciesController;
 use App\Http\Controllers\CustomersController;
+use App\Http\Controllers\OffersController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -68,6 +69,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Customers
         Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
         Route::get('/customers/{customer}', [CustomersController::class, 'show'])->name('customers.show');
+
+        // Offers
+        Route::get('/offers', [OffersController::class, 'index'])->name('offers.index');
+        Route::post('/offers', [OffersController::class, 'store'])->name('offers.store');
+        Route::put('/offers/{offer}', [OffersController::class, 'update'])->name('offers.update');
+        Route::delete('/offers/{offer}', [OffersController::class, 'destroy'])->name('offers.destroy');
+        Route::patch('/offers/{offer}/toggle', [OffersController::class, 'toggleActive'])->name('offers.toggle');
     });
 
     // Customer App Routes (Available to all authenticated users)
@@ -79,6 +87,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/checkout', [CustomerOrderController::class, 'checkout'])->name('checkout');
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');
         Route::get('/orders/{order}', [CustomerOrderController::class, 'show'])->name('orders.show');
+        Route::get('/offers', [CustomerStorefrontController::class, 'offers'])->name('offers');
     });
 
     // Shared actions (like store order)

@@ -1,123 +1,64 @@
 import { useState, useEffect } from 'react';
-import { Link, useForm } from '@inertiajs/react';
-import PrimaryButton from '@/Components/PrimaryButton';
+import { useForm } from '@inertiajs/react';
 
 export default function CartContent({ onCheckoutSuccess }) {
     const [cartItems, setCartItems] = useState([]);
     const [total, setTotal] = useState(0);
 
     const { data, setData, post, processing, errors } = useForm({
-        items: [],
-        notes: ''
+        items: []
     });
 
-    const loadCart = () => {
+    useEffect(() => {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         setCartItems(cart);
         updateTotal(cart);
-        
-        setData('items', cart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            notes: item.notes || ''
-        })));
-    };
-
-    useEffect(() => {
-        loadCart();
-        window.addEventListener('cartUpdated', loadCart);
-        return () => window.removeEventListener('cartUpdated', loadCart);
     }, []);
 
     const updateTotal = (items) => {
-        const newTotal = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        setTotal(newTotal);
-    };
-
-    const handleQuantityInputChange = (index, value) => {
-        const newCart = [...cartItems];
+        const sum = items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+        setTotal(sum);
         
-        if (value === '') {
-            newCart[index].quantity = '';
-            setCartItems(newCart);
-            return;
-        }
-
-        const val = parseInt(value);
-        if (isNaN(val) || val < 1) return;
-        
-        if (val > newCart[index].stock_quantity) {
-            newCart[index].quantity = newCart[index].stock_quantity;
-        } else {
-            newCart[index].quantity = val;
-        }
-
-        setCartItems(newCart);
-        updateTotal(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
-        window.dispatchEvent(new Event('cartUpdated'));
-
-        setData('items', newCart.map(item => ({
+        setData('items', items.map(item => ({
             product_id: item.product_id,
             quantity: item.quantity,
+            is_gift: item.is_gift || false,
+            parent_id: item.parent_id || null,
             notes: item.notes || ''
         })));
-    };
-
-    const handleBlur = (index) => {
-        const newCart = [...cartItems];
-        if (newCart[index].quantity === '' || !newCart[index].quantity) {
-            newCart[index].quantity = 1;
-            setCartItems(newCart);
-            updateTotal(newCart);
-            localStorage.setItem('cart', JSON.stringify(newCart));
-            window.dispatchEvent(new Event('cartUpdated'));
-
-            setData('items', newCart.map(item => ({
-                product_id: item.product_id,
-                quantity: item.quantity,
-                notes: item.notes || ''
-            })));
-        }
     };
 
     const updateQuantity = (index, delta) => {
-        const current = parseInt(cartItems[index].quantity) || 1;
-        handleQuantityInputChange(index, current + delta);
-    };
+        const newCart = [...cartItems];
+        const item = newCart[index];
+        if (item.is_gift) return;
 
-    const removeItem = (index) => {
-        const newCart = cartItems.filter((_, i) => i !== index);
+        const newQty = Math.max(1, Math.min(item.quantity + delta, item.stock_quantity));
+        newCart[index].quantity = newQty;
+        
         setCartItems(newCart);
         updateTotal(newCart);
         localStorage.setItem('cart', JSON.stringify(newCart));
         window.dispatchEvent(new Event('cartUpdated'));
-
-        setData('items', newCart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            notes: item.notes || ''
-        })));
     };
 
-    const handleItemNoteChange = (index, note) => {
-        const newCart = [...cartItems];
-        newCart[index].notes = note;
-        setCartItems(newCart);
-        localStorage.setItem('cart', JSON.stringify(newCart));
+    const removeItem = (index) => {
+        const itemToRemove = cartItems[index];
+        let newCart = cartItems.filter((_, i) => i !== index);
         
-        setData('items', newCart.map(item => ({
-            product_id: item.product_id,
-            quantity: item.quantity,
-            notes: item.notes || ''
-        })));
+        if (!itemToRemove.is_gift) {
+            newCart = newCart.filter(item => item.parent_id !== itemToRemove.product_id);
+        }
+
+        setCartItems(newCart);
+        updateTotal(newCart);
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        window.dispatchEvent(new Event('cartUpdated'));
     };
 
-    const handleCheckout = (e) => {
+    const submitOrder = (e) => {
         e.preventDefault();
-        if (cartItems.length === 0) return;
-
-        post(route('customer.checkout'), {
+        post(route('customer.orders.store'), {
             onSuccess: () => {
                 localStorage.removeItem('cart');
                 window.dispatchEvent(new Event('cartUpdated'));
@@ -128,105 +69,72 @@ export default function CartContent({ onCheckoutSuccess }) {
 
     if (cartItems.length === 0) {
         return (
-            <div className="p-8 text-center text-gray-500">
-                <svg className="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <h3 className="text-xl font-medium mb-2">سلتك فارغة</h3>
-                <p className="mb-6">لم تقم بإضافة أي منتجات بعد.</p>
-                <Link href={route('customer.storefront')} className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
-                    تصفح المنتجات
-                </Link>
+            <div className="text-center py-24 space-y-6">
+                <div className="w-24 h-24 bg-white/[0.02] border border-white/5 rounded-[2rem] flex items-center justify-center mx-auto shadow-2xl">
+                    <svg className="w-12 h-12 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                </div>
+                <div>
+                    <h3 className="text-2xl font-black text-white/40 tracking-tighter">محفظتك الحصرية فارغة</h3>
+                    <p className="text-white/20 text-xs font-bold mt-2 uppercase tracking-[0.2em]">أضف أصنافاً لتبدأ رحلتك الحصرية</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col h-full max-h-[80vh]">
-            <div className="flex-1 overflow-y-auto pr-2">
-                {errors.cart && (
-                    <div className="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm">
-                        {errors.cart}
+        <form onSubmit={submitOrder} className="space-y-12">
+            <div className="space-y-6 max-h-[50vh] overflow-y-auto px-2 custom-scrollbar">
+                {cartItems.map((item, index) => (
+                    <div key={`${item.product_id}-${index}`} className="group flex items-center gap-6 p-5 bg-white/[0.02] hover:bg-white/[0.04] backdrop-blur-3xl rounded-3xl border border-white/5 transition-all duration-500">
+                        <div className="w-20 h-20 bg-black rounded-2xl overflow-hidden shrink-0 border border-white/5">
+                            <img src={item.thumbnail} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={item.name} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                                {item.is_gift && <span className="text-[8px] font-black bg-amber-400 text-black px-2 py-0.5 rounded-full uppercase tracking-widest">هدية</span>}
+                                <h4 className="text-sm font-black text-white truncate">{item.name}</h4>
+                            </div>
+                            <div className="text-xs font-black text-amber-400/80">{item.price.toLocaleString()} <span className="text-[10px] text-white/20 uppercase tracking-widest">ريال</span></div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            {!item.is_gift ? (
+                                <div className="flex items-center bg-black/40 rounded-xl p-1 border border-white/5 shadow-inner">
+                                    <button type="button" onClick={() => updateQuantity(index, 1)} className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-amber-400 transition-all font-black">+</button>
+                                    <span className="w-8 text-center font-black text-white text-sm">{item.quantity}</span>
+                                    <button type="button" onClick={() => updateQuantity(index, -1)} disabled={item.quantity <= 1} className="w-8 h-8 flex items-center justify-center text-white/40 hover:text-amber-400 transition-all font-black disabled:opacity-10">-</button>
+                                </div>
+                            ) : (
+                                <div className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] whitespace-nowrap">عنصر مجاني</div>
+                            )}
+                            <button type="button" onClick={() => removeItem(index)} className="w-10 h-10 flex items-center justify-center text-white/10 hover:text-rose-400 transition-all">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
                     </div>
-                )}
-
-                <ul className="divide-y divide-gray-100">
-                    {cartItems.map((item, index) => (
-                        <li key={index} className="py-4 flex gap-4 items-center">
-                            <div className="w-16 h-16 bg-gray-50 rounded-md shrink-0 flex items-center justify-center overflow-hidden border border-gray-100">
-                                {item.thumbnail ? (
-                                    <img src={item.thumbnail} alt={item.name} className="object-cover w-full h-full" />
-                                ) : (
-                                    <svg className="w-8 h-8 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-bold text-gray-900 truncate" title={item.name}>{item.name}</h4>
-                                <div className="text-xs text-emerald-600 font-bold mt-0.5">{item.price.toLocaleString()} ريال</div>
-                                <div className="flex items-center mt-2 gap-2">
-                                    <div className="flex items-center border border-gray-200 rounded text-xs overflow-hidden">
-                                        <button onClick={() => updateQuantity(index, 1)} className="px-2 py-0.5 hover:bg-gray-50 bg-white" disabled={cartItems[index].quantity >= item.stock_quantity}>+</button>
-                                        <input 
-                                            type="number"
-                                            value={cartItems[index].quantity === undefined ? 1 : cartItems[index].quantity}
-                                            onChange={(e) => handleQuantityInputChange(index, e.target.value)}
-                                            onBlur={() => handleBlur(index)}
-                                            className="w-10 text-center border-none bg-gray-50 focus:ring-0 text-xs font-bold p-0 hide-spinner"
-                                        />
-                                        <button onClick={() => updateQuantity(index, -1)} className="px-2 py-0.5 hover:bg-gray-50 bg-white" disabled={cartItems[index].quantity <= 1}>-</button>
-                                    </div>
-                                    <button onClick={() => removeItem(index)} className="text-red-400 hover:text-red-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div className="mt-2">
-                                    <input 
-                                        type="text" 
-                                        placeholder="إضافة ملاحظة لهذا الصنف..." 
-                                        className="w-full text-[10px] border-none bg-gray-50 rounded px-2 py-1 focus:ring-1 focus:ring-blue-100 italic" 
-                                        value={item.notes || ''} 
-                                        onChange={(e) => handleItemNoteChange(index, e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div className="text-left text-sm font-bold text-gray-900">
-                                {(item.price * item.quantity).toLocaleString()} <span className="text-[10px] text-gray-400">ريال</span>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                ))}
             </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col gap-4">
-                <div className="px-2">
-                    <label className="text-xs font-bold text-gray-500 mb-1.5 flex items-center gap-1.5">
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                        ملاحظات عامة للطلب
-                    </label>
-                    <textarea 
-                        className="w-full border border-gray-100 rounded-lg text-xs p-2.5 focus:ring-blue-500 focus:border-blue-500 bg-gray-50"
-                        rows="2"
-                        placeholder="تعليمات خاصة بالتسليم أو الطلب..."
-                        value={data.notes}
-                        onChange={e => setData('notes', e.target.value)}
-                    ></textarea>
+            {/* VIP Order Summary */}
+            <div className="pt-10 border-t border-white/5 space-y-8">
+                <div className="flex justify-between items-end">
+                    <span className="text-xs font-black text-white/30 uppercase tracking-[0.4em]">إجمالي الطلب</span>
+                    <div className="text-right">
+                        <div className="text-4xl font-black text-white leading-none tracking-tighter">{total.toLocaleString()}</div>
+                        <div className="text-[10px] font-black text-amber-500 uppercase tracking-widest mt-1">ريال يمني</div>
+                    </div>
                 </div>
 
-                <div className="flex justify-between items-center px-2">
-                    <span className="text-gray-500 font-medium">الإجمالي الكلي:</span>
-                    <span className="text-xl font-black text-blue-600">{total.toLocaleString()} ريال</span>
+                <div className="space-y-4">
+                    <button 
+                        type="submit" 
+                        disabled={processing}
+                        className="w-full py-6 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 disabled:opacity-20 text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-amber-500/10 transition-all active:scale-[0.98]"
+                    >
+                        {processing ? 'جاري تأكيد الجلسة...' : 'تأكيد الطلب وإرساله'}
+                    </button>
+                    {errors.items && <p className="text-xs font-bold text-rose-500 text-center">{errors.items}</p>}
                 </div>
-                
-                <form onSubmit={handleCheckout}>
-                    <PrimaryButton className="w-full justify-center py-3" disabled={processing}>
-                        تأكيد وإرسال الطلب
-                    </PrimaryButton>
-                </form>
             </div>
-        </div>
+        </form>
     );
 }
