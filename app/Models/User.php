@@ -73,4 +73,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(OrderQueue::class, 'customer_id');
     }
+
+    public function replenishmentSettings()
+    {
+        return $this->hasMany(CustomerReplenishmentSetting::class, 'customer_id');
+    }
 }

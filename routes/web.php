@@ -20,12 +20,16 @@ Route::get('/', function () {
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\StorefrontController as CustomerStorefrontController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
+use App\Http\Controllers\ReplenishmentController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Only Routes
     Route::middleware(['admin'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
+        // Replenishment & Predictions
+        Route::resource('replenishment', ReplenishmentController::class)->except(['create', 'edit', 'show']);
+        Route::get('replenishment/report', [ReplenishmentController::class, 'report'])->name('replenishment.report');
         // Orders (Admin side)
         Route::get('/orders', [OrdersController::class, 'index'])->name('orders.index');
         Route::patch('/orders/{order}/status', [OrdersController::class, 'updateStatus'])->name('orders.updateStatus');

@@ -159,6 +159,178 @@ export default function BranchesIndex({ auth, branches, currencies = [] }) {
                         </div>
                     ))}
                 </div>
+
+                {/* Modals */}
+                <Modal 
+                    show={showAddModal} 
+                    onClose={() => setShowAddModal(false)} 
+                    title="تسجيل مركز لوجستي جديد"
+                    maxWidth="2xl"
+                >
+                    <form onSubmit={submitAdd}>
+                        <Modal.Body className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">اسم الفرع</label>
+                                    <input 
+                                        type="text" 
+                                        value={addForm.data.branch_name}
+                                        onChange={e => addForm.setData('branch_name', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                        placeholder="مثال: فرع صنعاء الرئيسي"
+                                    />
+                                    {addForm.errors.branch_name && <p className="text-rose-500 text-[10px] font-bold px-2">{addForm.errors.branch_name}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">المدينة / المنطقة</label>
+                                    <input 
+                                        type="text" 
+                                        value={addForm.data.location_city}
+                                        onChange={e => addForm.setData('location_city', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                        placeholder="مثال: الأصبحي"
+                                    />
+                                    {addForm.errors.location_city && <p className="text-rose-500 text-[10px] font-bold px-2">{addForm.errors.location_city}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">مدير الفرع</label>
+                                    <input 
+                                        type="text" 
+                                        value={addForm.data.manager_name}
+                                        onChange={e => addForm.setData('manager_name', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                        placeholder="اسم المسؤول"
+                                    />
+                                    {addForm.errors.manager_name && <p className="text-rose-500 text-[10px] font-bold px-2">{addForm.errors.manager_name}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">العملة الافتراضية</label>
+                                    <select 
+                                        value={addForm.data.currency_id}
+                                        onChange={e => addForm.setData('currency_id', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all appearance-none"
+                                    >
+                                        <option value="">اختر العملة</option>
+                                        {currencies.map(c => <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code_en})</option>)}
+                                    </select>
+                                    {addForm.errors.currency_id && <p className="text-rose-500 text-[10px] font-bold px-2">{addForm.errors.currency_id}</p>}
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">الموقع الجغرافي</label>
+                                <div className="rounded-3xl overflow-hidden border border-white/5 h-[300px]">
+                                    <MapPicker 
+                                        onLocationSelect={(lat, lon) => {
+                                            addForm.setData(prev => ({ ...prev, branch_lat: lat, branch_lon: lon }));
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button 
+                                type="button"
+                                onClick={() => setShowAddModal(false)}
+                                className="px-8 py-4 text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-all"
+                            >
+                                إلغاء
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={addForm.processing}
+                                className="px-10 py-4 bg-amber-400 text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-amber-400/10 hover:bg-amber-500 transition-all disabled:opacity-50"
+                            >
+                                {addForm.processing ? 'جاري الحفظ...' : 'تأكيد الإضافة'}
+                            </button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+
+                <Modal 
+                    show={showEditModal} 
+                    onClose={() => setShowEditModal(false)} 
+                    title={`تعديل بيانات: ${editingBranch?.branch_name}`}
+                    maxWidth="2xl"
+                >
+                    <form onSubmit={submitEdit}>
+                        <Modal.Body className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">اسم الفرع</label>
+                                    <input 
+                                        type="text" 
+                                        value={editForm.data.branch_name}
+                                        onChange={e => editForm.setData('branch_name', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                    />
+                                    {editForm.errors.branch_name && <p className="text-rose-500 text-[10px] font-bold px-2">{editForm.errors.branch_name}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">المدينة / المنطقة</label>
+                                    <input 
+                                        type="text" 
+                                        value={editForm.data.location_city}
+                                        onChange={e => editForm.setData('location_city', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                    />
+                                    {editForm.errors.location_city && <p className="text-rose-500 text-[10px] font-bold px-2">{editForm.errors.location_city}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">مدير الفرع</label>
+                                    <input 
+                                        type="text" 
+                                        value={editForm.data.manager_name}
+                                        onChange={e => editForm.setData('manager_name', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all"
+                                    />
+                                    {editForm.errors.manager_name && <p className="text-rose-500 text-[10px] font-bold px-2">{editForm.errors.manager_name}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">العملة الافتراضية</label>
+                                    <select 
+                                        value={editForm.data.currency_id}
+                                        onChange={e => editForm.setData('currency_id', e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400/50 transition-all appearance-none"
+                                    >
+                                        <option value="">اختر العملة</option>
+                                        {currencies.map(c => <option key={c.id} value={c.id}>{c.currency_name} ({c.currency_code_en})</option>)}
+                                    </select>
+                                    {editForm.errors.currency_id && <p className="text-rose-500 text-[10px] font-bold px-2">{editForm.errors.currency_id}</p>}
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">تحديث الموقع الجغرافي</label>
+                                <div className="rounded-3xl overflow-hidden border border-white/5 h-[300px]">
+                                    <MapPicker 
+                                        initialLocation={editingBranch?.branch_lat && editingBranch?.branch_lon ? { lat: editingBranch.branch_lat, lon: editingBranch.branch_lon } : null}
+                                        onLocationSelect={(lat, lon) => {
+                                            editForm.setData(prev => ({ ...prev, branch_lat: lat, branch_lon: lon }));
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <button 
+                                type="button"
+                                onClick={() => setShowEditModal(false)}
+                                className="px-8 py-4 text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-white transition-all"
+                            >
+                                إلغاء
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={editForm.processing}
+                                className="px-10 py-4 bg-amber-400 text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-amber-400/10 hover:bg-amber-500 transition-all disabled:opacity-50"
+                            >
+                                {editForm.processing ? 'جاري التحديث...' : 'حفظ التغييرات'}
+                            </button>
+                        </Modal.Footer>
+                    </form>
+                </Modal>
+
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `

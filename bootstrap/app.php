@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
 
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+        $schedule->command('replenishment:daily-alerts')->dailyAt('08:00');
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

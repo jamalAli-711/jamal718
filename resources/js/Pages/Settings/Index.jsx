@@ -17,8 +17,11 @@ export default function SettingsIndex({ auth }) {
 
     const profileForm = useForm({
         name: user.name || '',
+        email: user.email || '',
         phone: user.phone || '',
         address_desc: user.address_desc || '',
+        avatar: null,
+        _method: 'patch',
     });
 
     const passwordForm = useForm({
@@ -29,9 +32,10 @@ export default function SettingsIndex({ auth }) {
 
     const submitProfile = (e) => {
         e.preventDefault();
-        profileForm.patch(route('profile.update'), {
+        profileForm.post(route('profile.update'), {
             preserveScroll: true,
-            onSuccess: () => toast.success('تم تحديث الملف الشخصي بنجاح'),
+            onSuccess: () => toast.success('تم تحديث بروتوكول الهوية بنجاح'),
+            onError: () => toast.error('حدث خطأ أثناء تحديث الهوية'),
         });
     };
 
@@ -86,27 +90,54 @@ export default function SettingsIndex({ auth }) {
                             </h3>
                         </div>
                         <form onSubmit={submitProfile}>
-                            <div className="p-12 space-y-12">
-                                <div className="flex flex-col md:flex-row items-center gap-10 pb-12 border-b border-white/5">
-                                    <div className="w-32 h-32 rounded-[2.5rem] bg-white/[0.03] border border-white/5 flex items-center justify-center text-white text-5xl font-black shadow-inner group-hover:scale-110 transition-transform duration-700">
-                                        {user.name?.charAt(0) || 'U'}
+                            <div className="p-12 space-y-12 relative">
+                                {/* Digital ID Card Visual Overlay */}
+                                <div className="absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-br from-amber-400/[0.02] to-transparent pointer-events-none" />
+                                
+                                <div className="flex flex-col lg:flex-row items-center gap-12 pb-12 border-b border-white/5 relative z-10">
+                                    <div className="relative group/avatar">
+                                        <div className="w-48 h-48 rounded-[3rem] bg-black border border-white/5 overflow-hidden shadow-2xl relative">
+                                            {user.avatar ? (
+                                                <img src={`/storage/${user.avatar}`} className="w-full h-full object-cover" alt={user.name} />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-white/10 text-7xl font-black bg-gradient-to-tr from-white/[0.02] to-transparent">
+                                                    {user.name?.charAt(0) || 'U'}
+                                                </div>
+                                            )}
+                                            
+                                            {/* Upload Overlay */}
+                                            <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer backdrop-blur-sm">
+                                                <svg className="w-8 h-8 text-amber-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                <span className="text-[10px] font-black text-white uppercase tracking-widest">تحديث الصورة</span>
+                                                <input type="file" className="hidden" onChange={e => profileForm.setData('avatar', e.target.files[0])} />
+                                            </label>
+                                        </div>
+                                        {profileForm.data.avatar && (
+                                            <div className="absolute -bottom-3 -right-3 px-4 py-2 bg-amber-400 rounded-xl text-[8px] font-black text-black uppercase tracking-widest animate-bounce">
+                                                تم اختيار ملف جديد
+                                            </div>
+                                        )}
                                     </div>
-                                    <div className="space-y-3 text-center md:text-right">
-                                        <h4 className="font-black text-4xl text-white tracking-tighter uppercase leading-none">{user.name}</h4>
-                                        <p className="text-lg font-bold text-white/20 tracking-tight italic">{user.email}</p>
-                                        <div className="flex gap-3 pt-3 justify-center md:justify-start">
-                                            <span className="text-[9px] font-black text-blue-400 bg-blue-400/5 border border-blue-400/10 px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">{USER_TYPES[user.user_type]?.label || user.user_type}</span>
-                                            <span className="text-[9px] font-black text-white/20 bg-white/[0.02] px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">NODE_ID: #{user.id}</span>
+
+                                    <div className="flex-1 space-y-6 text-center lg:text-right">
+                                        <div>
+                                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/[0.03] rounded-full text-[9px] font-black text-amber-500/60 uppercase tracking-[0.3em] mb-4">MEMBER_ID: #00{user.id}</div>
+                                            <h4 className="font-black text-6xl text-white tracking-tighter uppercase leading-none group-hover:text-amber-400 transition-colors">{user.name}</h4>
+                                            <p className="text-xl font-bold text-white/20 tracking-tight italic mt-2">{user.email}</p>
+                                        </div>
+                                        <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                                            <span className="px-6 py-2 rounded-2xl bg-white/[0.03] border border-white/5 text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">الحالة: <span className="text-emerald-500">نشط</span></span>
+                                            <span className="px-6 py-2 rounded-2xl bg-white/[0.03] border border-white/5 text-[10px] font-black text-white/40 uppercase tracking-[0.4em]">الرتبة: <span className="text-amber-500">{USER_TYPES[user.user_type]?.label || 'مشترك'}</span></span>
                                         </div>
                                     </div>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                    <Field label="الاسم الكامل" value={profileForm.data.name} onChange={v => profileForm.setData('name', v)} />
-                                    <Field label="رقم التواصل" value={profileForm.data.phone} onChange={v => profileForm.setData('phone', v)} dir="ltr" className="text-left" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
+                                    <Field label="الاسم الكامل للهوية" value={profileForm.data.name} onChange={v => profileForm.setData('name', v)} error={profileForm.errors.name} />
+                                    <Field label="قناة التواصل المباشرة" value={profileForm.data.phone} onChange={v => profileForm.setData('phone', v)} error={profileForm.errors.phone} dir="ltr" className="text-left" placeholder="+967 ..." />
                                 </div>
 
-                                <Field label="العنوان / الموقع" value={profileForm.data.address_desc} onChange={v => profileForm.setData('address_desc', v)} />
+                                <Field label="مركز التوزيع / العنوان الدائم" value={profileForm.data.address_desc} onChange={v => profileForm.setData('address_desc', v)} error={profileForm.errors.address_desc} placeholder="أدخل تفاصيل الموقع الجغرافي..." />
                             </div>
                             <div className="px-12 py-8 bg-white/[0.01] border-t border-white/5 flex justify-end">
                                 <button type="submit" disabled={profileForm.processing} className="px-12 py-6 bg-white/[0.03] border border-white/10 text-white font-black rounded-2xl hover:bg-white/5 hover:border-white/20 transition-all uppercase text-[10px] tracking-[0.4em] active:scale-95 disabled:opacity-50">
@@ -151,7 +182,7 @@ export default function SettingsIndex({ auth }) {
     );
 }
 
-function Field({ label, value, onChange, type = "text", className = "", dir = "rtl", placeholder = "" }) {
+function Field({ label, value, onChange, type = "text", className = "", dir = "rtl", placeholder = "", error }) {
     return (
         <div className="space-y-3">
             <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] block pr-4">{label}</label>
@@ -159,6 +190,7 @@ function Field({ label, value, onChange, type = "text", className = "", dir = "r
                 type={type} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} dir={dir}
                 className={`w-full bg-white/[0.03] border border-white/10 rounded-2xl py-5 px-8 text-xl font-black text-white focus:outline-none focus:border-white/30 transition-all shadow-inner placeholder:text-white/5 ${className}`}
             />
+            {error && <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest pr-4">{error}</p>}
         </div>
     );
 }

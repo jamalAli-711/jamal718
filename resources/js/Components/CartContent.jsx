@@ -58,7 +58,7 @@ export default function CartContent({ onCheckoutSuccess }) {
 
     const submitOrder = (e) => {
         e.preventDefault();
-        post(route('customer.orders.store'), {
+        post(route('customer.checkout'), {
             onSuccess: () => {
                 localStorage.removeItem('cart');
                 window.dispatchEvent(new Event('cartUpdated'));

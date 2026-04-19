@@ -35,9 +35,14 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
-        $request->user()->save();
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $request->user()->avatar = $path;
+        }
 
-        return Redirect::route('profile.edit');
+        $request->user()->save();
+        
+        return Redirect::back();
     }
 
     /**
