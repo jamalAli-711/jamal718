@@ -87,7 +87,10 @@ class OrderController extends Controller
             }
         }
 
-        $refNumber = 'CUST-' . now()->format('Ymd') . '-' . str_pad(OrderQueue::whereDate('created_at', today())->count() + 1, 3, '0', STR_PAD_LEFT);
+        // Generate a guaranteed unique reference number
+        do {
+            $refNumber = 'CUST-' . now()->format('Ymd') . '-' . strtoupper(substr(uniqid(), -4)) . rand(10, 99);
+        } while (OrderQueue::where('reference_number', $refNumber)->exists());
         
         // ─── 1. Identify Branch Currency (Target) ───
         $branch = $customer->branch()->with('currency')->first();

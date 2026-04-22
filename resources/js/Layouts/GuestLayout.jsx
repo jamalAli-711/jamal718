@@ -7,7 +7,7 @@ export default function GuestLayout({ children }) {
             {/* Cinematic Background Elements */}
             <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-            
+
             <div className="relative z-10 w-full max-w-lg">
                 {/* Brand Header */}
                 <div className="mb-12 flex flex-col items-center gap-6">
@@ -28,7 +28,7 @@ export default function GuestLayout({ children }) {
                         {children}
                     </div>
                 </div>
-                
+
                 {/* Footer Meta */}
                 <div className="mt-12 text-center space-y-2 opacity-30 group-hover:opacity-100 transition-opacity duration-700">
                     <p className="text-[10px] font-black text-white uppercase tracking-[0.4em] leading-none">© {new Date().getFullYear()} مجموعة المخلافي — العمليات الاستراتيجية</p>
@@ -39,7 +39,8 @@ export default function GuestLayout({ children }) {
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
                 body { font-family: 'Outfit', sans-serif; }
             ` }} />

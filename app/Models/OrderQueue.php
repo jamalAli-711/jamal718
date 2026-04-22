@@ -60,4 +60,12 @@ class OrderQueue extends Model
     {
         return $this->hasOne(DeliveryTracking::class, 'order_id');
     }
+
+    /**
+     * رحلات التوصيل المرتبطة بهذا الطلب
+     */
+    public function deliveryTrips()
+    {
+        return $this->hasMany(DeliveryTrip::class, 'order_id');
+    }
 }

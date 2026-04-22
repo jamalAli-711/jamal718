@@ -78,4 +78,36 @@ class User extends Authenticatable
     {
         return $this->hasMany(CustomerReplenishmentSetting::class, 'customer_id');
     }
+
+    /**
+     * الشاحنات المرتبطة بهذا المستخدم (إذا كان سائقاً)
+     */
+    public function trucks()
+    {
+        return $this->hasMany(FleetManagement::class, 'driver_id');
+    }
+
+    /**
+     * رحلات التوصيل المرتبطة بهذا المستخدم (كعميل)
+     */
+    public function deliveryTrips()
+    {
+        return $this->hasMany(DeliveryTrip::class, 'customer_id');
+    }
+
+    /**
+     * الزبائن التابعين لهذا المندوب
+     */
+    public function customers()
+    {
+        return $this->belongsToMany(User::class, 'agent_customers', 'agent_id', 'customer_id');
+    }
+
+    /**
+     * المندوبين المسؤولين عن هذا الزبون
+     */
+    public function agents()
+    {
+        return $this->belongsToMany(User::class, 'agent_customers', 'customer_id', 'agent_id');
+    }
 }

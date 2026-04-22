@@ -9,6 +9,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\CurrenciesController;
 use App\Http\Controllers\CustomersController;
 use App\Http\Controllers\OffersController;
+use App\Http\Controllers\FleetController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -80,6 +81,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/offers/{offer}', [OffersController::class, 'update'])->name('offers.update');
         Route::delete('/offers/{offer}', [OffersController::class, 'destroy'])->name('offers.destroy');
         Route::patch('/offers/{offer}/toggle', [OffersController::class, 'toggleActive'])->name('offers.toggle');
+
+        // Fleet & Trips
+        Route::get('/fleet', [FleetController::class, 'index'])->name('fleet.index');
+        Route::get('/fleet/manage', [FleetController::class, 'list'])->name('fleet.manage');
+        
+        // Staff Management
+        Route::get('/staff', [\App\Http\Controllers\StaffController::class, 'index'])->name('staff.index');
+        Route::post('/staff', [\App\Http\Controllers\StaffController::class, 'store'])->name('staff.store');
+        Route::patch('/staff/{id}', [\App\Http\Controllers\StaffController::class, 'update'])->name('staff.update');
+        Route::delete('/staff/{id}', [\App\Http\Controllers\StaffController::class, 'destroy'])->name('staff.destroy');
+
+        // Commissions & Sales Agents
+        Route::get('/commissions', [\App\Http\Controllers\CommissionController::class, 'index'])->name('commissions.index');
+        Route::post('/commissions/rules', [\App\Http\Controllers\CommissionController::class, 'storeRule'])->name('commissions.rule.store');
+        Route::get('/commissions/assignments/{agentId}', [\App\Http\Controllers\CommissionController::class, 'manageAssignments'])->name('commissions.assignments');
+        Route::post('/commissions/assignments', [\App\Http\Controllers\CommissionController::class, 'storeAssignment'])->name('commissions.assignments.store');
+        Route::delete('/commissions/assignments/{agentId}/{customerId}', [\App\Http\Controllers\CommissionController::class, 'removeAssignment'])->name('commissions.assignments.destroy');
+
+        Route::post('/fleet/manage', [FleetController::class, 'store'])->name('fleet.manage.store');
+        Route::patch('/fleet/manage/{id}', [FleetController::class, 'update'])->name('fleet.manage.update');
+        Route::delete('/fleet/manage/{id}', [FleetController::class, 'destroy'])->name('fleet.manage.destroy');
+        Route::get('/fleet/reports', [FleetController::class, 'reports'])->name('fleet.reports');
+        Route::post('/fleet/trips', [FleetController::class, 'storeTrip'])->name('fleet.trips.store');
     });
 
     // Customer App Routes (Available to all authenticated users)

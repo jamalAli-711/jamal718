@@ -34,6 +34,9 @@ const IconForecasting = () => (
 const IconLogout = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
 );
+const IconFleet = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.806H14.25M16.5 18.75h-2.25m0-11.25v-1.125c0-.621-.504-1.125-1.125-1.125h-4.5c-.621 0-1.125.504-1.125 1.125v1.125m0 0h4.5m-4.5 0h-2.25c-.621 0-1.125.504-1.125 1.125V14.25m0 0h4.5m-4.5 0v3.375m4.5-3.375v3.375" /></svg>
+);
 const IconMenu = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>
 );
@@ -48,8 +51,12 @@ export default function AdminLayout({ user, header, children }) {
         { name: 'تنبؤ الاستهلاك', href: route('replenishment.report'), icon: IconForecasting, active: url.startsWith('/replenishment/report') },
         { name: 'دورات التوريد', href: route('replenishment.index'), icon: IconSettings, active: url.match(/\/replenishment(?!\/report)/) },
         { name: 'المخزون', href: route('inventory.index'), icon: IconInventory, active: url.startsWith('/inventory') },
+        { name: 'إدارة الأسطول', href: route('fleet.index'), icon: IconFleet, active: url === '/fleet' },
+        { name: 'سجل المركبات', href: route('fleet.manage'), icon: IconSettings, active: url.startsWith('/fleet/manage') },
         { name: 'العروض', href: route('offers.index'), icon: IconBell, active: url.startsWith('/offers') },
         { name: 'العملاء', href: route('customers.index'), icon: IconCustomers, active: url.startsWith('/customers') },
+        { name: 'إدارة الموظفين', href: route('staff.index'), icon: IconCustomers, active: url.startsWith('/staff') },
+        { name: 'العمولات والمناديب', href: route('commissions.index'), icon: IconForecasting, active: url.startsWith('/commissions') },
         { name: 'الفروع', href: route('branches.index'), icon: IconBranch, active: url.startsWith('/branches') },
     ];
 
@@ -64,13 +71,13 @@ export default function AdminLayout({ user, header, children }) {
         <div className="h-full flex flex-col bg-[#0f0f12]/80 backdrop-blur-3xl border-l border-white/5 relative z-50 overflow-hidden">
             {/* Glossy Overlay for Sidebar */}
             <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
-            
+
             {/* Brand Section */}
             <div className="p-8 mb-6">
                 <Link href={route('dashboard')} className="flex items-center gap-4 group">
                     <div className="relative">
-                        <div className="absolute inset-0 bg-amber-400/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <ApplicationLogo className="w-12 h-12 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(251,191,36,0.3)] group-hover:scale-110 transition-transform duration-500" />
+                        <div className="absolute inset-0 bg-white rounded-xl   " />
+                        <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-xl font-black text-white tracking-tighter bg-clip-text bg-gradient-to-r from-white via-white to-white/40">المخلافي</span>
@@ -199,7 +206,7 @@ export default function AdminLayout({ user, header, children }) {
                 </main>
 
                 <footer className="px-12 py-8 bg-black/20 border-t border-white/5 flex items-center justify-between text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">
-                    <span>© {new Date().getFullYear()} مجموعة المخلافي — الأنظمة المتكاملة</span>
+                    <span>© {new Date().getFullYear()}  مؤسسة سعيد نعمان المخلافي للتجارة والتبريد </span>
                     <span className="flex items-center gap-2">
                         حالة النظام: <span className="text-emerald-500/50">مثالية</span>
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-glow-emerald" />
@@ -207,7 +214,8 @@ export default function AdminLayout({ user, header, children }) {
                 </footer>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
                 
                 .font-vip { font-family: 'Outfit', sans-serif; }

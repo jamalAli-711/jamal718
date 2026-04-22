@@ -36,7 +36,12 @@ class Product extends Model
     public function getThumbnailAttribute()
     {
         $primary = $this->images->where('is_primary', true)->first() ?: $this->images->first();
-        return $primary ? "/storage/{$primary->image_path}" : null;
+        if (!$primary) return null;
+        
+        $fullPath = storage_path("app/public/{$primary->image_path}");
+        if (!file_exists($fullPath)) return null;
+        
+        return "/storage/{$primary->image_path}";
     }
 
     public function branches()
