@@ -27,6 +27,7 @@ export default function Register() {
     };
 
     return (
+        <>
         <GuestLayout>
             <Head title="إعداد الهوية — شبكة النخبة" />
 
@@ -123,27 +124,28 @@ export default function Register() {
                     </Link>
                 </div>
             </form>
-
-            <Modal show={isMapModalOpen} onClose={() => setIsMapModalOpen(false)} maxWidth="2xl">
-                <div className="bg-[#0c0c0e] p-10 rounded-[4rem] border border-white/10 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)] text-right" dir="rtl">
-                    <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-3xl font-black text-white tracking-tighter uppercase">رسم الإحداثيات</h3>
-                        <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-white/20 hover:bg-rose-500 hover:text-white transition-all"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
-                    </div>
-                    <div className="mb-8 p-6 bg-amber-400/5 rounded-3xl border border-amber-400/10">
-                        <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-widest leading-relaxed text-right">يرجى تحديد موقع المحل بدقة على الخارطة لضمان ترقية حسابك إلى وضعية الشريك التجاري الفعّال.</p>
-                    </div>
-                    <div className="rounded-[2.5rem] overflow-hidden border border-white/5 shadow-inner">
-                        <MapPicker lat={data.lat} lng={data.lng} onLocationChange={(lat, lng) => setData(prev => ({...prev, lat, lng}))} height="400px" />
-                    </div>
-                    <div className="mt-10">
-                        <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-full py-6 bg-white/5 text-white font-black text-xs uppercase tracking-[0.4em] rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 shadow-xl">
-                            قفل الموقع الجغرافي
-                        </button>
-                    </div>
-                </div>
-            </Modal>
         </GuestLayout>
+
+        <Modal show={isMapModalOpen} onClose={() => setIsMapModalOpen(false)} maxWidth="2xl">
+            <div className="bg-[#0c0c0e] p-10 rounded-[4rem] border border-white/10 overflow-hidden shadow-[0_0_100px_rgba(0,0,0,1)] text-right" dir="rtl">
+                <div className="flex justify-between items-center mb-10">
+                    <h3 className="text-3xl font-black text-white tracking-tighter uppercase">رسم الإحداثيات</h3>
+                    <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center text-white/20 hover:bg-rose-500 hover:text-white transition-all"><svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+                <div className="mb-8 p-6 bg-amber-400/5 rounded-3xl border border-amber-400/10">
+                    <p className="text-[11px] font-black text-amber-500/60 uppercase tracking-widest leading-relaxed text-right">يرجى تحديد موقع المحل بدقة على الخارطة لضمان ترقية حسابك إلى وضعية الشريك التجاري الفعّال.</p>
+                </div>
+                <div className="rounded-[2.5rem] overflow-hidden border border-white/5 shadow-inner">
+                    <MapPicker lat={data.lat} lng={data.lng} onLocationChange={(lat, lng) => setData(prev => ({...prev, lat, lng}))} height="400px" />
+                </div>
+                <div className="mt-10">
+                    <button type="button" onClick={() => setIsMapModalOpen(false)} className="w-full py-6 bg-white/5 text-white font-black text-xs uppercase tracking-[0.4em] rounded-[2rem] hover:bg-white/10 transition-all border border-white/5 shadow-xl">
+                        قفل الموقع الجغرافي
+                    </button>
+                </div>
+            </div>
+        </Modal>
+        </>
     );
 }
 

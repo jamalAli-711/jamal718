@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OrderQueue;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\FieldInventory;
 use App\Enums\UserType;
 use App\Enums\OrderStatus;
 use Illuminate\Http\Request;
@@ -226,6 +227,27 @@ class OrderController extends Controller
              $this->offerService->decrementOfferLimits(collect($offerResult['applied_offers'])->pluck('id')->toArray());
         }
         // --- END BONUSES ---
+
+        // ── Auto-link: ensure every ordered product is registered in field_inventory ──
+        // If the product is not yet linked to this distributor, add it with stock = 0
+        $orderedProductIds = collect($validated['items'])->pluck('product_id')->unique()->toArray();
+
+        foreach ($orderedProductIds as $productId) {
+            $exists = FieldInventory::where('distributor_id', $customer->id)
+                ->where('product_id', $productId)
+                ->exists();
+
+            if (!$exists) {
+                FieldInventory::create([
+                    'distributor_id' => $customer->id,
+                    'product_id'     => $productId,
+                    'current_stock'  => 0,
+                    'branch_id'      => $customer->branch_id,
+                    'last_update'    => now(),
+                ]);
+            }
+        }
+        // ──────────────────────────────────────────────────────────────────────────
 
         // Dispatch broadcast event for real-time update
         event(new OrderPlaced($order));

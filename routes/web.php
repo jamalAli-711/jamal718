@@ -15,13 +15,22 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('customer.storefront');
 });
 
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\StorefrontController as CustomerStorefrontController;
 use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\ReplenishmentController;
+
+// ── Public storefront (no login required) ──────────────────────────────────
+Route::prefix('customer')->name('customer.')->group(function () {
+    Route::get('/storefront', [CustomerStorefrontController::class, 'index'])->name('storefront');
+    Route::get('/storefront/{product}', [CustomerStorefrontController::class, 'show'])->name('storefront.show');
+});
+
+// Public endpoint: nearest branches for guest cart checkout
+Route::get('/api/nearest-branches', [CustomerStorefrontController::class, 'nearestBranches'])->name('api.nearest-branches');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     // Admin Only Routes
@@ -109,8 +118,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Customer App Routes (Available to all authenticated users)
     Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
-        Route::get('/storefront', [CustomerStorefrontController::class, 'index'])->name('storefront');
-        Route::get('/storefront/{product}', [CustomerStorefrontController::class, 'show'])->name('storefront.show');
         Route::get('/cart', [CustomerStorefrontController::class, 'cart'])->name('cart');
         Route::post('/checkout', [CustomerOrderController::class, 'checkout'])->name('checkout');
         Route::get('/orders', [CustomerOrderController::class, 'index'])->name('orders');

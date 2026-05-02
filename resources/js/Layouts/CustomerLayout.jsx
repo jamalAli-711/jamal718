@@ -8,6 +8,8 @@ import { useToast } from '@/Components/Toast';
 
 export default function CustomerLayout({ header, children, hideFooter = false }) {
     const { auth } = usePage().props;
+    const user = auth?.user ?? null;          // ← safe: null for guests
+
     const [cartCount, setCartCount] = useState(0);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
 
@@ -22,8 +24,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
         updateCartCount();
         window.addEventListener('cartUpdated', updateCartCount);
 
-        if (typeof window.Echo !== 'undefined' && auth.user) {
-            window.Echo.private(`customer.${auth.user.id}`)
+        if (typeof window.Echo !== 'undefined' && user) {
+            window.Echo.private(`customer.${user.id}`)
                 .listen('.order.updated', (e) => {
                     const message = `تحديث الطلب #${e.order.reference_number}`;
                     toast.info(message, {
@@ -35,7 +37,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
         return () => {
             window.removeEventListener('cartUpdated', updateCartCount);
         };
-    }, [auth.user]);
+    }, [user?.id]);
 
     return (
         <div className="min-h-screen bg-[#050507] text-white selection:bg-amber-400 selection:text-black font-vip flex flex-col" dir="rtl">
@@ -54,12 +56,12 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             {/* Brand */}
                             <Link href={route('customer.storefront')} className="flex items-center gap-4 group">
                                 <div className="relative">
-                                    <div className="absolute inset-0 bg-white rounded-xl   " />
+                                    <div className="absolute inset-0 bg-white rounded-xl" />
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-2xl font-black tracking-tighter text-white">المخلافي</span>
-                                    <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase"> للتجارة والتبريد</span>
+                                    <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase">للتجارة والتبريد</span>
                                 </div>
                             </Link>
 
@@ -67,14 +69,17 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             <div className="hidden md:flex items-center gap-10 h-full">
                                 {[
                                     { name: 'المنتجات', route: 'customer.storefront' },
-                                    { name: 'طلباتي', route: 'customer.orders' },
-                                    { name: 'العروض الحصرية', route: 'customer.offers' },
+                                    ...(user ? [
+                                        { name: 'طلباتي', route: 'customer.orders' },
+                                        { name: 'العروض الحصرية', route: 'customer.offers' },
+                                    ] : []),
                                 ].map((link) => (
                                     <Link
                                         key={link.route}
                                         href={route(link.route)}
-                                        className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current(link.route + '*') ? 'text-amber-400' : 'text-white/40 hover:text-white'
-                                            }`}
+                                        className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                            route().current(link.route + '*') ? 'text-amber-400' : 'text-white/40 hover:text-white'
+                                        }`}
                                     >
                                         {link.name}
                                         {route().current(link.route + '*') && (
@@ -86,7 +91,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                         </div>
 
                         <div className="flex items-center gap-6">
-                            {/* VIP Cart */}
+                            {/* VIP Cart — always visible */}
                             <button
                                 onClick={() => setIsCartModalOpen(true)}
                                 className="relative p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-amber-400 hover:border-amber-400/20 transition-all group"
@@ -104,33 +109,52 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 )}
                             </button>
 
-                            {/* Profile Dropdown */}
-                            <div className="relative">
-                                <Dropdown>
-                                    <Dropdown.Trigger>
-                                        <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/[0.03] rounded-full border border-white/5 group hover:bg-white/[0.05] transition-all">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
-                                                {auth.user.name?.charAt(0)}
-                                            </div>
-                                            <div className="flex flex-col text-left">
-                                                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">حساب نخبة</span>
-                                                <span className="text-xs font-black text-white group-hover:text-amber-400 transition-colors">{auth.user.name}</span>
-                                            </div>
-                                        </button>
-                                    </Dropdown.Trigger>
+                            {/* Profile / Auth buttons */}
+                            {user ? (
+                                /* ── Authenticated user dropdown ── */
+                                <div className="relative">
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/[0.03] rounded-full border border-white/5 group hover:bg-white/[0.05] transition-all">
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
+                                                    {user.name?.charAt(0)}
+                                                </div>
+                                                <div className="flex flex-col text-left">
+                                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">حساب نخبة</span>
+                                                    <span className="text-xs font-black text-white group-hover:text-amber-400 transition-colors">{user.name}</span>
+                                                </div>
+                                            </button>
+                                        </Dropdown.Trigger>
 
-                                    <Dropdown.Content contentClasses="py-2 bg-[#16161a] border border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
-                                        <div className="px-5 py-3 border-b border-white/5">
-                                            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
-                                            <p className="text-xs font-bold text-white truncate">{auth.user.email}</p>
-                                        </div>
-                                        <Dropdown.Link href={route('profile.edit')} className="text-white/60 hover:text-white hover:bg-white/5 font-bold transition-all">الملف الشخصي</Dropdown.Link>
-                                        <Dropdown.Link href={route('logout')} method="post" as="button" className="text-rose-400/60 hover:text-rose-400 hover:bg-rose-400/5 font-bold transition-all">
-                                            تسجيل الخروج
-                                        </Dropdown.Link>
-                                    </Dropdown.Content>
-                                </Dropdown>
-                            </div>
+                                        <Dropdown.Content contentClasses="py-2 bg-[#16161a] border border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
+                                            <div className="px-5 py-3 border-b border-white/5">
+                                                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
+                                                <p className="text-xs font-bold text-white truncate">{user.email}</p>
+                                            </div>
+                                            <Dropdown.Link href={route('profile.edit')} className="text-white/60 hover:text-white hover:bg-white/5 font-bold transition-all">الملف الشخصي</Dropdown.Link>
+                                            <Dropdown.Link href={route('logout')} method="post" as="button" className="text-rose-400/60 hover:text-rose-400 hover:bg-rose-400/5 font-bold transition-all">
+                                                تسجيل الخروج
+                                            </Dropdown.Link>
+                                        </Dropdown.Content>
+                                    </Dropdown>
+                                </div>
+                            ) : (
+                                /* ── Guest: login / register buttons ── */
+                                <div className="flex items-center gap-3">
+                                    <Link
+                                        href={route('login')}
+                                        className="px-5 py-2.5 rounded-2xl bg-white/[0.04] border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                                    >
+                                        تسجيل الدخول
+                                    </Link>
+                                    <Link
+                                        href={route('register')}
+                                        className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-black text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-amber-400/20"
+                                    >
+                                        اشتراك
+                                    </Link>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -171,7 +195,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                 </footer>
             )}
 
-            {/* Luxury Cart Drawer / Modal */}
+            {/* Luxury Cart Modal */}
             <Modal
                 show={isCartModalOpen}
                 onClose={() => setIsCartModalOpen(false)}
@@ -187,7 +211,10 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
-                        <CartContent onCheckoutSuccess={() => setIsCartModalOpen(false)} />
+                        <CartContent
+                            onCheckoutSuccess={() => setIsCartModalOpen(false)}
+                            isGuest={!user}
+                        />
                     </div>
                 </div>
             </Modal>
@@ -196,7 +223,6 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                 __html: `
                 .font-vip { font-family: 'Outfit', sans-serif; }
                 
-                /* Custom Global VIP Scrollbar */
                 ::-webkit-scrollbar { width: 6px; }
                 ::-webkit-scrollbar-track { background: transparent; }
                 ::-webkit-scrollbar-thumb { 
@@ -206,7 +232,6 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                 }
                 ::-webkit-scrollbar-thumb:hover { background: rgba(251, 191, 36, 0.2); }
 
-                /* Premium Input Styling Overrides */
                 input, select, textarea {
                     background: rgba(255, 255, 255, 0.02) !important;
                     border: 1px solid rgba(255, 255, 255, 0.05) !important;
