@@ -23,7 +23,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                     setOrders(prev => ({ ...prev, data: [e.order, ...prev.data], total: prev.total + 1 }));
                     setStats(prev => ({ ...prev, total_pending: prev.total_pending + 1 }));
                     toast.success(`طلب جديد رقم ${e.order.reference_number} وصل الآن!`);
-                    try { const audio = new Audio('/sounds/notification.mp3'); audio.play(); } catch (err) {}
+                    try { const audio = new Audio('/sounds/notification.mp3'); audio.play(); } catch (err) { }
                 });
             return () => { window.Echo.leaveChannel('orders'); };
         }
@@ -158,19 +158,19 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
 
     return (
         <AdminLayout user={auth.user} header="الطلبات">
-            <Head title="إدارة الطلبات — VIP Ledger" />
+            <Head title="إدارة الطلبات " />
 
             <div className="pb-24 animate-in fade-in duration-1000" dir="rtl">
-                
+
                 {/* VIP Header Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-10 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-4 p-6 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl">
                     <div className="space-y-4">
-                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.4em] text-[10px] font-black uppercase">
+                        <div className="inline-flex items-center gap-3 px-5 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.4em] text-[10px]  font-black uppercase">
                             سجل العمليات التجارية
                             <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
                         </div>
-                        <h2 className="text-6xl font-black text-white tracking-tighter leading-none">سجل طلبات المبيعات</h2>
-                        <p className="text-white/20 font-bold text-xl italic pr-6 border-r-4 border-amber-400/20">مركز السيطرة على التدفقات المالية والتوريد اللوجستي.</p>
+                        <h2 className="md:text-[45px] sm:text-[20px] font-black text-white tracking-tighter leading-none">سجل طلبات المبيعات</h2>
+                        <p className="text-white/60 font-bold md:text-[25px] sm:text-[0px] italic pr-6 border-r-4 border-amber-400/20">مركز السيطرة على التدفقات المالية والتوريد اللوجستي.</p>
                     </div>
                     <button onClick={() => setShowCreateModal(true)} className="group px-12 py-6 bg-amber-400 hover:bg-amber-500 text-black font-black rounded-[2rem] flex items-center gap-4 shadow-[0_20px_50px_-10px_rgba(251,191,36,0.3)] hover:scale-105 active:scale-95 transition-all">
                         <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
@@ -179,7 +179,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                 </div>
 
                 {/* VIP Quick Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mb-6">
                     <StatusStat label="قيد الانتظار" value={stats.total_pending} color="text-amber-500" bg="bg-amber-500/5" />
                     <StatusStat label="قيد المعالجة" value={stats.total_processing} color="text-blue-500" bg="bg-blue-500/5" />
                     <StatusStat label="قيد التوصيل" value={stats.total_delivery} color="text-purple-500" bg="bg-purple-500/5" />
@@ -191,14 +191,14 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                     <div className="overflow-x-auto custom-scrollbar">
                         <table className="w-full text-right border-collapse">
                             <thead>
-                                <tr className="bg-white/[0.01]">
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">رقم الطلب</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">التاريخ</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">بيانات العميل</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">عدد الأصناف</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">قيمة الطلب</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">حالة الطلب</th>
-                                    <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">الإجراءات</th>
+                                <tr className="bg-white/[0.03] ">
+                                    <th className=" py-10  md:px-10 sm:px-1 font-black text-white/80 "> الطلب</th>
+                                    <th className=" py-10   sm:px-1 font-black text-white/80">التاريخ</th>
+                                    <th className=" py-10   sm:px-1 font-black text-white/80"> العميل</th>
+                                    <th className=" py-10  md:px-10 sm:px-1  font-black text-white/80 "> الأصناف</th>
+                                    <th className=" py-10   sm:px-1 font-black text-white/80">قيمة الطلب</th>
+                                    <th className=" py-10  sm:px-1 font-black text-white/80 ">حالة الطلب</th>
+                                    <th className=" py-10    font-black text-white/80 ">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/[0.03]">
@@ -206,45 +206,48 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                     const hasUnallocated = order.order_items?.some(i => i.branch_id === null);
                                     return (
                                         <tr key={order.id} className={`group transition-all ${hasUnallocated ? 'bg-amber-400/[0.02]' : 'hover:bg-white/[0.01]'}`}>
-                                            <td className="px-12 py-10">
+                                            <td className="  py-4">
                                                 <div className="flex flex-col gap-1">
-                                                    <span className="text-2xl font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors">#{order.reference_number}</span>
+                                                    <span className=" font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors">
+                                                        {order.reference_number}</span>
                                                     {hasUnallocated && (
-                                                        <span className="inline-flex items-center gap-1.5 text-[9px] font-black text-amber-500 uppercase tracking-widest animate-pulse">
+                                                        <span className="inline-flex   gap-1.5 text-[5px] font-black text-amber-500 uppercase tracking-widest animate-pulse">
                                                             بانتظار التخصيص ⚠️
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10">
-                                                <span className="text-sm font-black text-white/30 uppercase tracking-widest">{formatDate(order.created_at)}</span>
+                                            <td className="md:px-4 px-2 py-4">
+                                                <span className=" font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors bg-white/[0.01]">
+                                                    {formatDate(order.created_at)}</span>
                                             </td>
-                                            <td className="px-12 py-10">
+                                            <td className=" py-4">
                                                 <div className="flex flex-col gap-1">
-                                                    <h4 className="text-xl font-black text-white leading-none">{order.customer?.name}</h4>
-                                                    <span className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest italic">{USER_TYPES[order.customer?.user_type]?.label}</span>
+                                                    <h4 className="  text-white leading-none">{order.customer?.name}</h4>
+                                                    <span className="text-xs md:text-base  text-amber-400  group-hover:text-amber-400  transition-colors">
+                                                        {USER_TYPES[order.customer?.user_type]?.label}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10 text-center text-2xl font-black text-white/60 tracking-tighter">
+                                            <td className="md:px-6 px-2 py-4 text-center">
                                                 {order.order_items?.length || 0} <span className="text-[10px] opacity-30 tracking-widest ml-1 uppercase">صنف</span>
                                             </td>
-                                            <td className="px-12 py-10">
-                                                <div className="text-2xl font-black text-white tracking-tighter">
+                                            <td className=" px-2 py-4">
+                                                <div className=" font-black text-white tracking-tighter">
                                                     {formatCurrency(order.final_amount, '')}
                                                     <span className="text-xs text-white/20 ml-2 uppercase tracking-widest">{order.currency?.currency_code_ar}</span>
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10 text-center">
-                                                <div className="transform scale-110">
+                                            <td className=" py-10 text-center">
+                                                <div className="transform scale-100">
                                                     <StatusBadge status={order.order_status} />
                                                 </div>
                                             </td>
-                                            <td className="px-12 py-10 text-center text-center">
-                                                <div className="flex items-center justify-center gap-4">
+                                            <td className="md:px-2 py-4">
+                                                <div className="flex  gap-2">
                                                     {hasUnallocated ? (
-                                                        <button onClick={() => openAllocateModal(order)} className="px-6 py-3 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-amber-400 hover:text-black transition-all shadow-xl">معالجة التخصيص</button>
+                                                        <button onClick={() => openAllocateModal(order)} className="px-4  sm:px-2 py-3 bg-amber-400/10 border border-amber-400/20 text-amber-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-amber-400 hover:text-black transition-all shadow-xl">معالجة التخصيص</button>
                                                     ) : (
-                                                        <OpButton onClick={() => openStatusModal(order)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m13 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>} tooltip="Update Lifecycle" color="purple-500" />
+                                                        <OpButton onClick={() => openStatusModal(order)} icon={<svg className="  w-5 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m13 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>} tooltip="Update Lifecycle" color="purple-500" />
                                                     )}
                                                     <OpButton onClick={() => openDetails(order)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>} tooltip="View Details" color="blue-500" />
                                                     <OpButton onClick={() => deleteOrder(order)} icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>} tooltip="Archive Record" color="rose-500" />
@@ -263,11 +266,11 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                         <div className="flex gap-2">
                             {orders.links?.map((link, i) => (
                                 link.url ? (
-                                    <button 
-                                        key={i} 
-                                        onClick={() => router.get(link.url)} 
-                                        className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${link.active ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/20' : 'bg-white/5 text-white/40 hover:bg-white/10'}`} 
-                                        dangerouslySetInnerHTML={{ __html: link.label }} 
+                                    <button
+                                        key={i}
+                                        onClick={() => router.get(link.url)}
+                                        className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${link.active ? 'bg-amber-400 text-black shadow-lg shadow-amber-400/20' : 'bg-white/5 text-white/40 hover:bg-white/10'}`}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
                                     />
                                 ) : (
                                     <span key={i} className="px-5 py-2.5 rounded-xl text-[10px] font-black text-white/10 uppercase tracking-widest bg-white/[0.02]" dangerouslySetInnerHTML={{ __html: link.label }} />
@@ -278,7 +281,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                 </div>
 
                 {/* Modals Section */}
-                
+
                 {/* 1. Create Order Modal */}
                 <Modal show={showCreateModal} onClose={() => setShowCreateModal(false)} title="إنشاء طلب مبيعات جديد" maxWidth="xl">
                     <form onSubmit={submitOrder}>
@@ -286,7 +289,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                             <div className="grid grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">العميل المستهدف</label>
-                                    <select 
+                                    <select
                                         value={createForm.data.customer_id}
                                         onChange={e => createForm.setData('customer_id', e.target.value)}
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400 transition-all font-bold appearance-none cursor-pointer"
@@ -298,7 +301,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">عملة الفوترة</label>
-                                    <select 
+                                    <select
                                         value={createForm.data.currency_id}
                                         onChange={e => createForm.setData('currency_id', e.target.value)}
                                         className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-400 transition-all font-bold appearance-none cursor-pointer"
@@ -320,7 +323,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                             <button type="button" onClick={() => removeItem(index)} className="absolute -left-2 -top-2 w-8 h-8 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
                                             <div className="grid grid-cols-12 gap-4">
                                                 <div className="col-span-4 space-y-2">
-                                                    <select 
+                                                    <select
                                                         value={item.product_id}
                                                         onChange={e => updateItem(index, 'product_id', e.target.value)}
                                                         className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white focus:ring-1 focus:ring-amber-500/30 transition-all"
@@ -330,7 +333,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                                     </select>
                                                 </div>
                                                 <div className="col-span-3 space-y-2">
-                                                    <select 
+                                                    <select
                                                         value={item.branch_id}
                                                         onChange={e => updateItem(index, 'branch_id', e.target.value)}
                                                         className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white"
@@ -340,7 +343,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                                     </select>
                                                 </div>
                                                 <div className="col-span-3 space-y-2">
-                                                    <select 
+                                                    <select
                                                         value={item.product_unit_id}
                                                         onChange={e => updateItem(index, 'product_unit_id', e.target.value)}
                                                         className="w-full bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white"
@@ -352,8 +355,8 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                                     </select>
                                                 </div>
                                                 <div className="col-span-2 space-y-2">
-                                                    <input 
-                                                        type="number" 
+                                                    <input
+                                                        type="number"
                                                         value={item.quantity}
                                                         onChange={e => updateItem(index, 'quantity', e.target.value)}
                                                         min="1"
@@ -387,7 +390,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">ملاحظات إضافية</label>
-                                    <textarea 
+                                    <textarea
                                         value={createForm.data.notes}
                                         onChange={e => createForm.setData('notes', e.target.value)}
                                         className="w-full bg-white/[0.02] border border-white/5 rounded-2xl px-6 py-4 text-white focus:border-amber-400 transition-all font-bold resize-none h-24"
@@ -413,12 +416,12 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">الحالة الجديدة</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     {Object.entries(ORDER_STATUSES).map(([key, statusObj]) => (
-                                        <button 
+                                        <button
                                             type="button"
                                             key={key}
                                             onClick={() => statusForm.setData('status', key)}
-                                            className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${statusForm.data.status == key 
-                                                ? 'bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-600/30 ring-2 ring-purple-500/20' 
+                                            className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border ${statusForm.data.status == key
+                                                ? 'bg-purple-600 border-purple-400 text-white shadow-lg shadow-purple-600/30 ring-2 ring-purple-500/20'
                                                 : 'bg-white/[0.03] border-white/10 text-white/30 hover:bg-white/10 hover:text-white'}`}
                                         >
                                             {statusObj.label}
@@ -428,7 +431,7 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/40 uppercase tracking-widest px-2">ملاحظة المدير</label>
-                                <textarea 
+                                <textarea
                                     value={statusForm.data.admin_note}
                                     onChange={e => statusForm.setData('admin_note', e.target.value)}
                                     className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-6 py-4 text-white h-32 resize-none"
@@ -459,15 +462,15 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                                     <div className="space-y-3">
                                         {alloc.splits.map((split, sIndex) => (
                                             <div key={sIndex} className="flex gap-4 items-center">
-                                                <select 
+                                                <select
                                                     value={split.branch_id}
                                                     onChange={e => updateAllocationSplit(aIndex, sIndex, 'branch_id', e.target.value)}
                                                     className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-white"
                                                 >
                                                     {branches.map(b => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
                                                 </select>
-                                                <input 
-                                                    type="number" 
+                                                <input
+                                                    type="number"
                                                     value={split.allocated_qty}
                                                     onChange={e => updateAllocationSplit(aIndex, sIndex, 'allocated_qty', e.target.value)}
                                                     className="w-24 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-center text-white"
@@ -552,7 +555,8 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
                 </Modal>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
@@ -563,21 +567,21 @@ export default function OrdersIndex({ auth, orders: initialOrders, stats: initia
 
 function StatusStat({ label, value, color, bg }) {
     return (
-        <div className={`p-8 rounded-[3rem] border border-white/5 ${bg} group transition-all duration-700 relative overflow-hidden`}>
+        <div className={`p-4 rounded-[3rem] border border-white/5 ${bg} group transition-all duration-700 relative overflow-hidden`}>
             <div className={`absolute top-0 left-0 w-1 h-full ${color.replace('text', 'bg')} opacity-40`} />
             <div className="flex justify-between items-start mb-6">
                 <span className={`text-[10px] font-black uppercase tracking-[0.4em] ${color}`}>{label}</span>
                 <div className={`w-2 h-2 rounded-full ${color.replace('text', 'bg')} animate-pulse`} />
             </div>
-            <div className="text-5xl font-black text-white tracking-tighter group-hover:scale-110 transition-transform origin-right">{value}</div>
+            <div className="text-3xl md:text-5x1 font-black text-white tracking-tighter group-hover:scale-110 transition-transform origin-right">{value}</div>
         </div>
     );
 }
 
 function OpButton({ onClick, icon, tooltip, color }) {
     return (
-        <button 
-            onClick={onClick} 
+        <button
+            onClick={onClick}
             title={tooltip}
             className={`w-14 h-14 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-center transition-all hover:scale-110 active:scale-95 group`}
         >
