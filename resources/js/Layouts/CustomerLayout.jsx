@@ -46,40 +46,39 @@ export default function CustomerLayout({ header, children, hideFooter = false })
             </Head>
 
             {/* Premium Orbital Backgrounds */}
-            <div className="fixed top-0 left-0 w-[1000px] h-[1000px] bg-amber-500/5 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
+            <div className="fixed top-0 left-0 w-full h-full bg-amber-500/5 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
 
             {/* VIP Glass Header */}
             <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-black/20 border-b border-white/5">
-                <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                    <div className="flex justify-between h-24">
+                <div className="max-w-7xl mx-auto px-2 lg:px-12">
+                    <div className="flex justify-between h-20">
                         <div className="flex items-center gap-12">
                             {/* Brand */}
-                            <Link href={route('customer.storefront')} className="flex items-center gap-4 group">
+                            <Link href={route('customer.storefront')} className="flex items-center gap-2 group">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-white rounded-xl" />
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-2xl font-black tracking-tighter text-white">المخلافي</span>
+                                    <span className="md:text-2xl  font-black tracking-tighter text-white">المخلافي</span>
                                     <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase">للتجارة والتبريد</span>
                                 </div>
                             </Link>
 
                             {/* Nav Links */}
-                            <div className="hidden md:flex items-center gap-10 h-full">
+                            <div className="flex items-center gap-8 h-full">
                                 {[
                                     { name: 'المنتجات', route: 'customer.storefront' },
                                     ...(user ? [
                                         { name: 'طلباتي', route: 'customer.orders' },
-                                        { name: 'العروض الحصرية', route: 'customer.offers' },
+                                        { name: 'العروض  ', route: 'customer.offers' },
                                     ] : []),
                                 ].map((link) => (
                                     <Link
                                         key={link.route}
                                         href={route(link.route)}
-                                        className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                            route().current(link.route + '*') ? 'text-amber-400' : 'text-white/40 hover:text-white'
-                                        }`}
+                                        className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current(link.route + '*') ? 'text-amber-400' : 'text-white/40 hover:text-white'
+                                            }`}
                                     >
                                         {link.name}
                                         {route().current(link.route + '*') && (
@@ -120,7 +119,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                                     {user.name?.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col text-left">
-                                                    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">حساب نخبة</span>
+                                                    {/* <span className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">حساب نخبة</span> */}
                                                     <span className="text-xs font-black text-white group-hover:text-amber-400 transition-colors">{user.name}</span>
                                                 </div>
                                             </button>
@@ -162,7 +161,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
             {/* Dynamic Header */}
             {header && (
-                <div className="max-w-7xl mx-auto px-6 lg:px-12 py-12 relative z-10 animate-in fade-in slide-in-from-top-4 duration-1000">
+                <div className="max-w-7xl mx-auto px-6 lg:px-12 py-4 relative z-10 animate-in fade-in slide-in-from-top-4 duration-1000">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-1 bg-amber-400 rounded-full" />
                         <h2 className="text-4xl font-black text-white tracking-tighter">{header}</h2>
@@ -178,15 +177,15 @@ export default function CustomerLayout({ header, children, hideFooter = false })
             {/* VIP Footer */}
             {!hideFooter && (
                 <footer className="bg-black/40 border-t border-white/5 mt-auto relative z-10 backdrop-blur-xl">
-                    <div className="max-w-7xl mx-auto py-16 px-6 lg:px-12">
-                        <div className="flex flex-col md:flex-row justify-between items-center gap-10">
+                    <div className="max-w-7xl mx-auto py-2 px-2 lg:px-12">
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex items-center gap-4 opacity-30 grayscale saturate-0">
                                 <ApplicationLogo className="w-10 h-10" />
                                 <div className="text-right">
                                     <div className="text-sm font-black tracking-tighter text-white">المخلافي</div>
                                 </div>
                             </div>
-                            <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] leading-loose text-center md:text-right">
+                            <div className="md:text-[10px] font-black text-white/20 uppercase tracking-[0.5em] leading-loose text-center md:text-right">
                                 © {new Date().getFullYear()} مؤسسة سعيد نعمان المخلافي للتجارة والتبريد<br />
                                 <span className="text-amber-500/30">مصنوع بإتقان • توفر محدود</span>
                             </div>

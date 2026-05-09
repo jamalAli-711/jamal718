@@ -111,17 +111,17 @@ export default function Storefront({ products, categories }) {
                         <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-amber-400/[0.03] to-transparent pointer-events-none" />
 
                         <div className="z-10 text-right flex-1 animate-in fade-in slide-in-from-right-10 duration-1000">
-                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 mb-8">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-400 mb-4">
                                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                                 <span className="text-[10px] font-black uppercase tracking-[0.4em]">كتالوج النخبة 2026</span>
                             </div>
-                            <h1 className="text-2xl md:text-4xl font-black text-white mb-8 tracking-tighter leading-none">
+                            <h1 className="md:text-2xl  font-black text-white mb-4 tracking-tighter leading-none">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700">  مؤسسة سعيد نعمان المخلافي للتجارة والتبريد</span>
                             </h1>
-                            <h1 className="text-6xl md:text-8xl font-black text-white mb-8 tracking-tighter leading-none">
+                            <h1 className=" md:text-4xl font-black text-white mb-6 tracking-tighter leading-none">
                                 الفخامة في <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700">التسوق</span>
                             </h1>
-                            <p className="text-white/40 text-xl max-w-lg leading-relaxed font-medium mb-12">
+                            <p className="text-white/40 text-xl max-w-lg leading-relaxed font-medium mb-8">
                                 اكتشف تشكيلتنا الحصرية المختارة بعناية لتناسب ذوقك الرفيع. الجودة العالمية بين يديك عبر خدمات المخلافي .
                             </p>
                             <div className="flex gap-4">
@@ -141,7 +141,7 @@ export default function Storefront({ products, categories }) {
                 <BrandsMarquee />
 
                 {/* VIP FILTER BAR */}
-                <section className="max-w-7xl mx-auto px-6 lg:px-12 mb-16">
+                <section className="max-w-7xl mx-auto px-4 lg:px-8 mb-10">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-white/[0.02] backdrop-blur-3xl p-8 rounded-[3rem] border border-white/5">
 
                         <div className="flex flex-wrap gap-4">
@@ -171,7 +171,7 @@ export default function Storefront({ products, categories }) {
                             <h3 className="text-3xl font-black text-white/20">لا توجد نتائج مطابقة لطلبك</h3>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
                             {filtered.map(product => (
                                 <ProductCard key={product.id} product={product} quantity={quantities[product.id]} inCartQuantity={cartItems.find(i => i.product_id === product.id)?.quantity || 0} onStep={(delta) => step(product.id, delta)} onQuantityChange={(val) => handleManualQuantityChange(product.id, val)} onBlur={() => handleBlur(product.id)} onAddToCart={() => addToCart(product)} />
                             ))}
@@ -187,16 +187,16 @@ export default function Storefront({ products, categories }) {
    BRAND LOGOS — infinite marquee strip
 ───────────────────────────────────────────────────── */
 const BRANDS = [
-    { name: 'الشفاء',    src: '/storage/products/logos/al-shifa.png'  },
-    { name: 'Arla',      src: '/storage/products/logos/arla.png'       },
-    { name: 'بيقا',      src: '/storage/products/logos/beqa.png'       },
-    { name: 'Capri-Sun', src: '/storage/products/logos/capri-sun.png'  },
-    { name: 'Lurpak',    src: '/storage/products/logos/lurpak.png'     },
-    { name: 'Puck',      src: '/storage/products/logos/puck.png'       },
-    { name: 'Sadia',     src: '/storage/products/logos/sadia.png'      },
-    { name: 'Sary',      src: '/storage/products/logos/sary.png'       },
-    { name: 'Starbucks', src: '/storage/products/logos/starbucks.png'  },
-    { name: 'تيما',      src: '/storage/products/logos/teama.png'      },
+    { name: 'الشفاء', src: '/storage/products/logos/al-shifa.png' },
+    { name: 'Arla', src: '/storage/products/logos/arla.png' },
+    { name: 'بيقا', src: '/storage/products/logos/beqa.png' },
+    { name: 'Capri-Sun', src: '/storage/products/logos/capri-sun.png' },
+    { name: 'Lurpak', src: '/storage/products/logos/lurpak.png' },
+    { name: 'Puck', src: '/storage/products/logos/puck.png' },
+    { name: 'Sadia', src: '/storage/products/logos/sadia.png' },
+    { name: 'Sary', src: '/storage/products/logos/sary.png' },
+    { name: 'Starbucks', src: '/storage/products/logos/starbucks.png' },
+    { name: 'تيما', src: '/storage/products/logos/teama.png' },
 ];
 
 function BrandsMarquee() {
@@ -275,21 +275,21 @@ function CategoryPill({ label, active, onClick }) {
 
 function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChange, onBlur, onAddToCart }) {
     return (
-        <div className="group bg-[#16161a]/60 backdrop-blur-3xl rounded-[3rem] border border-white/5 p-8 transition-all duration-700 hover:-translate-y-4 hover:border-amber-400/20 shadow-2xl relative overflow-hidden">
+        <div className="group bg-[#16161a]/60 backdrop-blur-3xl rounded-[3rem] border border-white/5 p-4 transition-all duration-700 hover:-translate-y-4 hover:border-amber-400/20 shadow-2xl relative overflow-hidden">
 
             {/* Selection Glow */}
             {inCartQuantity > 0 && <div className="absolute inset-0 bg-amber-400/[0.02] border border-amber-400/10 rounded-[3rem] pointer-events-none" />}
 
             {/* In Cart Indicator */}
             {inCartQuantity > 0 && (
-                <div className="absolute top-8 left-8 z-20 w-10 h-10 bg-amber-400 text-black rounded-2xl flex items-center justify-center font-black text-xs shadow-lg shadow-amber-400/20">
+                <div className="absolute top-4 left-8 z-20 w-10 h-10 bg-amber-400 text-black rounded-2xl flex items-center justify-center font-black text-xs shadow-lg shadow-amber-400/20">
                     {inCartQuantity}
                 </div>
             )}
 
             {/* Image */}
             <Link href={route('customer.storefront.show', product.id)}>
-                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-white/5 mb-8">
+                <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-white/5 mb-2">
                     {product.image_path ? (
                         <img src={product.image_path} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" />
                     ) : (
@@ -298,26 +298,26 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
 
                     {!product.in_stock && (
                         <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center">
-                            <span className="bg-rose-500 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest">نفدت الكمية</span>
+                            <span className="bg-rose-500 text-white text-[10px] font-black px-6 py-1 rounded-full uppercase tracking-widest">نفدت الكمية</span>
                         </div>
                     )}
                 </div>
             </Link>
 
             {/* Details */}
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <Link href={route('customer.storefront.show', product.id)}>
-                    <h3 className="text-xl font-black text-white group-hover:text-amber-400 transition-colors line-clamp-2 h-14 leading-tight">{product.name}</h3>
+                    <h3 className="text-sm md:text-xl font-black text-white group-hover:text-amber-400 transition-colors line-clamp-2 h-14 leading-tight">{product.name}</h3>
                 </Link>
 
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="text-2xl font-black text-white">{Number(product.price).toLocaleString()} <span className="text-[10px] text-white/20 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span></div>
-                        <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-1">{product.default_unit_name}</div>
+                        <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-0">{product.default_unit_name}</div>
                     </div>
 
                     <div className="flex items-center bg-white/5 rounded-2xl p-1.5 border border-white/10 shadow-inner">
-                        <button onClick={() => onStep(1)} className="w-9 h-9 flex items-center justify-center text-white/40 hover:text-amber-400 transition-all">+</button>
+                        <button onClick={() => onStep(1)} className="w-6 h-6 flex items-center justify-center text-white/40 hover:text-amber-400 transition-all">+</button>
                         <input type="text" value={quantity} onChange={(e) => onQuantityChange(e.target.value)} onBlur={onBlur} className="w-10 bg-transparent text-center font-black text-lg text-white border-none focus:ring-0 p-0" />
                         <button onClick={() => onStep(-1)} disabled={quantity <= 1} className="w-9 h-9 flex items-center justify-center text-white/40 hover:text-amber-400 transition-all disabled:opacity-10">-</button>
                     </div>
@@ -326,7 +326,7 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
                 <button
                     onClick={onAddToCart}
                     disabled={!product.in_stock}
-                    className="w-full py-5 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 disabled:opacity-10 disabled:grayscale text-black rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-amber-400/10 active:scale-95"
+                    className="w-full py-2 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 disabled:opacity-10 disabled:grayscale text-black rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] transition-all shadow-xl shadow-amber-400/10 active:scale-95"
                 >
                     أضف إلى السلة
                 </button>
