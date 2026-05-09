@@ -312,7 +312,7 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
 
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="text-2xl font-black text-white">{Number(product.price).toLocaleString()} <span className="text-[10px] text-white/20 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span></div>
+                        <div className="md:text-2xl font-black text-white">{Number(product.price).toLocaleString()} <span className="text-[10px] text-white/20 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span></div>
                         <div className="text-[10px] font-bold text-white/20 uppercase tracking-widest mt-0">{product.default_unit_name}</div>
                     </div>
 
