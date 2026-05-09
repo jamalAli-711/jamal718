@@ -171,7 +171,7 @@ export default function Storefront({ products, categories }) {
                             <h3 className="text-3xl font-black text-white/20">لا توجد نتائج مطابقة لطلبك</h3>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-12">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                             {filtered.map(product => (
                                 <ProductCard key={product.id} product={product} quantity={quantities[product.id]} inCartQuantity={cartItems.find(i => i.product_id === product.id)?.quantity || 0} onStep={(delta) => step(product.id, delta)} onQuantityChange={(val) => handleManualQuantityChange(product.id, val)} onBlur={() => handleBlur(product.id)} onAddToCart={() => addToCart(product)} />
                             ))}
@@ -265,7 +265,7 @@ function CategoryPill({ label, active, onClick }) {
     return (
         <button
             onClick={onClick}
-            className={`px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border ${active ? 'bg-amber-400 text-black border-amber-400' : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:border-white/10'
+            className={`px-4 py-1.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border ${active ? 'bg-amber-400 text-black border-amber-400' : 'bg-white/5 text-white/40 border-white/5 hover:text-white hover:border-white/10'
                 }`}
         >
             {label}
