@@ -31,9 +31,9 @@ export default function Login({ status, canResetPassword }) {
                             className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-6 px-10 text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all text-right placeholder:text-white/5 shadow-inner"
                             placeholder="EMAIL@DOMAIN.COM" dir="ltr"
                         />
-                         <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/5 group-hover/field:text-amber-400/20 transition-colors pointer-events-none">
+                        <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/5 group-hover/field:text-amber-400/20 transition-colors pointer-events-none">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                         </div>
+                        </div>
                     </div>
                     <InputError message={errors.email} className="mt-4 font-black text-[10px] uppercase tracking-widest text-rose-500 pr-4" />
                 </div>
@@ -69,8 +69,8 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="pt-6">
-                    <button 
-                        className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-amber-400 bg-size-200 text-black py-7 rounded-[2rem] font-black text-xs uppercase tracking-[0.5em] shadow-2xl shadow-amber-500/10 hover:bg-pos-100 transition-all duration-700 active:scale-95 disabled:opacity-50" 
+                    <button
+                        className="w-full bg-gradient-to-r from-amber-400 via-amber-600 to-amber-400 bg-size-200 text-black py-7 rounded-[2rem] font-black text-xs uppercase tracking-[0.5em] shadow-2xl shadow-amber-500/10 hover:bg-pos-100 transition-all duration-700 active:scale-95 disabled:opacity-50"
                         disabled={processing}
                     >
                         {processing ? 'جاري التحقق...' : 'مصادقة الدخول'}
@@ -88,7 +88,8 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             </form>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .bg-size-200 { background-size: 200% 100%; }
                 .bg-pos-100 { background-position: 100% 0; }
             ` }} />
