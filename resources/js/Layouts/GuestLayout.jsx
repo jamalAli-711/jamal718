@@ -16,7 +16,7 @@ export default function GuestLayout({ children }) {
                         <ApplicationLogo className="w-28 h-28 object-contain relative z-10 transition-all duration-700 group-hover:scale-110 drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]" />
                     </Link>
                     <div className="text-center">
-                        <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">555</h2>
+                        <h2 className="text-3xl font-black text-white tracking-tighter uppercase leading-none">المخلافي</h2>
                         <span className="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.5em] mt-2 block">بوابة الوصول الآمن للنخبة</span>
                     </div>
                 </div>
