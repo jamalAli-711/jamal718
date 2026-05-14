@@ -17,6 +17,21 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return redirect()->route('customer.storefront');
 });
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/run-unzip', function () {
+    $zip = new \ZipArchive;
+    // المسار هنا يفترض أن ملف deploy.zip موجود في المجلد الرئيسي للمشروع
+    $path = base_path('public/deploy.zip'); 
+    
+    if ($zip->open($path) === TRUE) {
+        $zip->extractTo(base_path());
+        $zip->close();
+        return "تم فك الضغط بنجاح عن طريق Laravel Route!";
+    } else {
+        return "لم يتم العثور على ملف deploy.zip في مجلد public. المسار المحاول: " . $path;
+    }
+});
 
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
 use App\Http\Controllers\Customer\StorefrontController as CustomerStorefrontController;

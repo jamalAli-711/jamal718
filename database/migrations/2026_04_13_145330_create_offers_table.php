@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('offers', function (Blueprint $table) {
-            $table->id()->comment('المعرف الفريد للعرض');
+            $table->id()->comment('المعرف الفريد ');
             $table->string('title', 150)->comment('اسم العرض الترويجي (مثلاً: عرض السلة الرمضانية)');
             
             // حالة العرض والصورة

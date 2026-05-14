@@ -48,7 +48,7 @@ class ProductController extends Controller
 
     private function formatProduct($product)
     {
-        // Get the primary image from product_images table, or the first one available
+        // Get the primary image from product_images table, or the first one availab
         $primaryImage = $product->images->where('is_primary', 1)->first() ?: $product->images->first();
         
         if ($primaryImage && $primaryImage->image_path) {
