@@ -31,11 +31,11 @@ export default function Offers({ auth, offers }) {
     const addToCart = (offer) => {
         const qty = quantities[offer.id] || 0;
         const product = offer.target_product;
-        
+
         if (!product || qty < 1) return;
 
         let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        
+
         const primaryIdx = cart.findIndex(i => i.product_id === product.id && !i.is_gift);
         if (primaryIdx >= 0) {
             cart[primaryIdx].quantity = Math.min(cart[primaryIdx].quantity + qty, product.calculate_stock);
@@ -88,7 +88,7 @@ export default function Offers({ auth, offers }) {
             <div className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ease-out ${toast ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
                 <div className="bg-[#1a1a1f]/90 backdrop-blur-3xl border border-amber-400/30 text-white px-10 py-5 rounded-[2.5rem] shadow-[0_20px_50px_rgba(251,191,36,0.15)] flex items-center gap-4 min-w-[320px]">
                     <div className="w-10 h-10 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-amber-500/20">
-                        <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
+                        <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </div>
                     <div>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-400/70 leading-none mb-1">تمت الإضافة</p>
@@ -103,7 +103,7 @@ export default function Offers({ auth, offers }) {
                 <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[100px] pointer-events-none" />
 
                 <div className="max-w-7xl mx-auto px-6 sm:px-8 py-24 relative z-10">
-                    
+
                     {/* VIP Header Design */}
                     <div className="text-center mb-24">
                         <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-amber-400 mb-8 backdrop-blur-md shadow-2xl">
@@ -111,14 +111,13 @@ export default function Offers({ auth, offers }) {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
                             </span>
-                            <span className="text-[10px] font-black uppercase tracking-[0.4em] leading-none">المجموعة الحصرية VIP</span>
                         </div>
-                        <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-8 leading-none">
+                        {/* <h1 className="text-7xl md:text-8xl font-black text-white tracking-tighter mb-8 leading-none">
                             عروض <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700">النخبة</span>
                         </h1>
                         <p className="text-slate-400 text-xl max-w-2xl mx-auto font-medium leading-relaxed italic opacity-80">
                             تجربة تسوق فارهة مُصممة لشركائنا المميزين. استفد من الخصومات الحصرية والهدايا الفريدة بضمة زر.
-                        </p>
+                        </p> */}
                     </div>
 
                     {offers.length > 0 ? (
@@ -127,7 +126,7 @@ export default function Offers({ auth, offers }) {
                                 const qty = quantities[offer.id] || 0;
                                 const product = offer.target_product;
                                 const basePrice = product?.calculate_price || 0;
-                                
+
                                 // Logic
                                 let savingsLabel = "";
                                 let finalPrice = basePrice * qty;
@@ -152,7 +151,7 @@ export default function Offers({ auth, offers }) {
 
                                 return (
                                     <div key={offer.id} className="vip-card group relative bg-[#16161a]/60 backdrop-blur-3xl rounded-[3rem] border border-white/5 overflow-hidden transition-all duration-700 hover:-translate-y-4 hover:border-amber-400/20 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
-                                        
+
                                         {/* Sweeping Shine Effect Layer */}
                                         <div className="shine-layer absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
 
@@ -177,7 +176,7 @@ export default function Offers({ auth, offers }) {
 
                                         {/* VIP Content */}
                                         <div className="p-10 space-y-10">
-                                            
+
                                             {/* Product Identity */}
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center gap-5">
@@ -203,18 +202,18 @@ export default function Offers({ auth, offers }) {
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-xs font-black text-white/50 uppercase tracking-[0.2em]">اختر الكمية</span>
                                                     <div className="flex items-center bg-white/5 rounded-2xl p-1.5 border border-white/10 shadow-inner group/stepper">
-                                                        <button 
-                                                            onClick={() => handleQtyChange(offer.id, qty + 1, product?.calculate_stock)} 
+                                                        <button
+                                                            onClick={() => handleQtyChange(offer.id, qty + 1, product?.calculate_stock)}
                                                             className="w-11 h-11 flex items-center justify-center text-white/40 hover:text-amber-400 hover:bg-white/5 rounded-xl transition-all font-black text-xl"
                                                         >+</button>
-                                                        <input 
-                                                            type="number" 
-                                                            value={qty} 
+                                                        <input
+                                                            type="number"
+                                                            value={qty}
                                                             onChange={(e) => handleQtyChange(offer.id, e.target.value, product?.calculate_stock)}
                                                             className="w-16 text-center border-none focus:ring-0 bg-transparent font-black text-2xl text-white p-0 hide-spinner mx-1"
                                                         />
-                                                        <button 
-                                                            onClick={() => handleQtyChange(offer.id, qty - 1, product?.calculate_stock)} 
+                                                        <button
+                                                            onClick={() => handleQtyChange(offer.id, qty - 1, product?.calculate_stock)}
                                                             className="w-11 h-11 flex items-center justify-center text-white/40 hover:text-amber-400 hover:bg-white/5 rounded-xl transition-all font-black text-xl"
                                                         >−</button>
                                                     </div>
@@ -226,7 +225,7 @@ export default function Offers({ auth, offers }) {
                                                         {offer.offer_type === 'Free_Unit' ? (
                                                             <div className="flex items-center justify-between bg-white/[0.02] p-5 rounded-[2rem] border border-white/5">
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-amber-400/60 uppercase tracking-widest mb-1 leading-none">مكافأة VIP</p>
+                                                                    <p className="text-[10px] font-black text-amber-400/60 uppercase tracking-widest mb-1 leading-none">مكافأة </p>
                                                                     <h4 className="text-3xl font-black text-white leading-none">{bonusQty} <span className="text-sm font-bold text-white/40">{offer.bonus_unit?.unit_name || 'وحدة'}</span></h4>
                                                                 </div>
                                                                 <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-1000 ${bonusQty > 0 ? 'bg-amber-400/10 text-amber-400 shadow-[0_0_30px_rgba(251,191,36,0.2)] scale-110' : 'bg-white/5 text-white/10 opacity-30'}`}>
@@ -258,14 +257,14 @@ export default function Offers({ auth, offers }) {
 
                                             {/* Premium Action Button */}
                                             <div className="space-y-6">
-                                                <button 
+                                                <button
                                                     onClick={() => addToCart(offer)}
                                                     disabled={!product?.calculate_stock || (offer.offer_type === 'Free_Unit' && qty < offer.min_qty_to_achieve && qty > 0)}
                                                     className="relative w-full py-6 group/btn overflow-hidden rounded-[2.5rem] disabled:opacity-20 disabled:cursor-not-allowed"
                                                 >
                                                     {/* Button Background Gradient */}
                                                     <div className="absolute inset-0 bg-gradient-to-r from-amber-400 via-amber-600 to-amber-400 group-hover/btn:scale-x-110 transition-transform duration-500" />
-                                                    
+
                                                     {/* Label */}
                                                     <span className="relative flex items-center justify-center gap-3 text-black font-black text-xs uppercase tracking-[0.4em]">
                                                         {!product?.calculate_stock ? 'نفد المخزون' : (
@@ -276,7 +275,7 @@ export default function Offers({ auth, offers }) {
                                                         )}
                                                     </span>
                                                 </button>
-                                                
+
                                                 <div className="flex items-center justify-between text-[9px] font-black text-white/20 uppercase tracking-[0.3em] px-4">
                                                     <span>الصلاحية: {offer.end_date ? formatDate(offer.end_date) : 'دائم'}</span>
                                                     <span className={product?.calculate_stock < 10 ? 'text-rose-500/50' : ''}>المخزون: {product?.calculate_stock} وحدة</span>
@@ -301,7 +300,8 @@ export default function Offers({ auth, offers }) {
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
                 
                 :root {

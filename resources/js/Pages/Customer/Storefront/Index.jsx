@@ -106,8 +106,8 @@ export default function Storefront({ products, categories }) {
             <div className="min-h-screen pb-24" dir="rtl">
 
                 {/* VIP HERO ENTRANCE */}
-                <section className="max-w-7xl mx-auto px-6 lg:px-12 pt-16 mb-24">
-                    <div className="relative rounded-[4rem] overflow-hidden bg-[#0d0d10] border border-white/5 p-12 md:p-24 flex flex-col md:flex-row items-center justify-between gap-16 md:gap-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
+                <section className="max-w-7xl mx-auto px-6 lg:px-12 pt-10 mb-4">
+                    <div className="relative rounded-[4rem] overflow-hidden bg-[#0d0d10] border border-white/5 p-4 md:p-4 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-24 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]">
                         <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-amber-400/[0.03] to-transparent pointer-events-none" />
 
                         <div className="z-10 text-right flex-1 animate-in fade-in slide-in-from-right-10 duration-1000">
@@ -118,16 +118,17 @@ export default function Storefront({ products, categories }) {
                             <h1 className="md:text-2xl  font-black text-white mb-4 tracking-tighter leading-none">
                                 <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700">  مؤسسة سعيد نعمان المخلافي للتجارة والتبريد</span>
                             </h1>
+                            {/*
                             <h1 className=" md:text-4xl font-black text-white mb-6 tracking-tighter leading-none">
                                 الفخامة في <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-700">التسوق</span>
                             </h1>
-                            <p className="text-white/40 text-xl max-w-lg leading-relaxed font-medium mb-8">
+                            <p className="text-white/40 text-xl max-w-lg leading-relaxed font-medium mb-2">
                                 اكتشف تشكيلتنا الحصرية المختارة بعناية لتناسب ذوقك الرفيع. الجودة العالمية بين يديك عبر خدمات المخلافي .
-                            </p>
-                            <div className="flex gap-4">
+                            </p> */}
+                            {/* <div className="flex gap-4">
                                 <button className="px-10 py-5 bg-amber-400 text-black font-black rounded-3xl hover:bg-amber-500 transition-all shadow-xl shadow-amber-400/20">ابدأ الاستكشاف</button>
                                 <button className="px-10 py-5 bg-white/5 text-white/60 hover:text-white border border-white/10 rounded-3xl backdrop-blur-md transition-all">عن الشركة</button>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* <div className="relative z-10 w-full max-w-sm aspect-square group animate-in zoom-in-95 duration-1000">
@@ -141,10 +142,10 @@ export default function Storefront({ products, categories }) {
                 <BrandsMarquee />
 
                 {/* VIP FILTER BAR */}
-                <section className="max-w-7xl mx-auto px-4 lg:px-8 mb-10">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-white/[0.02] backdrop-blur-3xl p-8 rounded-[3rem] border border-white/5">
+                <section className="max-w-7xl mx-auto px-4 lg:px-8 mb-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-8 bg-white/[0.02] backdrop-blur-3xl p-4 rounded-[3rem] border border-white/5">
 
-                        <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-2">
                             <CategoryPill label="جميع الأصناف" active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
                             {categories.map(cat => (
                                 <CategoryPill key={cat.id} label={cat.category_name} active={selectedCategory === cat.category_name} onClick={() => setSelectedCategory(cat.category_name)} />
@@ -204,9 +205,9 @@ function BrandsMarquee() {
     const tiles = [...BRANDS, ...BRANDS];
 
     return (
-        <section className="max-w-7xl mx-auto px-6 lg:px-12 mb-16" dir="rtl">
+        <section className="max-w-7xl mx-auto px-2 lg:px-4 mb-4" dir="rtl">
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-2 mb-4">
                 <div className="h-px flex-1 bg-gradient-to-l from-amber-400/30 to-transparent" />
                 <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-400/70">علاماتنا التجارية</span>
                 <div className="h-px flex-1 bg-gradient-to-r from-amber-400/30 to-transparent" />
@@ -214,44 +215,37 @@ function BrandsMarquee() {
 
             {/* Track */}
             <div className="relative overflow-hidden rounded-[2.5rem] bg-white/[0.02] border border-white/5 p-6 backdrop-blur-3xl">
-                {/* fade edges */}
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10
-                                bg-gradient-to-l from-[#0d0d10] to-transparent" />
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10
-                                bg-gradient-to-r from-[#0d0d10] to-transparent" />
 
-                {/* inject keyframes once */}
+                {/* تم إزالة حواف التلاشي (fade edges) النصية لأنها لم تعد مطلوبة مع التوزيع الثابت */}
+
                 <style>{`
-                    @keyframes marquee-rtl {
-                        from { transform: translateX(0); }
-                        to   { transform: translateX(-50%); }
-                    }
-                    .brands-track {
-                        display: flex;
-                        gap: 3rem;
-                        width: max-content;
-                        animation: marquee-rtl 28s linear infinite;
-                    }
-                    .brands-track:hover { animation-play-state: paused; }
-                `}</style>
+        .brands-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            width: 100%;
+        }
+    `}</style>
 
-                <div className="brands-track">
+                <div className="brands-grid">
                     {tiles.map((brand, i) => (
                         <div
                             key={i}
                             title={brand.name}
-                            className="flex-shrink-0 w-32 h-20 flex items-center justify-center
-                                       rounded-2xl bg-white/[0.04] border border-white/5
-                                       hover:border-amber-400/30 hover:bg-amber-400/[0.06]
-                                       transition-all duration-500 cursor-pointer px-4 group"
+                            className="flex-shrink-0 w-20 h-12 flex items-center justify-center
+                           rounded-2xl bg-white/[0.04] border border-white/5
+                           hover:border-amber-400/30 hover:bg-amber-400/[0.06]
+                           transition-all duration-500 cursor-pointer px-2 group"
                         >
                             <img
                                 src={brand.src}
+
                                 alt={brand.name}
-                                className="max-w-full max-h-12 object-contain
-                                           filter grayscale opacity-50
-                                           group-hover:grayscale-0 group-hover:opacity-100
-                                           transition-all duration-500"
+                                className=" grayscale-0 max-w-full max-h-12 object-contain
+                               filter 
+                               group-hover:grayscale-0 group-hover:opacity-100
+                               transition-all duration-500"
                             />
                         </div>
                     ))}

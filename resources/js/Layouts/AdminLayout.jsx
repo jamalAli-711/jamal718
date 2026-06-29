@@ -48,15 +48,15 @@ export default function AdminLayout({ user, header, children }) {
     const mainNav = [
         { name: 'لوحة التحكم', href: route('dashboard'), icon: IconDashboard, active: url === '/dashboard' },
         { name: 'الطلبات', href: route('orders.index'), icon: IconOrders, active: url.startsWith('/orders') },
-        { name: 'تنبؤ الاستهلاك', href: route('replenishment.report'), icon: IconForecasting, active: url.startsWith('/replenishment/report') },
-        { name: 'دورات التوريد', href: route('replenishment.index'), icon: IconSettings, active: url.match(/\/replenishment(?!\/report)/) },
+        // { name: 'تنبؤ الاستهلاك', href: route('replenishment.report'), icon: IconForecasting, active: url.startsWith('/replenishment/report') },
+        // { name: 'دورات التوريد', href: route('replenishment.index'), icon: IconSettings, active: url.match(/\/replenishment(?!\/report)/) },
         { name: 'المخزون', href: route('inventory.index'), icon: IconInventory, active: url.startsWith('/inventory') },
-        { name: 'إدارة الأسطول', href: route('fleet.index'), icon: IconFleet, active: url === '/fleet' },
-        { name: 'سجل المركبات', href: route('fleet.manage'), icon: IconSettings, active: url.startsWith('/fleet/manage') },
+        // { name: 'إدارة الأسطول', href: route('fleet.index'), icon: IconFleet, active: url === '/fleet' },
+        // { name: 'سجل المركبات', href: route('fleet.manage'), icon: IconSettings, active: url.startsWith('/fleet/manage') },
         { name: 'العروض', href: route('offers.index'), icon: IconBell, active: url.startsWith('/offers') },
         { name: 'العملاء', href: route('customers.index'), icon: IconCustomers, active: url.startsWith('/customers') },
         { name: 'إدارة الموظفين', href: route('staff.index'), icon: IconCustomers, active: url.startsWith('/staff') },
-        { name: 'العمولات والمناديب', href: route('commissions.index'), icon: IconForecasting, active: url.startsWith('/commissions') },
+        // { name: 'العمولات والمناديب', href: route('commissions.index'), icon: IconForecasting, active: url.startsWith('/commissions') },
         { name: 'الفروع', href: route('branches.index'), icon: IconBranch, active: url.startsWith('/branches') },
     ];
 
