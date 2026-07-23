@@ -270,7 +270,6 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             <p>نحن ملتزمون بتقديم منتجات عالية الجودة من أشهر الماركات العالمية (مثل Puck, Sadia, Lurpak, Starbucks والمزيد) مع ضمان الالتزام التام بأعلى معايير الحفظ المبرد وسلاسل التبريد المتكاملة لضمان وصول المنتجات طازجة وصحية.</p>
                             <div className="pt-4 border-t border-white/5 space-y-2">
                                 <p><strong className="text-white">العنوان:</strong> اليمن</p>
-                                <p><strong className="text-white">الهاتف:</strong> +966 12 345 6789</p>
                                 <p><strong className="text-white">البريد الإلكتروني:</strong> info@al-mekhlafi.com</p>
                             </div>
                         </div>

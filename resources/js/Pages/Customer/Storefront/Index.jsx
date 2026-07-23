@@ -320,7 +320,7 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
                     <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-black/5 dark:bg-white/5 mb-4 border border-red-500/10 dark:border-transparent">
                         {product.image_path ? (
                             <img
-                                src={`/storage/products/${product.image_path}`}
+                                src={product.image_path}
                                 alt={product.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
                             />
