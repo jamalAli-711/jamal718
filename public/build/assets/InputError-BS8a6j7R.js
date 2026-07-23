@@ -1,1 +1,0 @@
-import{j as e}from"./app-DPsciPyA.js";function s({message:t,className:r="",...n}){return t?e.jsx("p",{...n,className:"text-xs font-black uppercase tracking-widest text-primary mt-2 "+r,children:t}):null}export{s as I};

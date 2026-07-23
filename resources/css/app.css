@@ -14,13 +14,13 @@
     --secondary-container: #2170e4;
     --on-secondary: #ffffff;
 
-    --surface: #f8f9fb;
-    --surface-low: #f3f4f6;
+    --surface: #ffffff;
+    --surface-low: #ffffff;
     --surface-lowest: #ffffff;
-    --on-surface: #191c1e;
-    --on-surface-variant: #44474e;
+    --on-surface: #000000;
+    --on-surface-variant: #000000;
     
-    --outline-variant: rgba(197, 198, 206, 0.2);
+    --outline-variant: #ef4444;
     
     --radius-sm: 8px;
     --radius-md: 12px;
@@ -195,4 +195,187 @@
         -webkit-appearance: none; margin: 0;
     }
     .hide-spinner { -moz-appearance: textfield; }
+}
+
+/* Comprehensive Light (Day) Mode Overrides for Hardcoded Dark Layouts and Pages */
+html:not(.dark) {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+html:not(.dark) body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Page Backgrounds mapping to Light Mode colors */
+html:not(.dark) .bg-\[\#050507\],
+html:not(.dark) .bg-\[\#0c0c0e\],
+html:not(.dark) .bg-\[\#0d0d10\],
+html:not(.dark) .bg-\[\#111114\],
+html:not(.dark) .bg-\[\#0a0a0c\] {
+    background-color: #ffffff !important;
+}
+
+html:not(.dark) .bg-\[\#0c0c0e\]\/80,
+html:not(.dark) .bg-\[\#0f0f12\]\/80 {
+    background-color: rgba(248, 250, 252, 0.95) !important;
+    backdrop-blur: 20px !important;
+}
+
+html:not(.dark) .bg-\[\#16161a\]\/60 {
+    background-color: rgba(241, 245, 249, 0.75) !important;
+}
+
+/* White opacity backgrounds mapped to light-gray overlays */
+html:not(.dark) [class*="bg-white/"],
+html:not(.dark) [class*="bg-white/[0.0"] {
+    background-color: rgba(0, 0, 0, 0.02) !important;
+}
+html:not(.dark) [class*="bg-white/5"],
+html:not(.dark) [class*="bg-white/0.05"] {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+html:not(.dark) [class*="bg-white/10"],
+html:not(.dark) [class*="bg-white/0.1"] {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Refined Border Hierarchy in Light Mode (Highly Aesthetic) */
+
+/* 1. Primary Containers (Cards, Modals, Storefront items) - Thick & Prominent Red */
+html:not(.dark) [class*="rounded-3xl"].border,
+html:not(.dark) [class*="rounded-[2."].border,
+html:not(.dark) [class*="rounded-[3."].border,
+html:not(.dark) [class*="rounded-[4."].border,
+html:not(.dark) .stat-card,
+html:not(.dark) .card-editorial,
+html:not(.dark) [class*="relative bg-white"].border-2 {
+    border-color: #ef4444 !important;
+    border-width: 2px !important;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.03) !important; /* soft glow */
+}
+
+/* 2. Interactive Elements (Inputs, Selects, Buttons) - Solid Red for definition */
+html:not(.dark) input,
+html:not(.dark) select,
+html:not(.dark) textarea {
+    border-color: #ef4444 !important;
+    border-width: 2px !important;
+}
+
+/* 3. Structural Header/Footer Borders - 2px Solid Red */
+html:not(.dark) .border-b-2 {
+    border-bottom-color: #ef4444 !important;
+    border-bottom-width: 2px !important;
+}
+html:not(.dark) .border-t-2 {
+    border-top-color: #ef4444 !important;
+    border-top-width: 2px !important;
+}
+
+/* 4. General Table Lines, Row dividers, Inner lines - Delicate Soft Red (1px) */
+html:not(.dark) .border:not([class*="rounded-"]),
+html:not(.dark) [class*="border-"]:not(.border-transparent):not(.border-none):not(.border-collapse):not(.border-2):not(.border-b-2):not(.border-t-2):not([class*="rounded-"]) {
+    border-color: rgba(239, 68, 68, 0.16) !important;
+    border-width: 1px !important;
+}
+html:not(.dark) .border-b:not(.border-b-2):not([class*="rounded-"]) {
+    border-bottom-color: rgba(239, 68, 68, 0.16) !important;
+    border-bottom-width: 1px !important;
+}
+html:not(.dark) .border-t:not(.border-t-2):not([class*="rounded-"]) {
+    border-top-color: rgba(239, 68, 68, 0.16) !important;
+    border-top-width: 1px !important;
+}
+html:not(.dark) .border-l:not([class*="rounded-"]) {
+    border-left-color: rgba(239, 68, 68, 0.16) !important;
+    border-left-width: 1px !important;
+}
+html:not(.dark) .border-r:not([class*="rounded-"]) {
+    border-right-color: rgba(239, 68, 68, 0.16) !important;
+    border-right-width: 1px !important;
+}
+
+/* 5. Divide utility lines - Thin & Soft Red */
+html:not(.dark) [class*="divide-white"] > :not([hidden]) ~ :not([hidden]),
+html:not(.dark) [class*="divide-gray"] > :not([hidden]) ~ :not([hidden]) {
+    border-color: rgba(239, 68, 68, 0.12) !important;
+    border-width: 1px !important;
+}
+
+/* Text Colors Hierarchy in Light Mode */
+html:not(.dark) .text-white,
+html:not(.dark) [class*="text-white"]:not([class*="text-white/"]) {
+    color: #000000 !important;
+}
+html:not(.dark) [class*="text-white/90"],
+html:not(.dark) [class*="text-white/80"] {
+    color: rgba(0, 0, 0, 0.85) !important;
+}
+html:not(.dark) [class*="text-white/70"],
+html:not(.dark) [class*="text-white/60"] {
+    color: rgba(0, 0, 0, 0.7) !important;
+}
+html:not(.dark) [class*="text-white/50"],
+html:not(.dark) [class*="text-white/40"] {
+    color: rgba(0, 0, 0, 0.55) !important;
+}
+html:not(.dark) [class*="text-white/30"],
+html:not(.dark) [class*="text-white/20"],
+html:not(.dark) [class*="text-white/10"],
+html:not(.dark) [class*="text-white/5"] {
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Hardcoded text-slate classes mapped to light-mode readable text */
+html:not(.dark) .text-slate-400 { color: #475569 !important; }
+html:not(.dark) .text-slate-300 { color: #334155 !important; }
+html:not(.dark) .text-slate-200 { color: #1e293b !important; }
+html:not(.dark) .text-slate-100 { color: #0f172a !important; }
+
+/* Preserving white/light text inside filled status buttons/badges/alerts */
+html:not(.dark) .bg-secondary [class*="text-white"],
+html:not(.dark) .bg-primary [class*="text-white"],
+html:not(.dark) .btn-primary [class*="text-white"],
+html:not(.dark) .bg-blue-500 [class*="text-white"],
+html:not(.dark) .bg-emerald-500 [class*="text-white"],
+html:not(.dark) .bg-rose-500 [class*="text-white"],
+html:not(.dark) .bg-red-500 [class*="text-white"],
+html:not(.dark) .bg-slate-900 [class*="text-white"],
+html:not(.dark) .btn-primary,
+html:not(.dark) .bg-secondary,
+html:not(.dark) .bg-emerald-500,
+html:not(.dark) .bg-rose-500,
+html:not(.dark) .bg-red-500 {
+    color: #ffffff !important;
+}
+
+/* Sidebar and Navigation Overrides for Light Mode */
+html:not(.dark) .vip-nav-item {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+html:not(.dark) .vip-nav-item:hover {
+    color: #000000 !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+html:not(.dark) .vip-nav-item.active {
+    color: #b45309 !important; /* dark amber */
+    background: rgba(251, 191, 36, 0.1) !important;
+    border-color: rgba(251, 191, 36, 0.2) !important;
+}
+html:not(.dark) .bg-\[\#0f0f12\]\/80 span {
+    color: #000000 !important;
+}
+
+/* Inputs, Select, Textareas in Light Mode */
+html:not(.dark) input,
+html:not(.dark) select,
+html:not(.dark) textarea {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #ef4444 !important;
+    border-width: 2px !important;
+}
+html:not(.dark) input::placeholder {
+    color: rgba(0, 0, 0, 0.3) !important;
 }

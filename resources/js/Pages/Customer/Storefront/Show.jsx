@@ -61,7 +61,7 @@ export default function ProductShow({ product, relatedProducts }) {
             <div className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ${addedToCart ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
                 <div className="bg-[#1a1a1f]/90 backdrop-blur-3xl border border-amber-400/30 text-white px-10 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4">
                     <div className="w-10 h-10 bg-amber-400 rounded-2xl flex items-center justify-center">
-                        <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>
+                        <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </div>
                     <span className="font-black text-sm">تمت الإضافة للمحفظة الفاخرة! ✨</span>
                 </div>
@@ -114,8 +114,7 @@ export default function ProductShow({ product, relatedProducts }) {
                                     {product.name}
                                 </h1>
                                 <p className="text-white/40 text-xl font-medium leading-relaxed italic border-r-2 border-amber-400/30 pr-6">
-                                    قطعة فريدة تم اختيارها بعناية فائقة لتعبر عن تميزكم. كل تفصيلة في هذا المنتج صُممت خصيصاً للمديرين والشركاء النخبة.
-                                </p>
+                                    قطعة فريدة تم اختيارها بعناية فائقة لتعبر عن تميزكم.     </p>
                             </div>
 
                             <div className="flex items-baseline gap-4">
@@ -136,8 +135,8 @@ export default function ProductShow({ product, relatedProducts }) {
                                     </div>
                                 </div>
 
-                                <button 
-                                    onClick={addToCart} 
+                                <button
+                                    onClick={addToCart}
                                     disabled={!product.in_stock}
                                     className="w-full py-6 bg-gradient-to-r from-amber-400 via-amber-600 to-amber-400 text-black rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl shadow-amber-500/10 hover:shadow-amber-500/30 transition-all active:scale-[0.98] active:brightness-90 flex items-center justify-center gap-4"
                                 >
@@ -181,12 +180,7 @@ export default function ProductShow({ product, relatedProducts }) {
                                     "في المخلافي، نحن لا نبيع منتجات، نحن نبيع ثقة متبادلة وتاريخاً من الجودة. هذا المنتج يمثل قمة ما توصلنا إليه في اختيار الأفضل لشركائنا."
                                 </p>
                                 <div className="space-y-4">
-                                    {['فحص دقيق بمعدل 12 نقطة جودة.', 'تغليف بيئي فاخر قابل لإعادة التدوير.', 'دعم فني مخصص للنخبة.'].map(txt => (
-                                        <div key={txt} className="flex items-center gap-4 text-sm font-bold text-white/80">
-                                            <div className="w-2 h-2 rounded-full bg-amber-400" />
-                                            {txt}
-                                        </div>
-                                    ))}
+
                                 </div>
                             </div>
                             <div className="p-12 bg-white/[0.01] rounded-[4rem] border border-white/5 backdrop-blur-3xl text-center">

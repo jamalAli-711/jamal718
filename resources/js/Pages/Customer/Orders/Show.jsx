@@ -17,7 +17,7 @@ export default function OrderShow({ order }) {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 shadow-glow p-8 bg-white/[0.01] rounded-[3rem] border border-white/5">
                     <div>
                         <div className="inline-flex items-center gap-2 mb-2">
-                            <span className="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.4em]">Transaction Vault</span>
+                            <span className="text-[10px] font-black text-amber-500/60 uppercase tracking-[0.4em]">سجل المعاملات</span>
                             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                         </div>
                         <h2 className="font-black text-4xl text-white tracking-tighter leading-none">
@@ -31,51 +31,51 @@ export default function OrderShow({ order }) {
                 </div>
             }
         >
-            <Head title={`Elite Transaction ${order.reference_number}`} />
+            <Head title={`صفقة ممتازة ${order.reference_number}`} />
 
             <div className="pb-32" dir="rtl">
                 <div className="max-w-7xl mx-auto px-6 lg:px-12">
-                    
+
                     {flash?.success && (
                         <div className="mb-12 bg-emerald-500/10 border border-emerald-500/20 p-8 rounded-[2.5rem] flex items-center gap-6 animate-in slide-in-from-top-4 duration-700">
                             <div className="w-14 h-14 bg-emerald-500 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
                                 <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                             </div>
                             <div>
-                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">Confirmed</span>
+                                <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest block mb-1">تم التأكيد</span>
                                 <span className="font-black text-xl text-white tracking-tight">{flash.success}</span>
                             </div>
                         </div>
                     )}
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-16">
-                        
+
                         <div className="lg:col-span-8 space-y-12">
-                            {/* Elite Admin Notice */}
+                            {/* ملاحظات الإدارة */}
                             {order.admin_note && (
                                 <div className="bg-rose-500/10 border border-rose-500/20 p-10 rounded-[3rem] shadow-2xl relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-2 h-full bg-rose-500" />
                                     <div className="flex items-center gap-4 mb-6 text-rose-500">
                                         <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.4em]">Executive Feedback</span>
+                                        <span className="text-[10px] font-black uppercase tracking-[0.4em]">ملاحظات الإدارة</span>
                                     </div>
-                                    <h4 className="text-2xl font-black text-white mb-3 tracking-tighter">بيان من Sales Dept:</h4>
+                                    <h4 className="text-2xl font-black text-white mb-3 tracking-tighter">بيان من قسم المبيعات:</h4>
                                     <p className="text-rose-400 leading-loose font-bold text-lg italic pr-6 border-r-2 border-rose-500/20">{order.admin_note}</p>
                                 </div>
                             )}
 
-                            {/* Luxury Item List */}
+                            {/* قائمة الأصناف */}
                             <div className="bg-[#0c0c0e]/60 backdrop-blur-3xl rounded-[4rem] border border-white/5 overflow-hidden shadow-2xl">
                                 <div className="p-12 border-b border-white/5 flex justify-between items-end">
                                     <div>
-                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-2 block">Inventory Manifest</span>
+                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-2 block">بيان المنتجات</span>
                                         <h3 className="font-black text-4xl text-white tracking-tighter leading-none">الأصناف الحصرية</h3>
                                     </div>
                                     <div className="transform scale-125">
                                         <StatusBadge status={order.order_status} />
                                     </div>
                                 </div>
-                                
+
                                 <div className="divide-y divide-white/[0.03]">
                                     {(order.order_items || []).map((item, index) => (
                                         <div key={index} className="p-12 flex items-center gap-10 group transition-all hover:bg-white/[0.01]">
@@ -89,32 +89,32 @@ export default function OrderShow({ order }) {
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-start mb-4">
                                                     <div>
-                                                        <h4 className="text-3xl font-black text-white group-hover:text-amber-400 transition-all leading-none mb-2">{item.product?.name || 'Unknown Article'}</h4>
+                                                        <h4 className="text-3xl font-black text-white group-hover:text-amber-400 transition-all leading-none mb-2">{item.product?.name || 'صنف غير معروف'}</h4>
                                                         <div className="flex items-center gap-3">
                                                             <span className="px-5 py-2 bg-white/5 border border-white/5 rounded-full text-[11px] font-black text-amber-400 uppercase tracking-widest">
-                                                                Qty: {item.quantity} • {item.product_unit?.unit?.unit_name || 'Unit'}
+                                                                الكمية: {item.quantity} • {item.product_unit?.unit?.unit_name || 'وحدة'}
                                                             </span>
-                                                            {item.is_gift && <span className="px-5 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-[11px] font-black text-amber-400 uppercase tracking-widest">Complimentary Gift</span>}
+                                                            {item.is_gift && <span className="px-5 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-[11px] font-black text-amber-400 uppercase tracking-widest">هدية مجانية</span>}
                                                         </div>
                                                     </div>
                                                     <div className="text-left">
                                                         <div className="text-3xl font-black text-white leading-none">{formatCurrency(item.item_total, '')}<span className="text-xs text-white/20 mr-1 uppercase tracking-widest">{order.currency?.currency_code_ar}</span></div>
-                                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 block">Net Value</span>
+                                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mt-2 block">القيمة الصافية</span>
                                                     </div>
                                                 </div>
                                                 {item.notes && (
-                                                    <div className="text-sm text-white/30 font-medium italic mt-4 pr-4 border-r border-white/10 uppercase tracking-tight">Manual Inst: {item.notes}</div>
+                                                    <div className="text-sm text-white/30 font-medium italic mt-4 pr-4 border-r border-white/10 uppercase tracking-tight">تعليمات إضافية: {item.notes}</div>
                                                 )}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
-                                
+
                                 {order.notes && (
                                     <div className="p-12 bg-amber-400/5 border-t border-white/5">
                                         <div className="flex items-center gap-3 mb-6">
                                             <svg className="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.4em]">Customer Instruction</span>
+                                            <span className="text-[10px] font-black text-amber-400 uppercase tracking-[0.4em]">تعليمات العميل</span>
                                         </div>
                                         <p className="text-white/60 leading-loose italic text-xl font-medium pr-8 border-r-2 border-amber-400/20">"{order.notes}"</p>
                                     </div>
@@ -123,23 +123,23 @@ export default function OrderShow({ order }) {
                         </div>
 
                         <div className="lg:col-span-4 space-y-12">
-                            {/* VIP Portofolio Summary */}
+                            {/* ملخص المبالغ */}
                             <div className="bg-[#111114] p-12 rounded-[4rem] border border-white/5 space-y-10 shadow-3xl overflow-hidden relative">
                                 <div className="absolute top-0 right-0 w-[200px] h-[200px] bg-amber-400/5 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
-                                
+
                                 <div>
-                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4 block">Settlement Abstract</span>
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-4 block">ملخص التصفية</span>
                                     <div className="space-y-6">
                                         <div className="flex justify-between items-end border-b border-white/[0.03] pb-6">
-                                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">Inventory Value</span>
+                                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">قيمة المنتجات</span>
                                             <span className="text-xl font-black text-white">{formatCurrency(order.total_price, order.currency?.currency_code_ar)}</span>
                                         </div>
                                         <div className="flex justify-between items-end border-b border-white/[0.03] pb-6">
-                                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">Delivery Premium</span>
-                                            <span className="text-lg font-black text-emerald-500 uppercase tracking-widest">Waived</span>
+                                            <span className="text-xs font-black text-white/40 uppercase tracking-widest">رسوم التوصيل</span>
+                                            <span className="text-lg font-black text-emerald-500 uppercase tracking-widest">مُعفاة</span>
                                         </div>
                                         <div className="pt-6">
-                                            <span className="text-[10px] font-black text-amber-400/60 uppercase tracking-[0.3em] mb-3 block">Consolidated Due</span>
+                                            <span className="text-[10px] font-black text-amber-400/60 uppercase tracking-[0.3em] mb-3 block">المبلغ الإجمالي المستحق</span>
                                             <div className="text-6xl font-black text-white tracking-tighter leading-none whitespace-nowrap">
                                                 {formatCurrency(order.final_amount, '')}
                                                 <span className="text-sm font-black text-white/20 uppercase mr-3 tracking-widest">{order.currency?.currency_code_ar}</span>
@@ -149,33 +149,33 @@ export default function OrderShow({ order }) {
                                 </div>
                             </div>
 
-                            {/* Metadata Card */}
+                            {/* البيانات الإضافية */}
                             <div className="bg-[#0c0c0e] p-12 rounded-[4rem] border border-white/5 space-y-10">
                                 <div>
-                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 block">Transaction Metadata</span>
+                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] mb-6 block">بيانات المعاملة</span>
                                     <dl className="space-y-8">
                                         <div>
-                                            <dt className="text-[10px] font-black text-amber-400/40 uppercase tracking-widest mb-2">Vault Entry Date</dt>
+                                            <dt className="text-[10px] font-black text-amber-400/40 uppercase tracking-widest mb-2">تاريخ تسجيل الطلب</dt>
                                             <dd className="font-black text-white text-xl tracking-tight leading-none">{formatDate(order.created_at)}</dd>
                                         </div>
                                         <div>
-                                            <dt className="text-[10px] font-black text-amber-400/40 uppercase tracking-widest mb-3">Lifecycle Stage</dt>
+                                            <dt className="text-[10px] font-black text-amber-400/40 uppercase tracking-widest mb-3">مرحلة الطلب الحالية</dt>
                                             <dd className="transform scale-110 origin-right"><StatusBadge status={order.order_status} /></dd>
                                         </div>
                                     </dl>
                                 </div>
                             </div>
-                            
-                            {/* Concierge Support */}
+
+                            {/* الدعم الفاخر */}
                             <div className="bg-amber-400 text-black p-12 rounded-[4rem] text-center shadow-[0_40px_80px_-15px_rgba(251,191,36,0.2)] group overflow-hidden relative">
                                 <div className="relative z-10">
                                     <div className="w-20 h-20 bg-black/10 rounded-3xl flex items-center justify-center mx-auto mb-8 group-hover:scale-110 transition-transform duration-700">
                                         <svg className="w-10 h-10 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                                     </div>
-                                    <h4 className="text-3xl font-black mb-2 tracking-tighter">VIP Concierge</h4>
+                                    <h4 className="text-3xl font-black mb-2 tracking-tighter">خدمة كبار العملاء</h4>
                                     <p className="text-black/60 mb-10 font-bold italic text-lg leading-snug">مدير حسابك الخاص متاح الآن لمساعدتك في استكمال إجراءات الطلب.</p>
                                     <a href="tel:770000000" className="block w-full py-6 bg-black text-amber-400 font-black rounded-[2rem] text-xs uppercase tracking-[0.3em] hover:scale-105 transition-all shadow-2xl">
-                                        Request Callback
+                                        طلب اتصال الآن
                                     </a>
                                 </div>
                                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl" />

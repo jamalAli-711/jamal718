@@ -81,14 +81,18 @@ class InventoryController extends Controller
         ]);
 
         // Handle Images
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $index => $file) {
-                $path = $file->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => (isset($validated['primary_index']) && $index == $validated['primary_index']) || ($index === 0 && !isset($validated['primary_index'])),
-                    'created_by' => auth()->id(),
-                ]);
+        $images = $request->file('images');
+        if (!empty($images)) {
+            $images = is_array($images) ? $images : [$images];
+            foreach ($images as $index => $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store('products', 'public');
+                    $product->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => (isset($validated['primary_index']) && $index == $validated['primary_index']) || ($index === 0 && !isset($validated['primary_index'])),
+                        'created_by' => auth()->id(),
+                    ]);
+                }
             }
         }
 
@@ -124,21 +128,25 @@ class InventoryController extends Controller
         }
 
         // 2. Upload new images & handle primary selection
-        if ($request->hasFile('new_images')) {
-            foreach ($request->file('new_images') as $index => $file) {
-                $isPrimary = ($validated['primary_image_id'] === "new_{$index}");
-                
-                // If we are setting a new image as primary, we must unset others FIRST
-                if ($isPrimary) {
-                    $product->images()->update(['is_primary' => false]);
-                }
+        $newImages = $request->file('new_images');
+        if (!empty($newImages)) {
+            $newImages = is_array($newImages) ? $newImages : [$newImages];
+            foreach ($newImages as $index => $file) {
+                if ($file && $file->isValid()) {
+                    $isPrimary = ($validated['primary_image_id'] === "new_{$index}");
+                    
+                    // If we are setting a new image as primary, we must unset others FIRST
+                    if ($isPrimary) {
+                        $product->images()->update(['is_primary' => false]);
+                    }
 
-                $path = $file->store('products', 'public');
-                $product->images()->create([
-                    'image_path' => $path,
-                    'is_primary' => $isPrimary,
-                    'created_by' => auth()->id(),
-                ]);
+                    $path = $file->store('products', 'public');
+                    $product->images()->create([
+                        'image_path' => $path,
+                        'is_primary' => $isPrimary,
+                        'created_by' => auth()->id(),
+                    ]);
+                }
             }
         }
 

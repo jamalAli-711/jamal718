@@ -145,7 +145,7 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
             <Head title="إدارة المخزون — النخبة اللوجستية" />
 
             <div className="pb-32 animate-in fade-in duration-1000" dir="rtl">
-                
+
                 {/* VIP Header Section */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-10 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
@@ -277,18 +277,22 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                             <Field label="اسم الصنف" value={addForm.data.name} onChange={v => addForm.setData('name', v)} />
                         </div>
                         <div className="grid grid-cols-2 gap-10">
-                            <Select label="التصنيف" value={addForm.data.category_id} onChange={v => addForm.setData('category_id', v)} options={categories.map(c => ({v:c.id, l:c.category_name}))} />
-                            <Select label="الفرع (Entry Node)" value={addForm.data.branch_id} onChange={v => addForm.setData('branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
+                            <Select label="التصنيف" value={addForm.data.category_id} onChange={v => addForm.setData('category_id', v)} options={categories.map(c => ({ v: c.id, l: c.category_name }))} />
+                            <Select label="الفرع (Entry Node)" value={addForm.data.branch_id} onChange={v => addForm.setData('branch_id', v)} options={branches.map(b => ({ v: b.id, l: b.branch_name }))} />
                         </div>
                         <Field label="رصيد المخزون الافتتاحي" type="number" value={addForm.data.stock_quantity} onChange={v => addForm.setData('stock_quantity', v)} />
-                        
+
                         <div className="space-y-4">
                             <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">الصور التوثيقية</label>
-                            <input type="file" multiple onChange={handleAddImagesChange} className="hidden" id="add-images" />
+                            <input type="file" accept="image/*" multiple onChange={handleAddImagesChange} className="hidden" id="add-images" />
                             <label htmlFor="add-images" className="flex flex-col items-center justify-center p-12 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-[2.5rem] cursor-pointer hover:bg-white/[0.04] transition-all group">
                                 <svg className="w-12 h-12 text-white/10 group-hover:text-amber-400 group-hover:scale-110 transition-all mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                 <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Drag & Drop or Click to Upload High-Fidelity Renders</span>
                             </label>
+                            {addForm.errors.images && <div className="text-rose-500 text-xs font-bold px-4">{addForm.errors.images}</div>}
+                            {Object.keys(addForm.errors).filter(k => k.startsWith('images.')).map(k => (
+                                <div key={k} className="text-rose-500 text-xs font-bold px-4">{addForm.errors[k]}</div>
+                            ))}
                             <div className="grid grid-cols-4 gap-6 mt-6">
                                 {addPreviews.map((p, i) => (
                                     <div key={i} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${addForm.data.primary_index === i ? 'border-amber-400' : 'border-white/5'}`}>
@@ -312,9 +316,9 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                         <ModalHeader title={`تعديل بيانات: ${selectedProduct?.name}`} onClose={() => setShowEditModal(false)} />
                         <div className="grid grid-cols-2 gap-10">
                             <Field label="اسم الصنف" value={editForm.data.name} onChange={v => editForm.setData('name', v)} />
-                            <Select label="التصنيف" value={editForm.data.category_id} onChange={v => editForm.setData('category_id', v)} options={categories.map(c => ({v:c.id, l:c.category_name}))} />
+                            <Select label="التصنيف" value={editForm.data.category_id} onChange={v => editForm.setData('category_id', v)} options={categories.map(c => ({ v: c.id, l: c.category_name }))} />
                         </div>
-                        
+
                         <div className="space-y-6">
                             <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">مستودع الصور</label>
                             <div className="grid grid-cols-4 gap-6">
@@ -340,10 +344,14 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                     </div>
                                 ))}
                                 <label className="h-24 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition-all text-white/10 hover:text-amber-400">
-                                    <input type="file" multiple onChange={handleEditNewImagesChange} className="hidden" />
+                                    <input type="file" accept="image/*" multiple onChange={handleEditNewImagesChange} className="hidden" />
                                     <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 </label>
                             </div>
+                            {editForm.errors.new_images && <div className="text-rose-500 text-xs font-bold">{editForm.errors.new_images}</div>}
+                            {Object.keys(editForm.errors).filter(k => k.startsWith('new_images.')).map(k => (
+                                <div key={k} className="text-rose-500 text-xs font-bold">{editForm.errors[k]}</div>
+                            ))}
                         </div>
 
                         <ModalFooter onAbort={() => setShowEditModal(false)} submitTxt="حفظ التعديلات" processing={editForm.processing} />
@@ -356,7 +364,7 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                 <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[3rem] border border-white/5 relative" dir="rtl">
                     <form onSubmit={submitStockMode} className="space-y-12">
                         <ModalHeader title="ضبط مخزون الفرع" onClose={() => setShowStockModal(false)} />
-                        <Select label="اختر الفرع المستهدف" value={stockForm.data.branch_id} onChange={v => stockForm.setData('branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
+                        <Select label="اختر الفرع المستهدف" value={stockForm.data.branch_id} onChange={v => stockForm.setData('branch_id', v)} options={branches.map(b => ({ v: b.id, l: b.branch_name }))} />
                         <Field label="ضبط الكمية" type="number" value={stockForm.data.stock_quantity} onChange={v => stockForm.setData('stock_quantity', v)} />
                         <div className="p-8 bg-amber-400/5 rounded-3xl border border-amber-400/10 flex items-start gap-4">
                             <svg className="w-6 h-6 text-amber-400 mt-1 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -372,14 +380,14 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                 <div className="bg-[#0c0c0e] text-white p-12 overflow-hidden rounded-[4rem] border border-white/5 relative" dir="rtl">
                     <form onSubmit={submitUnitsForm} className="space-y-12">
                         <ModalHeader title="إعداد وحدات البيع" onClose={() => setShowUnitsModal(false)} />
-                        
+
                         <div className="space-y-8 max-h-[50vh] overflow-y-auto px-4 custom-scrollbar">
                             {unitsForm.data.units.map((row, idx) => (
                                 <div key={idx} className="p-10 bg-white/[0.02] border border-white/5 rounded-[3rem] relative group/row hover:bg-white/[0.03] transition-all">
                                     <div className="grid grid-cols-3 gap-8 mb-8">
-                                        <Select label="وحدة البيع" value={row.unit_id} onChange={v => updateUnitRow(idx, 'unit_id', v)} options={units.map(u => ({v:u.id, l:u.unit_name}))} />
-                                        <Select label="الفرع" value={row.branch_id} onChange={v => updateUnitRow(idx, 'branch_id', v)} options={branches.map(b => ({v:b.id, l:b.branch_name}))} />
-                                        <Select label="العملة" value={row.currency_id} onChange={v => updateUnitRow(idx, 'currency_id', v)} options={currencies.map(c => ({v:c.id, l:c.currency_name}))} />
+                                        <Select label="وحدة البيع" value={row.unit_id} onChange={v => updateUnitRow(idx, 'unit_id', v)} options={units.map(u => ({ v: u.id, l: u.unit_name }))} />
+                                        <Select label="الفرع" value={row.branch_id} onChange={v => updateUnitRow(idx, 'branch_id', v)} options={branches.map(b => ({ v: b.id, l: b.branch_name }))} />
+                                        <Select label="العملة" value={row.currency_id} onChange={v => updateUnitRow(idx, 'currency_id', v)} options={currencies.map(c => ({ v: c.id, l: c.currency_name }))} />
                                     </div>
                                     <div className="grid grid-cols-4 gap-8">
                                         <Field label="معامل التحويل" type="number" step="0.001" value={row.conversion_factor} onChange={v => updateUnitRow(idx, 'conversion_factor', v)} />
@@ -405,7 +413,8 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                 </div>
             </Modal>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
                 .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }

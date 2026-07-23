@@ -1,185 +1,354 @@
-import { useEffect } from 'react';
-import AdminLayout from '@/Layouts/AdminLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
-import StatusBadge from '@/Components/StatusBadge';
-import BranchesMap from '@/Components/BranchesMap';
-import { useToast } from '@/Components/Toast';
-import { formatCurrency, formatDate, USER_TYPES } from '@/constants';
+import { useState, useEffect, useMemo } from 'react';
+import CustomerLayout from '@/Layouts/CustomerLayout';
+import { Head, Link } from '@inertiajs/react';
 
-export default function Dashboard({ auth, stats, ordersCount, productsCount, customersCount, recentOrders, branches, customers }) {
-    const toast = useToast();
-    const { flash } = usePage().props;
+export default function Storefront({ products = [], categories = [] }) {
+    const [selectedCategory, setSelectedCategory] = useState('all');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [quantities, setQuantities] = useState({});
+    const [cartItems, setCartItems] = useState([]);
+    const [toast, setToast] = useState(null);
+
+    // مزامنة الكميات المبدئية عند تغير المنتجات
+    useEffect(() => {
+        if (products.length > 0) {
+            const initialQuantities = products.reduce((acc, p) => ({ ...acc, [p.id]: 1 }), {});
+            setQuantities(initialQuantities);
+        }
+    }, [products]);
+
+    const syncCart = () => {
+        try {
+            const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+            setCartItems(cart);
+        } catch (e) {
+            console.error('Error reading cart from localStorage', e);
+        }
+    };
 
     useEffect(() => {
-        if (flash?.success) toast.success(flash.success);
-    }, [flash]);
+        syncCart();
+        window.addEventListener('cartUpdated', syncCart);
+        return () => window.removeEventListener('cartUpdated', syncCart);
+    }, []);
+
+    const showToast = (msg) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), 3000);
+    };
+
+    const handleManualQuantityChange = (productId, value) => {
+        const product = products.find(p => p.id === productId);
+        const max = product?.stock_quantity ?? 999;
+
+        if (value === '') {
+            setQuantities(prev => ({ ...prev, [productId]: '' }));
+            return;
+        }
+
+        const num = parseInt(value, 10);
+        if (!isNaN(num)) {
+            setQuantities(prev => ({
+                ...prev,
+                [productId]: Math.max(1, Math.min(num, max))
+            }));
+        }
+    };
+
+    const handleBlur = (productId) => {
+        if (!quantities[productId] || quantities[productId] < 1) {
+            setQuantities(prev => ({ ...prev, [productId]: 1 }));
+        }
+    };
+
+    const step = (productId, delta) => {
+        setQuantities(prev => {
+            const cur = typeof prev[productId] === 'number' ? prev[productId] : 1;
+            const product = products.find(p => p.id === productId);
+            const max = product?.stock_quantity ?? 999;
+            return { ...prev, [productId]: Math.max(1, Math.min(cur + delta, max)) };
+        });
+    };
+
+    const addToCart = (product) => {
+        const qty = typeof quantities[product.id] === 'number' ? quantities[product.id] : 1;
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        } catch (e) {
+            cart = [];
+        }
+
+        const idx = cart.findIndex(i => i.product_id === product.id && !i.is_gift);
+        const maxStock = product.stock_quantity ?? 999;
+
+        if (idx >= 0) {
+            const currentInCart = cart[idx].quantity;
+            if (currentInCart >= maxStock) {
+                showToast(`وصلت للحد الأقصى المتاح من "${product.name}" ⚠️`);
+                return;
+            }
+            cart[idx].quantity = Math.min(currentInCart + qty, maxStock);
+        } else {
+            cart.push({
+                product_id: product.id,
+                name: product.name,
+                price: product.price,
+                quantity: Math.min(qty, maxStock),
+                thumbnail: product.image_path,
+                stock_quantity: maxStock,
+            });
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        window.dispatchEvent(new Event('cartUpdated'));
+        setQuantities(prev => ({ ...prev, [product.id]: 1 }));
+        showToast(`تمت إضافة "${product.name}" إلى السلة بنجاح ✨`);
+    };
+
+    const filteredProducts = useMemo(() => {
+        const query = searchQuery.trim().toLowerCase();
+        return products.filter(p => {
+            const catOk = selectedCategory === 'all' || p.category_name === selectedCategory;
+            const srchOk = !query ||
+                p.name?.toLowerCase().includes(query) ||
+                (p.sku && p.sku.toLowerCase().includes(query));
+            return catOk && srchOk;
+        });
+    }, [products, selectedCategory, searchQuery]);
 
     return (
-        <AdminLayout user={auth.user} header="مركز القيادة">
-            <Head title="لوحة التحكم الاستراتيجية — نخبة الإدارة" />
+        <CustomerLayout hideFooter={false}>
+            <Head title="المعرض الحصري — المخلافي" />
 
-            <div className="pb-32 animate-in fade-in duration-1000" dir="rtl">
-                
-                {/* VIP Hero Section */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 mb-16 p-12 bg-white/[0.01] rounded-[4rem] border border-white/5 shadow-3xl overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-amber-400/5 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2 animate-pulse" />
-                    <div className="relative z-10 space-y-5">
-                        <div className="inline-flex items-center gap-4 px-6 py-2.5 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.5em] text-[10px] font-black uppercase">
-                            وحدة الاستخبارات التشغيلية
-                            <div className="w-2 h-2 bg-amber-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.6)]" />
-                        </div>
-                        <h2 className="text-7xl font-black text-white tracking-tighter leading-none uppercase">منصة القيادة الاستراتيجية</h2>
-                        <p className="text-white/20 font-bold text-2xl italic pr-8 border-r-4 border-amber-400/20 max-w-3xl">رصد شامل لتدفق السيولة، الأصول المخزنية، والتوسع الجغرافي للمنظومة في الوقت الفعلي.</p>
+            {/* Premium Toast */}
+            <div className={`fixed bottom-12 left-1/2 -translate-x-1/2 z-[9999] transition-all duration-700 ${toast ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-8 scale-90 pointer-events-none'}`}>
+                <div className="bg-white/90 dark:bg-[#1a1a1f]/90 backdrop-blur-3xl border border-red-500/50 dark:border-amber-400/30 text-black dark:text-white px-10 py-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4">
+                    <div className="w-10 h-10 bg-amber-400 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/20">
+                        <svg className="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     </div>
+                    <span className="font-black text-sm">{toast}</span>
                 </div>
+            </div>
 
-                {/* VIP KPI Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6 gap-8 mb-16">
-                    <KpiCard label="مبيعات يمني" value={stats?.sales_yer || '0'} unit="ريال يمني" color="text-amber-400" bg="bg-amber-400/5" />
-                    <KpiCard label="مبيعات سعودي" value={stats?.sales_sar || '0'} unit="ريال سعودي" color="text-emerald-400" bg="bg-emerald-400/5" />
-                    <KpiCard label="مبيعات دولار" value={stats?.sales_usd || '0'} unit="دولار" color="text-blue-400" bg="bg-blue-400/5" />
-                    <KpiCard label="طلبات نشطة" value={ordersCount} unit="طلب" color="text-purple-400" bg="bg-purple-400/5" isPulse />
-                    <KpiCard label="الأصناف المسجلة" value={productsCount} unit="صنف" color="text-white" bg="bg-white/5" />
-                    <KpiCard label="قاعدة العملاء" value={customersCount} unit="عميل" color="text-amber-500" bg="bg-amber-500/5" />
+            <div className="min-h-screen pb-24 text-black dark:text-white" dir="rtl">
+
+                {/* VIP HERO ENTRANCE */}
+                <section className="max-w-7xl mx-auto px-6 lg:px-12 pt-10 mb-4">
+                    <div className="relative rounded-[4rem] overflow-hidden bg-gray-50 dark:bg-[#0d0d10] border border-red-500/30 dark:border-white/5 p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
+                        <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-amber-400/[0.03] to-transparent pointer-events-none" />
+
+                        <div className="z-10 text-right flex-1">
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-500 dark:text-amber-400 mb-4">
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                                <span className="text-[10px] font-black uppercase tracking-[0.4em]">كتالوج النخبة 2026</span>
+                            </div>
+                            <h1 className="md:text-2xl font-black text-black dark:text-white mb-2 tracking-tighter leading-none">
+                                <span className="text-transparent bg-clip-text bg-gradient-to-b from-amber-600 via-amber-500 to-amber-700 dark:from-amber-200 dark:via-amber-400 dark:to-amber-700"> مؤسسة سعيد نعمان المخلافي للتجارة والتبريد</span>
+                            </h1>
+                        </div>
+                    </div>
+                </section>
+
+                {/* ===== BRANDS MARQUEE ===== */}
+                <BrandsMarquee />
+
+                {/* VIP FILTER BAR */}
+                <section className="max-w-7xl mx-auto px-4 lg:px-8 mb-6">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-black/[0.02] dark:bg-white/[0.02] backdrop-blur-3xl p-4 rounded-[3rem] border border-red-500/30 dark:border-white/5">
+
+                        <div className="flex flex-wrap gap-2">
+                            <CategoryPill label="جميع الأصناف" active={selectedCategory === 'all'} onClick={() => setSelectedCategory('all')} />
+                            {categories.map(cat => (
+                                <CategoryPill key={cat.id} label={cat.category_name} active={selectedCategory === cat.category_name} onClick={() => setSelectedCategory(cat.category_name)} />
+                            ))}
+                        </div>
+
+                        <div className="relative w-full md:w-96">
+                            <input
+                                type="text"
+                                placeholder="ابحث عن قطعة استثنائية..."
+                                value={searchQuery}
+                                onChange={e => setSearchQuery(e.target.value)}
+                                className="w-full bg-black/[0.03] dark:bg-white/[0.03] border border-red-500/40 dark:border-white/10 rounded-[2rem] px-8 py-4 text-black dark:text-white placeholder-black/40 dark:placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-amber-400/30 text-right font-bold transition-all"
+                            />
+                            <svg className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-black/40 dark:text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        </div>
+                    </div>
+                </section>
+
+                {/* VIP PRODUCT GRID */}
+                <section className="max-w-7xl mx-auto px-6 lg:px-12 mb-40">
+                    {filteredProducts.length === 0 ? (
+                        <div className="text-center py-24 bg-black/[0.01] dark:bg-white/[0.01] rounded-[4rem] border border-red-500/30 dark:border-white/5 backdrop-blur-xl">
+                            <h3 className="text-2xl font-black text-black/40 dark:text-white/30">لا توجد نتائج مطابقة لطلبك</h3>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            {filteredProducts.map(product => (
+                                <ProductCard
+                                    key={product.id}
+                                    product={product}
+                                    quantity={quantities[product.id] ?? 1}
+                                    inCartQuantity={cartItems.find(i => i.product_id === product.id)?.quantity || 0}
+                                    onStep={(delta) => step(product.id, delta)}
+                                    onQuantityChange={(val) => handleManualQuantityChange(product.id, val)}
+                                    onBlur={() => handleBlur(product.id)}
+                                    onAddToCart={() => addToCart(product)}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </section>
+            </div>
+        </CustomerLayout>
+    );
+}
+
+const BRANDS = [
+    { name: 'الشفاء', src: '/storage/products/logos/al-shifa.png' },
+    { name: 'Arla', src: '/storage/products/logos/arla.png' },
+    { name: 'بيقا', src: '/storage/products/logos/beqa.png' },
+    { name: 'Capri-Sun', src: '/storage/products/logos/capri-sun.png' },
+    { name: 'Lurpak', src: '/storage/products/logos/lurpak.png' },
+    { name: 'Puck', src: '/storage/products/logos/puck.png' },
+    { name: 'Sadia', src: '/storage/products/logos/sadia.png' },
+    { name: 'Sary', src: '/storage/products/logos/sary.png' },
+    { name: 'Starbucks', src: '/storage/products/logos/starbucks.png' },
+    { name: 'تيما', src: '/storage/products/logos/teama.png' },
+];
+
+function BrandsMarquee() {
+    return (
+        <section className="max-w-7xl mx-auto px-2 lg:px-4 mb-4" dir="rtl">
+            <div className="flex items-center gap-2 mb-4">
+                <div className="h-px flex-1 bg-gradient-to-l from-amber-400/30 to-transparent" />
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 dark:text-amber-400/70">علاماتنا التجارية</span>
+                <div className="h-px flex-1 bg-gradient-to-r from-amber-400/30 to-transparent" />
+            </div>
+
+            <div className="relative overflow-hidden rounded-[2.5rem] bg-black/[0.02] dark:bg-white/[0.02] border border-red-500/30 dark:border-white/5 p-6 backdrop-blur-3xl">
+                <div className="flex flex-wrap justify-center gap-4 w-full">
+                    {BRANDS.map((brand, i) => (
+                        <div
+                            key={i}
+                            title={brand.name}
+                            className="flex-shrink-0 w-20 h-12 flex items-center justify-center
+                            rounded-2xl bg-black/[0.04] dark:bg-white/[0.04] border border-red-500/30 dark:border-white/5
+                            hover:border-amber-400/50 dark:hover:border-amber-400/30 hover:bg-amber-400/[0.06]
+                            transition-all duration-500 cursor-pointer px-2 group"
+                        >
+                            <img
+                                src={brand.src}
+                                alt={brand.name}
+                                className="max-w-full max-h-12 object-contain filter group-hover:scale-105 transition-all duration-500"
+                            />
+                        </div>
+                    ))}
                 </div>
+            </div>
+        </section>
+    );
+}
 
-                {/* Intelligence Map Section */}
-                <div className="bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden mb-16 relative group">
-                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-amber-400/20 to-transparent" />
-                    <div className="p-12 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-8">
+function CategoryPill({ label, active, onClick }) {
+    return (
+        <button
+            onClick={onClick}
+            className={`px-4 py-1.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 border ${active
+                ? 'bg-amber-400 text-black border-amber-400 shadow-md shadow-amber-400/20'
+                : 'bg-black/5 dark:bg-white/5 text-black/60 dark:text-white/40 border-red-500/30 dark:border-white/5 hover:text-black dark:hover:text-white hover:border-red-500 dark:hover:border-white/10'
+                }`}
+        >
+            {label}
+        </button>
+    );
+}
+
+function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChange, onBlur, onAddToCart }) {
+    const isOutOfStock = !product.in_stock || (product.stock_quantity !== undefined && product.stock_quantity <= 0);
+
+    return (
+        <div className="group bg-white/80 dark:bg-[#16161a]/60 backdrop-blur-3xl rounded-[3rem] border border-red-500/40 dark:border-white/5 p-4 transition-all duration-700 hover:-translate-y-2 hover:border-red-600 dark:hover:border-amber-400/20 shadow-xl dark:shadow-2xl relative overflow-hidden flex flex-col justify-between">
+
+            {/* Selection Glow */}
+            {inCartQuantity > 0 && <div className="absolute inset-0 bg-amber-400/[0.02] border border-amber-400/20 dark:border-amber-400/10 rounded-[3rem] pointer-events-none" />}
+
+            {/* In Cart Indicator */}
+            {inCartQuantity > 0 && (
+                <div className="absolute top-4 left-8 z-20 w-8 h-8 bg-amber-400 text-black rounded-xl flex items-center justify-center font-black text-xs shadow-lg shadow-amber-400/20">
+                    {inCartQuantity}
+                </div>
+            )}
+
+            <div>
+                {/* Image */}
+                <Link href={route('customer.storefront.show', product.id)}>
+                    <div className="relative aspect-square rounded-[2rem] overflow-hidden bg-black/5 dark:bg-white/5 mb-3 border border-red-500/20 dark:border-transparent">
+                        {product.image_path ? (
+                            <img
+                                src={`/storage/products/${product.image_path}`}
+                                alt={product.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-black/20 dark:text-white/5">
+                                <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                            </div>
+                        )}
+
+                        {isOutOfStock && (
+                            <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center">
+                                <span className="bg-rose-500 text-white text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">نفدت الكمية</span>
+                            </div>
+                        )}
+                    </div>
+                </Link>
+
+                {/* Details */}
+                <div className="space-y-3">
+                    <Link href={route('customer.storefront.show', product.id)}>
+                        <h3 className="text-sm font-black text-black dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors line-clamp-2 h-10 leading-tight">
+                            {product.name}
+                        </h3>
+                    </Link>
+
+                    <div className="flex items-center justify-between gap-2">
                         <div>
-                            <h3 className="text-3xl font-black text-white mb-2 tracking-tighter uppercase">ذكاء اللوجستيات الوطنية</h3>
-                            <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">تحليل التوزيع الجغرافي للمراكز والعملاء</p>
+                            <div className="text-lg font-black text-black dark:text-white">
+                                {Number(product.price).toLocaleString()}
+                                <span className="text-[10px] text-black/50 dark:text-white/30 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span>
+                            </div>
+                            <div className="text-[10px] font-bold text-black/40 dark:text-white/30 uppercase">
+                                {product.default_unit_name}
+                            </div>
                         </div>
-                        <div className="flex items-center gap-8">
-                            <Link href={route('branches.index')} className="px-8 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-amber-400 hover:border-amber-400/20 transition-all">إدارة الفروع</Link>
-                            <Link href={route('customers.index')} className="px-8 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-emerald-400 hover:border-emerald-400/20 transition-all">قاعدة العملاء</Link>
-                        </div>
-                    </div>
-                    <div className="p-8 relative">
-                        <div className="rounded-[3.5rem] overflow-hidden border border-white/10 shadow-inner group-hover:border-white/20 transition-all duration-1000 grayscale-[0.8] hover:grayscale-0">
-                            <BranchesMap branches={branches} customers={customers} stats={stats} height="600px" />
-                        </div>
-                        <div className="absolute bottom-16 right-16 p-6 bg-black/80 backdrop-blur-xl border border-white/10 rounded-3xl z-10 space-y-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700">
-                             <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-blue-500" /> <span className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">المراكز الرئيسية (الفروع)</span></div>
-                             <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-amber-400" /> <span className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">العملاء والشركاء</span></div>
-                        </div>
-                    </div>
-                </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-12">
-                    {/* Recent Transaction Ledger */}
-                    <div className="xl:col-span-2 bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden">
-                        <div className="p-12 border-b border-white/5 flex items-center justify-between">
-                            <h3 className="text-3xl font-black text-white tracking-tighter uppercase whitespace-nowrap">آخر المبيعات المسجلة</h3>
-                            <Link href={route('orders.index')} className="px-10 py-5 bg-white/[0.03] border border-white/5 rounded-2xl text-[10px] font-black text-white/20 uppercase tracking-widest hover:text-amber-400 hover:border-amber-400/20 transition-all">عرض كامل السجل</Link>
-                        </div>
-                        <div className="overflow-x-auto custom-scrollbar">
-                            <table className="w-full text-right border-collapse">
-                                <thead>
-                                    <tr className="bg-white/[0.02]">
-                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">رقم الطلب</th>
-                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">بيانات العميل</th>
-                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">قيمة المبيعة</th>
-                                        <th className="px-12 py-10 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">حالة الطلب</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/[0.03]">
-                                    {recentOrders?.length > 0 ? recentOrders.map((order) => (
-                                        <tr key={order.id} className="group hover:bg-white/[0.01] transition-colors">
-                                            <td className="px-12 py-10">
-                                                <span className="text-2xl font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors">#{order.reference_number}</span>
-                                            </td>
-                                            <td className="px-12 py-10">
-                                                <div className="flex flex-col gap-1">
-                                                    <span className="text-lg font-black text-white leading-none tracking-tight">{order.customer?.name}</span>
-                                                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">{USER_TYPES[order.customer?.user_type]?.label} Network</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-12 py-10">
-                                                <span className="text-2xl font-black text-white tracking-tighter">{formatCurrency(order.final_amount)}</span>
-                                            </td>
-                                            <td className="px-12 py-10 text-center">
-                                                <div className="transform scale-90 opacity-60 group-hover:opacity-100 group-hover:scale-100 transition-all origin-center">
-                                                    <StatusBadge status={order.order_status} />
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )) : (
-                                        <tr><td colSpan="4" className="text-center py-24 text-white/5 font-black uppercase tracking-[0.6em]">لا توجد معاملات بعد</td></tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    {/* Elite Quick Actions Grid */}
-                    <div className="bg-[#0c0c0e] rounded-[4.5rem] border border-white/5 shadow-3xl overflow-hidden p-12 space-y-12">
-                        <h3 className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] pb-6 border-b border-white/5">وصول سريع للبروتوكولات</h3>
-                        <div className="flex flex-col gap-8">
-                            <ActionCard 
-                                href={route('orders.index')} 
-                                title="إنشاء طلب بيع فوري" 
-                                desc="تسوية مبيعات جديدة" 
-                                color="amber-400" 
-                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>} 
+                        {/* Quantity Counter */}
+                        <div className={`flex items-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border border-red-500/20 dark:border-white/10 ${isOutOfStock ? 'opacity-40 pointer-events-none' : ''}`}>
+                            <button onClick={() => onStep(1)} disabled={isOutOfStock} className="w-7 h-7 flex items-center justify-center text-black dark:text-white hover:text-amber-500 transition-all font-bold">+</button>
+                            <input
+                                type="text"
+                                value={quantity}
+                                disabled={isOutOfStock}
+                                onChange={(e) => onQuantityChange(e.target.value)}
+                                onBlur={onBlur}
+                                className="w-8 bg-transparent text-center font-black text-sm text-black dark:text-white border-none focus:ring-0 p-0"
                             />
-                            <ActionCard 
-                                href={route('inventory.index')} 
-                                title="إدارة الأصول والمخزون" 
-                                desc="التحكم الشامل بالأصناف" 
-                                color="emerald-400" 
-                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} 
-                            />
-                            <ActionCard 
-                                href={route('branches.index')} 
-                                title="توسيع الشبكة والمراكز" 
-                                desc="مراكز التوسع الجغرافي" 
-                                color="blue-500" 
-                                icon={<svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>} 
-                            />
-                        </div>
-                        <div className="pt-10 border-t border-white/5 flex justify-center">
-                             <div className="w-32 h-1 bg-white/[0.02] rounded-full overflow-hidden relative">
-                                <div className="absolute top-0 left-0 w-1/2 h-full bg-gradient-to-r from-transparent via-amber-400/40 to-transparent animate-shimmer" />
-                             </div>
+                            <button onClick={() => onStep(-1)} disabled={isOutOfStock || quantity <= 1} className="w-7 h-7 flex items-center justify-center text-black dark:text-white hover:text-amber-500 transition-all disabled:opacity-20 font-bold">-</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
-                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
-                @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-                .animate-shimmer { animation: shimmer 3s infinite linear; }
-            ` }} />
-        </AdminLayout>
-    );
-}
-
-function KpiCard({ label, value, unit, color, bg, isPulse }) {
-    return (
-        <div className={`group p-10 rounded-[4rem] border border-white/5 ${bg} hover:border-white/10 transition-all duration-700 shadow-2xl relative overflow-hidden`}>
-            {isPulse && <div className="absolute top-0 right-0 p-10 opacity-10 animate-pulse"><div className={`w-3 h-3 rounded-full bg-current ${color}`} /></div>}
-            <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block mb-6">{label}</span>
-            <div className="flex items-baseline gap-4">
-                <span className={`text-4xl font-black ${color} tracking-tighter leading-none group-hover:scale-110 transition-transform origin-right`}>{value}</span>
-                <span className="text-[10px] font-black text-white/10 tracking-[0.3em] uppercase">{unit}</span>
-            </div>
+            {/* Add to Cart Button */}
+            <button
+                onClick={onAddToCart}
+                disabled={isOutOfStock}
+                className="w-full mt-4 py-2.5 bg-gradient-to-r from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 disabled:opacity-20 disabled:grayscale text-black rounded-[1.5rem] font-black text-[11px] uppercase tracking-[0.15em] transition-all shadow-md shadow-amber-400/10 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+            >
+                {isOutOfStock ? 'غير متوفر' : 'أضف إلى السلة'}
+            </button>
         </div>
-    );
-}
-
-function ActionCard({ href, title, desc, color, icon }) {
-    return (
-        <Link href={href} className="flex items-center gap-8 p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] transition-all group">
-            <div className={`w-16 h-16 rounded-2xl bg-${color}/10 text-${color} flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:rotate-6 transition-transform shadow-2xl`}>{icon}</div>
-            <div className="flex-1 text-right">
-                <div className="text-xl font-black text-white mb-1 uppercase tracking-tight">{title}</div>
-                <div className="text-[9px] font-black text-white/20 uppercase tracking-[0.3em]">{desc}</div>
-            </div>
-        </Link>
     );
 }

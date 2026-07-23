@@ -12,6 +12,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
     const [cartCount, setCartCount] = useState(0);
     const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+    const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
 
     const updateCartCount = () => {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -40,7 +41,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
     }, [user?.id]);
 
     return (
-        <div className="min-h-screen bg-[#050507] text-white selection:bg-amber-400 selection:text-black font-vip flex flex-col" dir="rtl">
+        <div className="min-h-screen bg-white dark:bg-[#050507] text-black dark:text-white selection:bg-amber-400 selection:text-black font-vip flex flex-col" dir="rtl">
             <Head>
                 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet" />
             </Head>
@@ -49,7 +50,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
             <div className="fixed top-0 left-0 w-full h-full bg-amber-500/5 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
 
             {/* VIP Glass Header */}
-            <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-black/20 border-b border-white/5">
+            <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-white/80 dark:bg-black/20 border-b-2 border-red-500 dark:border-white/5">
                 <div className="max-w-7xl mx-auto px-2 lg:px-12">
                     <div className="flex justify-between h-20">
                         <div className="flex items-center gap-12">
@@ -60,32 +61,58 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="md:text-2xl  font-black tracking-tighter text-white">المخلافي</span>
+                                    <span className="md:text-2xl  font-black tracking-tighter text-black dark:text-white">المخلافي</span>
                                     <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase">للتجارة والتبريد</span>
                                 </div>
                             </Link>
 
                             {/* Nav Links */}
-                            <div className="flex items-center gap-8 h-full">
-                                {[
-                                    { name: 'المنتجات', route: 'customer.storefront' },
-                                    ...(user ? [
-                                        { name: 'طلباتي', route: 'customer.orders' },
-                                        { name: 'العروض  ', route: 'customer.offers' },
-                                    ] : []),
-                                ].map((link) => (
-                                    <Link
-                                        key={link.route}
-                                        href={route(link.route)}
-                                        className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current(link.route + '*') ? 'text-amber-400' : 'text-white/40 hover:text-white'
+                            <div className="flex items-center gap-6 h-full">
+                                <Link
+                                    href={route('customer.storefront')}
+                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                        route().current('customer.storefront') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                    }`}
+                                >
+                                    الرئيسية
+                                    {route().current('customer.storefront') && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
+                                    )}
+                                </Link>
+                                
+                                {user && (
+                                    <>
+                                        <Link
+                                            href={route('customer.orders')}
+                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                                route().current('customer.orders*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
                                             }`}
-                                    >
-                                        {link.name}
-                                        {route().current(link.route + '*') && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
-                                        )}
-                                    </Link>
-                                ))}
+                                        >
+                                            طلباتي
+                                            {route().current('customer.orders*') && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
+                                            )}
+                                        </Link>
+                                        <Link
+                                            href={route('customer.offers')}
+                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                                route().current('customer.offers*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                            }`}
+                                        >
+                                            العروض المميزة
+                                            {route().current('customer.offers*') && (
+                                                <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
+                                            )}
+                                        </Link>
+                                    </>
+                                )}
+
+                                <button
+                                    onClick={() => setIsAboutModalOpen(true)}
+                                    className="relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white"
+                                >
+                                    من نحن
+                                </button>
                             </div>
                         </div>
 
@@ -93,7 +120,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             {/* VIP Cart — always visible */}
                             <button
                                 onClick={() => setIsCartModalOpen(true)}
-                                className="relative p-3 rounded-2xl bg-white/[0.03] border border-white/5 text-white/40 hover:text-amber-400 hover:border-amber-400/20 transition-all group"
+                                className="relative p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border-2 border-red-500 dark:border-white/5 text-black/60 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -114,23 +141,26 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="relative">
                                     <Dropdown>
                                         <Dropdown.Trigger>
-                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/[0.03] rounded-full border border-white/5 group hover:bg-white/[0.05] transition-all">
+                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-black/[0.03] dark:bg-white/[0.03] rounded-full border-2 border-red-500 dark:border-white/5 group hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
                                                     {user.name?.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col text-left">
                                                     {/* <span className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">حساب نخبة</span> */}
-                                                    <span className="text-xs font-black text-white group-hover:text-amber-400 transition-colors">{user.name}</span>
+                                                    <span className="text-xs font-black text-black dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">{user.name}</span>
                                                 </div>
                                             </button>
                                         </Dropdown.Trigger>
 
-                                        <Dropdown.Content contentClasses="py-2 bg-[#16161a] border border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
-                                            <div className="px-5 py-3 border-b border-white/5">
-                                                <p className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
-                                                <p className="text-xs font-bold text-white truncate">{user.email}</p>
+                                        <Dropdown.Content contentClasses="py-2 bg-white dark:bg-[#16161a] border-2 border-red-500 dark:border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
+                                            <div className="px-5 py-3 border-b-2 border-red-500 dark:border-white/5">
+                                                <p className="text-[10px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
+                                                <p className="text-xs font-bold text-black dark:text-white truncate">{user.email}</p>
                                             </div>
-                                            <Dropdown.Link href={route('profile.edit')} className="text-white/60 hover:text-white hover:bg-white/5 font-bold transition-all">الملف الشخصي</Dropdown.Link>
+                                            <Dropdown.Link href={route('profile.edit')} className="text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 font-bold transition-all">الملف الشخصي</Dropdown.Link>
+                                            {user.user_type === 'admin' && (
+                                                <Dropdown.Link href={route('dashboard')} className="text-red-500 dark:text-amber-400 hover:text-black dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 font-black transition-all">بوابة الإدارة</Dropdown.Link>
+                                            )}
                                             <Dropdown.Link href={route('logout')} method="post" as="button" className="text-rose-400/60 hover:text-rose-400 hover:bg-rose-400/5 font-bold transition-all">
                                                 تسجيل الخروج
                                             </Dropdown.Link>
@@ -142,7 +172,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="flex items-center gap-3">
                                     <Link
                                         href={route('login')}
-                                        className="px-5 py-2.5 rounded-2xl bg-white/[0.04] border border-white/10 text-white/60 hover:text-white hover:border-white/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                                        className="px-5 py-2.5 rounded-2xl bg-black/[0.04] dark:bg-white/[0.04] border-2 border-red-500 dark:border-white/10 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:border-red-500/40 dark:hover:border-white/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
                                     >
                                         تسجيل الدخول
                                     </Link>
@@ -218,6 +248,36 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                 </div>
             </Modal>
 
+            {/* Luxury About Us Modal */}
+            <Modal
+                show={isAboutModalOpen}
+                onClose={() => setIsAboutModalOpen(false)}
+                maxWidth="md"
+            >
+                <div className="bg-[#0a0a0c] border border-white/10 rounded-[3rem] overflow-hidden relative shadow-[0_0_100px_rgba(0,0,0,1)]">
+                    <div className="p-10 text-right">
+                        <div className="flex items-center justify-between mb-8">
+                            <h3 className="text-2xl font-black text-white tracking-tighter flex items-center gap-3">
+                                من <span className="text-amber-400">نحن</span>
+                            </h3>
+                            <button onClick={() => setIsAboutModalOpen(false)} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white transition-all">
+                                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <div className="space-y-6 text-white/60 text-sm font-medium leading-relaxed">
+                            <p className="font-black text-lg text-white">مؤسسة سعيد نعمان المخلافي للتجارة والتبريد</p>
+                            <p>تعتبر مؤسستنا واحدة من المؤسسات الرائدة في مجال استيراد وتوزيع المواد الغذائية المبردة والجافة في اليمن منذ عقود.</p>
+                            <p>نحن ملتزمون بتقديم منتجات عالية الجودة من أشهر الماركات العالمية (مثل Puck, Sadia, Lurpak, Starbucks والمزيد) مع ضمان الالتزام التام بأعلى معايير الحفظ المبرد وسلاسل التبريد المتكاملة لضمان وصول المنتجات طازجة وصحية.</p>
+                            <div className="pt-4 border-t border-white/5 space-y-2">
+                                <p><strong className="text-white">العنوان:</strong> اليمن</p>
+                                <p><strong className="text-white">الهاتف:</strong> +966 12 345 6789</p>
+                                <p><strong className="text-white">البريد الإلكتروني:</strong> info@al-mekhlafi.com</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+
             <style dangerouslySetInnerHTML={{
                 __html: `
                 .font-vip { font-family: 'Outfit', sans-serif; }
@@ -231,16 +291,28 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                 }
                 ::-webkit-scrollbar-thumb:hover { background: rgba(251, 191, 36, 0.2); }
 
-                input, select, textarea {
+                .dark input, .dark select, .dark textarea {
                     background: rgba(255, 255, 255, 0.02) !important;
                     border: 1px solid rgba(255, 255, 255, 0.05) !important;
                     color: white !important;
                     border-radius: 1rem !important;
                     transition: all 0.5s !important;
                 }
-                input:focus {
+                .dark input:focus {
                     border-color: rgba(251, 191, 36, 0.3) !important;
                     box-shadow: 0 0 20px rgba(251, 191, 36, 0.05) !important;
+                    outline: none !important;
+                }
+                html:not(.dark) input, html:not(.dark) select, html:not(.dark) textarea {
+                    background: #ffffff !important;
+                    border: 2px solid #ef4444 !important;
+                    color: #000000 !important;
+                    border-radius: 1rem !important;
+                    transition: all 0.5s !important;
+                }
+                html:not(.dark) input:focus {
+                    border-color: #ef4444 !important;
+                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.15) !important;
                     outline: none !important;
                 }
             ` }} />
