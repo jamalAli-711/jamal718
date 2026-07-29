@@ -56,7 +56,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                     <div className="flex justify-between h-20">
                         <div className="flex items-center gap-8">
                             {/* Brand */}
-                            <Link href={route('customer.storefront')} className="flex items-center gap-2 group">
+                            <Link href={route('customer.storefront')} className="md:flex items-center gap-2 group">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-white rounded-xl" />
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
