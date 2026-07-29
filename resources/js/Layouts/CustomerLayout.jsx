@@ -5,6 +5,7 @@ import Dropdown from '@/Components/Dropdown';
 import Modal from '@/Components/Modal';
 import CartContent from '@/Components/CartContent';
 import { useToast } from '@/Components/Toast';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function CustomerLayout({ header, children, hideFooter = false }) {
     const { auth } = usePage().props;
@@ -50,7 +51,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
             <div className="fixed top-0 left-0 w-full h-full bg-amber-500/5 rounded-full blur-[150px] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0" />
 
             {/* VIP Glass Header */}
-            <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-white/80 dark:bg-black/20 border-b-2 border-red-500 dark:border-white/5">
+            <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-white/90 dark:bg-black/20 border-b border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
                 <div className="max-w-7xl mx-auto px-2 lg:px-12">
                     <div className="flex justify-between h-20">
                         <div className="flex items-center gap-12">
@@ -107,20 +108,28 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                     </>
                                 )}
 
-                                <button
-                                    onClick={() => setIsAboutModalOpen(true)}
-                                    className="relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white"
+                                <Link
+                                    href={route('customer.about')}
+                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
+                                        route().current('customer.about') || route().current('about')
+                                            ? 'text-red-600 dark:text-amber-400 font-black'
+                                            : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                    }`}
                                 >
                                     من نحن
-                                </button>
+                                    {(route().current('customer.about') || route().current('about')) && (
+                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
+                                    )}
+                                </Link>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-6">
+                            <ThemeToggle />
                             {/* VIP Cart — always visible */}
                             <button
                                 onClick={() => setIsCartModalOpen(true)}
-                                className="relative p-3 rounded-2xl bg-black/[0.03] dark:bg-white/[0.03] border-2 border-red-500 dark:border-white/5 text-black/60 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
+                                className="relative p-3 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-gray-700 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -141,7 +150,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="relative">
                                     <Dropdown>
                                         <Dropdown.Trigger>
-                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-black/[0.03] dark:bg-white/[0.03] rounded-full border-2 border-red-500 dark:border-white/5 group hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all">
+                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-full border border-gray-200 dark:border-white/5 group hover:bg-slate-200 dark:hover:bg-white/[0.05] transition-all">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
                                                     {user.name?.charAt(0)}
                                                 </div>
@@ -152,8 +161,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                             </button>
                                         </Dropdown.Trigger>
 
-                                        <Dropdown.Content contentClasses="py-2 bg-white dark:bg-[#16161a] border-2 border-red-500 dark:border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
-                                            <div className="px-5 py-3 border-b-2 border-red-500 dark:border-white/5">
+                                        <Dropdown.Content contentClasses="py-2 bg-white dark:bg-[#16161a] border border-gray-200 dark:border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
+                                            <div className="px-5 py-3 border-b border-gray-100 dark:border-white/5">
                                                 <p className="text-[10px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
                                                 <p className="text-xs font-bold text-black dark:text-white truncate">{user.email}</p>
                                             </div>
@@ -172,7 +181,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="flex items-center gap-3">
                                     <Link
                                         href={route('login')}
-                                        className="px-5 py-2.5 rounded-2xl bg-black/[0.04] dark:bg-white/[0.04] border-2 border-red-500 dark:border-white/10 text-black/60 dark:text-white/60 hover:text-black dark:hover:text-white hover:border-red-500/40 dark:hover:border-white/20 text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                                        className="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/60 hover:text-black dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all"
                                     >
                                         تسجيل الدخول
                                     </Link>

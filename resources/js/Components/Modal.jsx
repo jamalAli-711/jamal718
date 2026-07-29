@@ -7,7 +7,7 @@ export default function Modal({ show, onClose, title, maxWidth = 'lg', children 
         sm: 'max-w-md',
         md: 'max-w-lg',
         lg: 'max-w-2xl',
-        xl: 'max-w-4xl',
+        xl: 'max-w-2xl',
         '2xl': 'max-w-5xl',
     };
 
@@ -17,8 +17,8 @@ export default function Modal({ show, onClose, title, maxWidth = 'lg', children 
             <div className="fixed inset-0 bg-black/40 transition-opacity" onClick={onClose} />
 
             {/* Modal */}
-            <div className="flex min-h-full items-start justify-center p-4 pt-20">
-                <div className={`relative bg-white dark:bg-surface-lowest rounded-3xl shadow-2xl w-full ${widths[maxWidth]} border-2 border-red-500 dark:border-outline-variant transform transition-all`}>
+            <div className="flex min-h-full items-start justify-center p-2 pt-2">
+                <div className={`relative bg-white dark:bg-surface-lowest rounded-2xl shadow-2xl w-full ${widths[maxWidth]} border-2 border-red-500 dark:border-outline-variant transform transition-all`}>
                     {/* Header */}
                     {title && (
                         <div className="flex items-center justify-between px-8 py-6 border-b-2 border-red-500 dark:border-outline-variant">

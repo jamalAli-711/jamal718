@@ -39,8 +39,10 @@ use App\Http\Controllers\Customer\OrderController as CustomerOrderController;
 use App\Http\Controllers\ReplenishmentController;
 
 // ── Public storefront (no login required) ──────────────────────────────────
+Route::get('/about', [CustomerStorefrontController::class, 'about'])->name('about');
 Route::prefix('customer')->name('customer.')->group(function () {
     Route::get('/storefront', [CustomerStorefrontController::class, 'index'])->name('storefront');
+    Route::get('/about', [CustomerStorefrontController::class, 'about'])->name('about');
     Route::get('/storefront/{product}', [CustomerStorefrontController::class, 'show'])->name('storefront.show');
 });
 

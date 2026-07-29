@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { USER_TYPES } from '@/constants';
 
 // --- VIP SVG Icon Components (Enhanced Stroke) ---
@@ -139,7 +140,7 @@ export default function AdminLayout({ user, header, children }) {
     );
 
     return (
-        <div className="min-h-screen bg-[#050507] selection:bg-amber-400 selection:text-black font-vip" dir="rtl">
+        <div className="min-h-screen bg-slate-50 dark:bg-[#050507] text-gray-900 dark:text-white selection:bg-amber-400 selection:text-black font-vip transition-colors duration-300" dir="rtl">
             {/* Orbital BG Glows */}
             <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none z-0" />
             <div className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none z-0" />
@@ -162,39 +163,40 @@ export default function AdminLayout({ user, header, children }) {
             {/* Main Content Area */}
             <div className="md:mr-72 flex flex-col min-h-screen relative z-10 transition-all duration-700">
                 {/* VIP Glass Top Bar */}
-                <header className="h-20 flex items-center justify-between px-6 lg:px-12 backdrop-blur-xl bg-black/10 border-b border-white/5 sticky top-0 z-40">
+                <header className="h-20 flex items-center justify-between px-6 lg:px-12 backdrop-blur-xl bg-white/80 dark:bg-black/10 border-b border-gray-200 dark:border-white/5 sticky top-0 z-40 shadow-sm dark:shadow-none">
                     <div className="flex items-center gap-6">
-                        <button className="md:hidden text-white/40 hover:text-white" onClick={() => setSidebarOpen(true)}>
+                        <button className="md:hidden text-gray-600 dark:text-white/40 hover:text-black dark:hover:text-white" onClick={() => setSidebarOpen(true)}>
                             <IconMenu />
                         </button>
                         <div className="flex flex-col">
                             {header ? (
                                 <>
-                                    <div className="text-[9px] font-black text-amber-500 uppercase tracking-[0.3em] mb-1 leading-none">البوابة الإدارية</div>
-                                    <h1 className="text-2xl font-black text-white tracking-tighter leading-none">{header}</h1>
+                                    <div className="text-[9px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-[0.3em] mb-1 leading-none">البوابة الإدارية</div>
+                                    <h1 className="text-2xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">{header}</h1>
                                 </>
                             ) : (
-                                <h1 className="text-xl font-black text-white/20 tracking-widest uppercase">التحكم بالنظام</h1>
+                                <h1 className="text-xl font-black text-gray-400 dark:text-white/20 tracking-widest uppercase">التحكم بالنظام</h1>
                             )}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-5">
+                        <ThemeToggle />
                         {/* Notifications / Bells */}
-                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/[0.03] rounded-2xl border border-white/5 text-white/30 hover:text-amber-400 cursor-pointer transition-all">
+                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/5 text-gray-600 dark:text-white/30 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer transition-all">
                             <IconBell />
                             <span className="text-[10px] font-black tracking-widest uppercase">التنبيهات</span>
                             <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />
                         </div>
 
                         {/* Profile Pill */}
-                        <div className="flex items-center gap-3 pl-2 pr-4 py-2 bg-white/[0.03] rounded-full border border-white/5 group transition-all hover:bg-white/[0.05] hover:border-amber-400/20 cursor-pointer">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
+                        <div className="flex items-center gap-3 pl-2 pr-4 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-full border border-gray-200 dark:border-white/5 group transition-all hover:bg-slate-200 dark:hover:bg-white/[0.05] hover:border-amber-400/20 cursor-pointer">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-500 dark:text-amber-400 font-black shadow-inner">
                                 {user?.name?.charAt(0)}
                             </div>
                             <div className="flex flex-col text-left">
-                                <span className="text-xs font-black text-white leading-none mb-1 group-hover:text-amber-400 transition-colors">{user?.name}</span>
-                                <span className="text-[9px] font-black text-white/30 uppercase tracking-[0.1em]">{USER_TYPES[user?.user_type]?.label || "مدير"}</span>
+                                <span className="text-xs font-black text-gray-900 dark:text-white leading-none mb-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{user?.name}</span>
+                                <span className="text-[9px] font-black text-gray-500 dark:text-white/30 uppercase tracking-[0.1em]">{USER_TYPES[user?.user_type]?.label || "مدير"}</span>
                             </div>
                         </div>
                     </div>
@@ -205,10 +207,10 @@ export default function AdminLayout({ user, header, children }) {
                     {children}
                 </main>
 
-                <footer className="px-12 py-8 bg-black/20 border-t border-white/5 flex items-center justify-between text-[9px] font-black text-white/20 uppercase tracking-[0.4em]">
+                <footer className="px-12 py-8 bg-white dark:bg-black/20 border-t border-gray-200 dark:border-white/5 flex items-center justify-between text-[9px] font-black text-gray-500 dark:text-white/20 uppercase tracking-[0.4em]">
                     <span>© {new Date().getFullYear()}  مؤسسة سعيد نعمان المخلافي للتجارة والتبريد </span>
                     <span className="flex items-center gap-2">
-                        حالة النظام: <span className="text-emerald-500/50">مثالية</span>
+                        حالة النظام: <span className="text-emerald-600 dark:text-emerald-500/50">مثالية</span>
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-glow-emerald" />
                     </span>
                 </footer>

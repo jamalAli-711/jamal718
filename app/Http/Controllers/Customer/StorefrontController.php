@@ -27,6 +27,11 @@ class StorefrontController extends Controller
         $this->offerService = $offerService;
     }
 
+    public function about()
+    {
+        return Inertia::render('Customer/About');
+    }
+
     public function index()
     {
         $user = Auth::user();

@@ -1,9 +1,15 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
+import ThemeToggle from '@/Components/ThemeToggle';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
-        <div className="flex min-h-screen flex-col items-center justify-center bg-[#050507] selection:bg-amber-400 selection:text-black p-6 relative overflow-hidden" dir="rtl">
+        <div className="flex min-h-screen flex-col items-center justify-center bg-white dark:bg-[#050507] text-black dark:text-white selection:bg-amber-400 selection:text-black p-6 relative overflow-hidden" dir="rtl">
+            {/* Top Theme Toggle */}
+            <div className="absolute top-6 left-6 z-50">
+                <ThemeToggle />
+            </div>
+
             {/* Cinematic Background Elements */}
             <div className="absolute top-0 right-0 w-[1000px] h-[1000px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />

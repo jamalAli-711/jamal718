@@ -33,11 +33,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        if ($request->user()->user_type === \App\Enums\UserType::Customer->value) {
-            return redirect()->intended(route('customer.storefront', absolute: false));
+        // Redirect based on user role — compare Enum to Enum (not to ->value)
+        if ($request->user()->user_type === \App\Enums\UserType::Admin) {
+            return redirect()->intended(route('dashboard', absolute: false));
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->intended(route('customer.storefront', absolute: false));
     }
 
     /**

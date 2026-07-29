@@ -38,18 +38,17 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'phone' => 'required|string|max:20|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone' => 'required|string|max:20',
             'branch_id' => 'required|exists:branches,id',
             'user_type' => 'required|in:'.UserType::Wholesaler->value.','.UserType::Retailer->value.','.UserType::Customer->value,
-            'lat' => 'required|numeric',
-            'lng' => 'required|numeric',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
         ]);
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'email' => $request->phone . '@maklfih.local',
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
             'branch_id' => $request->branch_id,
@@ -57,13 +56,15 @@ class RegisteredUserController extends Controller
         ]);
 
 
-        Location::create([
-            'user_id' => $user->id,
-            'latitude' => $request->lat,
-            'longitude' => $request->lng,
-            'branch_id' => $request->branch_id,
-            'created_by' => $user->id,
-        ]);
+        if ($request->lat && $request->lng) {
+            Location::create([
+                'user_id' => $user->id,
+                'latitude' => $request->lat,
+                'longitude' => $request->lng,
+                'branch_id' => $request->branch_id,
+                'created_by' => $user->id,
+            ]);
+        }
 
         event(new Registered($user));
 
