@@ -183,7 +183,7 @@ export default function AdminLayout({ user, header, children }) {
                     <div className="flex items-center gap-5">
                         <ThemeToggle />
                         {/* Notifications / Bells */}
-                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/5 text-gray-600 dark:text-white/30 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer transition-all">
+                        <div className="hidden sm:flex items-center gap-2 px-2 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/5 text-gray-600 dark:text-white/30 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer transition-all">
                             <IconBell />
                             <span className="text-[10px] font-black tracking-widest uppercase">التنبيهات</span>
                             <span className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping" />

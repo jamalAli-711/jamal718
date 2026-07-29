@@ -61,33 +61,31 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                     <div className="absolute inset-0 bg-white rounded-xl" />
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col  hidden md:flex lg:flex  ">
                                     <span className="md:text-2xl  font-black tracking-tighter text-black dark:text-white">المخلافي</span>
                                     <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase">للتجارة والتبريد</span>
                                 </div>
                             </Link>
 
                             {/* Nav Links */}
-                            <div className="flex items-center gap-6 h-full">
+                            <div className="flex items-center gap-4 h-full">
                                 <Link
                                     href={route('customer.storefront')}
-                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                        route().current('customer.storefront') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
-                                    }`}
+                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current('customer.storefront') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                        }`}
                                 >
                                     الرئيسية
                                     {route().current('customer.storefront') && (
                                         <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
                                     )}
                                 </Link>
-                                
+
                                 {user && (
                                     <>
                                         <Link
                                             href={route('customer.orders')}
-                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                                route().current('customer.orders*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
-                                            }`}
+                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current('customer.orders*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                                }`}
                                         >
                                             طلباتي
                                             {route().current('customer.orders*') && (
@@ -96,11 +94,10 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                         </Link>
                                         <Link
                                             href={route('customer.offers')}
-                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                                route().current('customer.offers*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
-                                            }`}
+                                            className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current('customer.offers*') ? 'text-amber-400' : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                                }`}
                                         >
-                                            العروض المميزة
+                                            العروض
                                             {route().current('customer.offers*') && (
                                                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-400 rounded-t-full shadow-[0_-4px_12px_rgba(251,191,36,0.3)]" />
                                             )}
@@ -110,11 +107,10 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
                                 <Link
                                     href={route('customer.about')}
-                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${
-                                        route().current('customer.about') || route().current('about')
-                                            ? 'text-red-600 dark:text-amber-400 font-black'
-                                            : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
-                                    }`}
+                                    className={`relative h-full flex items-center text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 ${route().current('customer.about') || route().current('about')
+                                        ? 'text-red-600 dark:text-amber-400 font-black'
+                                        : 'text-black/50 dark:text-white/40 hover:text-black dark:hover:text-white'
+                                        }`}
                                 >
                                     من نحن
                                     {(route().current('customer.about') || route().current('about')) && (
@@ -124,12 +120,12 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4">
                             <ThemeToggle />
                             {/* VIP Cart — always visible */}
                             <button
                                 onClick={() => setIsCartModalOpen(true)}
-                                className="relative p-3 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-gray-700 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
+                                className="relative p-2 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-gray-700 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -162,7 +158,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                         </Dropdown.Trigger>
 
                                         <Dropdown.Content contentClasses="py-2 bg-white dark:bg-[#16161a] border border-gray-200 dark:border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
-                                            <div className="px-5 py-3 border-b border-gray-100 dark:border-white/5">
+                                            <div className="px-3 py-3 border-b border-gray-100 dark:border-white/5">
                                                 <p className="text-[10px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
                                                 <p className="text-xs font-bold text-black dark:text-white truncate">{user.email}</p>
                                             </div>
@@ -181,7 +177,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="flex items-center gap-3">
                                     <Link
                                         href={route('login')}
-                                        className="px-5 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/60 hover:text-black dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                                        className="px-3 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/60 hover:text-black dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all"
                                     >
                                         تسجيل الدخول
                                     </Link>
