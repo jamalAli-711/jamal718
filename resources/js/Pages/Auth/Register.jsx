@@ -65,7 +65,7 @@ export default function Register() {
                     </div>
 
                     <div className="space-y-10">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <VIPField label="الاسم الكامل" value={data.name} onChange={v => setData('name', v)} error={errors.name} />
                             <VIPField label="رقم الهاتف" value={data.phone} onChange={v => setData('phone', v)} error={errors.phone} placeholder="77XXXXXXX" dir="ltr" />
                         </div>

@@ -52,17 +52,17 @@ export default function CustomerLayout({ header, children, hideFooter = false })
 
             {/* VIP Glass Header */}
             <nav className="sticky top-0 z-[60] backdrop-blur-2xl bg-white/90 dark:bg-black/20 border-b border-gray-200 dark:border-white/5 shadow-sm dark:shadow-none">
-                <div className="max-w-7xl mx-auto px-2 lg:px-12">
+                <div className=" mx-auto px-2 lg:px-12">
                     <div className="flex justify-between h-20">
-                        <div className="flex items-center gap-12">
+                        <div className="flex items-center gap-8">
                             {/* Brand */}
                             <Link href={route('customer.storefront')} className="flex items-center gap-2 group">
                                 <div className="relative">
                                     <div className="absolute inset-0 bg-white rounded-xl" />
                                     <ApplicationLogo className="w-12 h-12 relative z-10 group-hover:scale-110 transition-transform" />
                                 </div>
-                                <div className="flex flex-col  hidden md:flex lg:flex  ">
-                                    <span className="md:text-2xl  font-black tracking-tighter text-black dark:text-white">المخلافي</span>
+                                <div className=" hidden md:flex  md:flex-col   ">
+                                    <span className="md:text-2xl   font-black tracking-tighter text-black dark:text-white">المخلافي</span>
                                     <span className="text-[12px] font-black tracking-[0.4em] text-amber-500/60 leading-none mt-1 uppercase">للتجارة والتبريد</span>
                                 </div>
                             </Link>
@@ -120,12 +120,12 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
                             <ThemeToggle />
                             {/* VIP Cart — always visible */}
                             <button
                                 onClick={() => setIsCartModalOpen(true)}
-                                className="relative p-2 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-gray-700 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
+                                className="relative p-1 rounded-2xl bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 text-gray-700 dark:text-white/40 hover:text-amber-500 dark:hover:text-amber-400 hover:border-amber-500/20 dark:hover:border-amber-400/20 transition-all group"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 11-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -146,8 +146,8 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 <div className="relative">
                                     <Dropdown>
                                         <Dropdown.Trigger>
-                                            <button className="flex items-center gap-3 pl-2 pr-4 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-full border border-gray-200 dark:border-white/5 group hover:bg-slate-200 dark:hover:bg-white/[0.05] transition-all">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
+                                            <button className="flex items-center gap-2 pl-2 pr-2 py-2 bg-slate-100 dark:bg-white/[0.03] rounded-full border border-gray-200 dark:border-white/5 group hover:bg-slate-200 dark:hover:bg-white/[0.05] transition-all">
+                                                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400/20 to-amber-600/20 border border-amber-400/30 flex items-center justify-center text-amber-400 font-black shadow-inner">
                                                     {user.name?.charAt(0)}
                                                 </div>
                                                 <div className="flex flex-col text-left">
@@ -158,7 +158,7 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                         </Dropdown.Trigger>
 
                                         <Dropdown.Content contentClasses="py-2 bg-white dark:bg-[#16161a] border border-gray-200 dark:border-white/5 shadow-2xl backdrop-blur-3xl rounded-3xl overflow-hidden">
-                                            <div className="px-3 py-3 border-b border-gray-100 dark:border-white/5">
+                                            <div className="px-1 py-1 border-b border-gray-100 dark:border-white/5">
                                                 <p className="text-[10px] font-black text-black/40 dark:text-white/20 uppercase tracking-widest mb-1">متصل باسم</p>
                                                 <p className="text-xs font-bold text-black dark:text-white truncate">{user.email}</p>
                                             </div>
@@ -174,16 +174,16 @@ export default function CustomerLayout({ header, children, hideFooter = false })
                                 </div>
                             ) : (
                                 /* ── Guest: login / register buttons ── */
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1">
                                     <Link
                                         href={route('login')}
-                                        className="px-3 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/60 hover:text-black dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all"
+                                        className="px-1.5 py-2.5 rounded-2xl bg-slate-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white/60 hover:text-black dark:hover:text-white text-[11px] font-black uppercase tracking-[0.2em] transition-all"
                                     >
                                         تسجيل الدخول
                                     </Link>
                                     <Link
                                         href={route('register')}
-                                        className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-black text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-amber-400/20"
+                                        className="px-2 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-500 text-black text-[11px] font-black uppercase tracking-[0.2em] transition-all shadow-lg shadow-amber-400/20"
                                     >
                                         اشتراك
                                     </Link>
