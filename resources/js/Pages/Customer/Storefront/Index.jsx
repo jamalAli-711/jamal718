@@ -180,7 +180,7 @@ export default function Storefront({ products, categories }) {
                 </section>
 
                 {/* ===== INTERACTIVE BRANDS SECTION ===== */}
-                <section className="max-w-7xl mx-auto px-6 lg:px-12 mb-8" dir="rtl">
+                <section className=" px-2 lg:px-12 mb-8" dir="rtl">
                     <div className="flex items-center gap-2 mb-4">
                         <div className="h-px flex-1 bg-gradient-to-l from-red-500/20 to-transparent" />
                         <span className="text-[10px] font-black uppercase tracking-[0.4em] text-red-600 dark:text-amber-400/70">
@@ -189,14 +189,14 @@ export default function Storefront({ products, categories }) {
                         <div className="h-px flex-1 bg-gradient-to-r from-red-500/20 to-transparent" />
                     </div>
 
-                    <div className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 p-6 backdrop-blur-3xl shadow-sm">
+                    <div className="relative overflow-hidden rounded-[2.5rem] bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 p-2 backdrop-blur-3xl shadow-sm">
                         <div className="flex flex-wrap justify-center gap-4">
                             {/* All Brands Pill */}
                             <button
                                 onClick={() => setSelectedBrand('all')}
                                 className={`flex-shrink-0 w-24 h-12 flex items-center justify-center rounded-2xl border text-xs font-black tracking-widest transition-all duration-300 ${selectedBrand === 'all'
-                                        ? 'bg-red-600 dark:bg-amber-400 text-white dark:text-black border-red-600 dark:border-amber-400 shadow-md scale-105'
-                                        : 'bg-slate-100 dark:bg-white/[0.03] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 text-gray-700 dark:text-white/40'
+                                    ? 'bg-red-600 dark:bg-amber-400 text-white dark:text-black border-red-600 dark:border-amber-400 shadow-md scale-105'
+                                    : 'bg-slate-100 dark:bg-white/[0.03] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 text-gray-700 dark:text-white/40'
                                     }`}
                             >
                                 الكل
@@ -207,8 +207,8 @@ export default function Storefront({ products, categories }) {
                                     title={brand.name}
                                     onClick={() => setSelectedBrand(selectedBrand === brand.name ? 'all' : brand.name)}
                                     className={`flex-shrink-0 w-24 h-12 flex items-center justify-center rounded-2xl border p-2 transition-all duration-300 group ${selectedBrand === brand.name
-                                            ? 'bg-red-50 dark:bg-amber-400/20 border-red-500 dark:border-amber-400 ring-2 ring-red-500/20 dark:ring-amber-400/35 scale-105'
-                                            : 'bg-white dark:bg-white/[0.03] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10'
+                                        ? 'bg-red-50 dark:bg-amber-400/20 border-red-500 dark:border-amber-400 ring-2 ring-red-500/20 dark:ring-amber-400/35 scale-105'
+                                        : 'bg-white dark:bg-white/[0.03] border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10'
                                         }`}
                                 >
                                     <img
@@ -274,7 +274,7 @@ export default function Storefront({ products, categories }) {
                             <h3 className="text-2xl font-black text-gray-400 dark:text-white/20">لا توجد نتائج مطابقة لتحديدك حالياً</h3>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
                             {sortedFiltered.map(product => (
                                 <ProductCard key={product.id} product={product} quantity={quantities[product.id]} inCartQuantity={cartItems.find(i => i.product_id === product.id)?.quantity || 0} onStep={(delta) => step(product.id, delta)} onQuantityChange={(val) => handleManualQuantityChange(product.id, val)} onBlur={() => handleBlur(product.id)} onAddToCart={() => addToCart(product)} />
                             ))}
@@ -343,36 +343,36 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
                 {/* Content Details */}
                 <div className="space-y-3">
                     <Link href={route('customer.storefront.show', product.id)}>
-                        <h3 className="text-sm md:text-lg font-black text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 h-12 leading-tight">
+                        <h3 className="text-xs md:text-lg font-black text-gray-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2 h-12 leading-tight">
                             {product.name}
                         </h3>
                     </Link>
-                    <span className="inline-block text-[8px] font-black text-red-600 dark:text-white/20 uppercase tracking-widest">{product.category_name || 'صنف غذائي'}</span>
+                    {/* <span className="inline-block text-[8px] font-black text-red-600 dark:text-white/20 uppercase tracking-widest">{product.category_name || 'صنف غذائي'}</span> */}
                 </div>
             </div>
 
             {/* Actions and Price */}
-            <div className="space-y-4 mt-4">
+            <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="text-xl md:text-2xl font-black text-gray-900 dark:text-white">
+                        <div className="text-[10px] md:text-2xl font-black text-gray-900 dark:text-white">
                             {Number(product.price).toLocaleString()}
-                            <span className="text-[10px] text-gray-500 dark:text-white/20 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span>
+                            <span className="text-[8px] text-gray-500 dark:text-white/20 uppercase tracking-widest mr-1">{product.default_currency_symbol}</span>
                         </div>
-                        <div className="text-[9px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest mt-0.5">{product.default_unit_name}</div>
+                        {/* <div className="text-[9px] font-bold text-gray-400 dark:text-white/20 uppercase tracking-widest mt-0.5">{product.default_unit_name}</div> */}
                     </div>
 
                     <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-2xl p-1.5 border border-gray-200 dark:border-white/10 shadow-inner">
-                        <button onClick={() => onStep(1)} className="w-8 h-8 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all">+</button>
+                        <button onClick={() => onStep(1)} className="w-6 h-6 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all">+</button>
                         <input type="text" value={quantity} onChange={(e) => onQuantityChange(e.target.value)} onBlur={onBlur} className="w-10 bg-transparent text-center font-black text-sm text-gray-900 dark:text-white border-none focus:ring-0 p-0" />
-                        <button onClick={() => onStep(-1)} disabled={quantity <= 1} className="w-8 h-8 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all disabled:opacity-10">-</button>
+                        <button onClick={() => onStep(-1)} disabled={quantity <= 1} className="w-6 h-6 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all disabled:opacity-10">-</button>
                     </div>
                 </div>
 
                 <button
                     onClick={onAddToCart}
                     disabled={!product.in_stock}
-                    className="w-full py-3 bg-red-600 hover:bg-red-700 dark:bg-gradient-to-r dark:from-amber-400 dark:to-amber-500 dark:hover:from-amber-500 dark:hover:to-amber-600 disabled:opacity-10 disabled:grayscale text-white dark:text-black rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-md active:scale-95"
+                    className="w-full py-2 bg-red-600 hover:bg-red-700 dark:bg-gradient-to-r dark:from-amber-400 dark:to-amber-500 dark:hover:from-amber-500 dark:hover:to-amber-600 disabled:opacity-10 disabled:grayscale text-white dark:text-black rounded-[2rem] font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-md active:scale-95"
                 >
                     أضف إلى السلة
                 </button>
