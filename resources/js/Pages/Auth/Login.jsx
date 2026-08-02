@@ -29,7 +29,7 @@ export default function Login({ status, canResetPassword }) {
                         <input
                             type="tel" value={data.phone} onChange={(e) => setData('phone', e.target.value)}
                             className="w-full bg-white/[0.03] border border-white/5 rounded-[2rem] py-6 px-10 text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all text-right placeholder:text-white/5 shadow-inner"
-                            placeholder="77XXXXXXXX" dir="ltr"
+                            placeholder="77" dir="ltr"
                         />
                         <div className="absolute left-6 top-1/2 -translate-y-1/2 text-white/5 group-hover/field:text-amber-400/20 transition-colors pointer-events-none">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
