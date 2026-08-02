@@ -134,8 +134,8 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
     const getStockLevel = (qty) => {
         if (qty <= 10) return { color: 'bg-rose-500', text: 'text-rose-500', glow: 'shadow-[0_0_15px_rgba(244,63,94,0.3)]' };
-        if (qty <= 50) return { color: 'bg-amber-400', text: 'text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.2)]' };
-        return { color: 'bg-emerald-500', text: 'text-emerald-500', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.2)]' };
+        if (qty <= 50) return { color: 'bg-amber-400', text: 'text-amber-500 dark:text-amber-400', glow: 'shadow-[0_0_15px_rgba(251,191,36,0.2)]' };
+        return { color: 'bg-emerald-500', text: 'text-emerald-600 dark:text-emerald-500', glow: 'shadow-[0_0_15px_rgba(16,185,129,0.2)]' };
     };
 
     const filteredProducts = products.data.filter(p => {
@@ -151,17 +151,17 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
             <div className="pb-20 animate-in fade-in duration-1000" dir="rtl">
 
                 {/* VIP Header Section — Responsive */}
-                <div className="flex flex-col gap-6 md:flex-row md:justify-between md:items-end mb-10 md:mb-16 p-6 md:p-10 bg-white/[0.01] rounded-3xl md:rounded-[4rem] border border-white/5 overflow-hidden relative">
+                <div className="flex flex-col gap-6 md:flex-row md:justify-between md:items-end mb-10 md:mb-16 p-6 md:p-10 bg-white dark:bg-white/[0.01] rounded-3xl md:rounded-[4rem] border border-gray-200 dark:border-white/5 shadow-xl dark:shadow-3xl overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-amber-400/5 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/2" />
                     <div className="relative z-10 space-y-3">
-                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-400/10 border border-amber-400/20 rounded-full text-amber-500 tracking-[0.3em] text-[9px] md:tracking-[0.4em] md:text-[10px] font-black uppercase">
+                        <div className="inline-flex items-center gap-3 px-4 py-2 bg-amber-500/10 dark:bg-amber-400/10 border border-amber-500/20 dark:border-amber-400/20 rounded-full text-amber-600 dark:text-amber-500 tracking-[0.3em] text-[9px] md:tracking-[0.4em] md:text-[10px] font-black uppercase">
                             ذكاء سلسلة التوريد
-                            <div className="w-1.5 h-1.5 bg-amber-400 rounded-full animate-pulse" />
+                            <div className="w-1.5 h-1.5 bg-amber-500 dark:bg-amber-400 rounded-full animate-pulse" />
                         </div>
-                        <h2 className="text-3xl md:text-6xl font-black text-white tracking-tighter leading-none">إدارة المخزون</h2>
-                        <p className="text-white/20 font-bold text-sm md:text-xl italic pr-4 border-r-4 border-amber-400/20 hidden md:block">تتبع حي للمخزون، تقييم القيمة الرأسمالية، وإدارة وحدات التداول للفروع.</p>
+                        <h2 className="text-3xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">إدارة المخزون</h2>
+                        <p className="text-gray-600 dark:text-white/20 font-bold text-sm md:text-xl italic pr-4 border-r-4 border-amber-400/20 hidden md:block">تتبع حي للمخزون، تقييم القيمة الرأسمالية، وإدارة وحدات التداول للفروع.</p>
                     </div>
-                    <button onClick={() => setShowAddModal(true)} className="group w-full md:w-auto px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black rounded-2xl md:rounded-[2rem] flex items-center justify-center gap-3 shadow-2xl shadow-amber-400/20 hover:scale-105 active:scale-95 transition-all relative z-10">
+                    <button onClick={() => setShowAddModal(true)} className="group w-full md:w-auto px-8 md:px-12 py-5 md:py-6 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-600 text-white dark:text-black font-black rounded-2xl md:rounded-[2rem] flex items-center justify-center gap-3 shadow-2xl shadow-amber-500/20 hover:scale-105 active:scale-95 transition-all relative z-10">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 4v16m8-8H4" /></svg>
                         <span className="text-xs uppercase tracking-[0.2em]">إضافة صنف جديد</span>
                     </button>
@@ -169,86 +169,86 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
                 {/* VIP Stats Section — Responsive */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-12 mb-10 md:mb-16">
-                    <StatCard label="حجم الكتالوج" value={stats.total_products} unit="صنف" icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} color="amber-400" />
-                    <StatCard label="قرب النفاد" value={stats.low_stock} unit="تنبيه" icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>} color="rose-500" />
-                    <StatCard label="التقييم الرأسمالي" value={stats.total_value.toLocaleString()} unit={stats.currency_symbol} icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} color="emerald-500" />
+                    <StatCard label="حجم الكتالوج" value={stats.total_products} unit="صنف" icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>} color="text-amber-600 dark:text-amber-400" />
+                    <StatCard label="قرب النفاد" value={stats.low_stock} unit="تنبيه" icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>} color="text-rose-600 dark:text-rose-500" />
+                    <StatCard label="التقييم الرأسمالي" value={stats.total_value.toLocaleString()} unit={stats.currency_symbol} icon={<svg className="w-7 h-7 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} color="text-emerald-600 dark:text-emerald-500" />
                 </div>
 
                 {/* VIP Search Box — Responsive */}
-                <div className="mb-8 md:mb-12 flex flex-col gap-4 md:flex-row md:gap-8 md:items-center md:justify-between p-5 md:p-8 bg-white/[0.01] rounded-3xl md:rounded-[3rem] border border-white/5">
+                <div className="mb-8 md:mb-12 flex flex-col gap-4 md:flex-row md:gap-8 md:items-center md:justify-between p-5 md:p-8 bg-white dark:bg-white/[0.01] rounded-3xl md:rounded-[3rem] border border-gray-200 dark:border-white/5 shadow-md">
                     <div className="flex-1 w-full relative group">
-                        <input type="text" placeholder="ابحث في السجلات..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-12 py-4 md:py-6 text-base md:text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all text-right group-hover:bg-white/[0.05]" />
-                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/10 group-hover:text-amber-400/40 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                        <input type="text" placeholder="ابحث في السجلات..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 rounded-2xl px-12 py-4 md:py-6 text-base md:text-xl font-black text-gray-900 dark:text-white focus:outline-none focus:border-amber-400/30 transition-all text-right group-hover:bg-slate-100 dark:group-hover:bg-white/[0.05]" />
+                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-white/10 group-hover:text-amber-500 dark:group-hover:text-amber-400/40 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     </div>
                     <div className="relative w-full md:w-64 group">
-                        <select className="w-full bg-white/[0.03] border border-white/5 rounded-2xl px-6 py-4 md:py-6 text-sm font-black text-white/40 focus:outline-none focus:border-amber-400/30 transition-all cursor-pointer appearance-none" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-                            <option value="" className="bg-[#111114]">جميع التصنيفات</option>
-                            {categories.map(c => <option key={c.id} value={c.id} className="bg-[#111114]">{c.category_name}</option>)}
+                        <select className="w-full bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 rounded-2xl px-6 py-4 md:py-6 text-sm font-black text-gray-700 dark:text-white/40 focus:outline-none focus:border-amber-400/30 transition-all cursor-pointer appearance-none" value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+                            <option value="" className="bg-white dark:bg-[#111114] text-gray-900 dark:text-white">جميع التصنيفات</option>
+                            {categories.map(c => <option key={c.id} value={c.id} className="bg-white dark:bg-[#111114] text-gray-900 dark:text-white">{c.category_name}</option>)}
                         </select>
-                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/10 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
+                        <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/10 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
                     </div>
                 </div>
 
                 {/* ── DESKTOP TABLE (hidden on mobile) ── */}
-                <div className="hidden md:block bg-[#0c0c0e]/80 backdrop-blur-3xl rounded-[4rem] border border-white/5 overflow-hidden shadow-2xl">
+                <div className="hidden md:block bg-white dark:bg-[#0c0c0e]/80 backdrop-blur-3xl rounded-[4rem] border border-gray-200 dark:border-white/5 overflow-hidden shadow-xl dark:shadow-2xl">
                     <div className="overflow-x-auto custom-scrollbar">
                         <table className="w-full text-right border-collapse">
                             <thead>
-                                <tr className="bg-white/[0.01]">
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">الصورة</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">رمز SKU</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">اسم الصنف</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">مؤشر المخزون</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em]">التسعير</th>
-                                    <th className="px-8 py-8 text-[10px] font-black text-white/30 uppercase tracking-[0.4em] text-center">الإجراءات</th>
+                                <tr className="bg-slate-50 dark:bg-white/[0.01]">
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em]">الصورة</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em]">رمز SKU</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em]">اسم الصنف</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em] text-center">مؤشر المخزون</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em]">التسعير</th>
+                                    <th className="px-8 py-8 text-[10px] font-black text-gray-400 dark:text-white/30 uppercase tracking-[0.4em] text-center">الإجراءات</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/[0.03]">
+                            <tbody className="divide-y divide-gray-100 dark:divide-white/[0.03]">
                                 {filteredProducts.map((product) => {
                                     const level = getStockLevel(product.total_stock);
                                     return (
-                                        <tr key={product.id} className="group hover:bg-white/[0.01] transition-colors">
+                                        <tr key={product.id} className="group hover:bg-slate-50 dark:hover:bg-white/[0.01] transition-colors">
                                             <td className="px-8 py-8">
-                                                <div className="w-20 h-20 bg-white/[0.02] border border-white/5 rounded-3xl p-3 shadow-inner flex items-center justify-center group-hover:scale-110 transition-transform duration-700 overflow-hidden relative">
+                                                <div className="w-20 h-20 bg-slate-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-3xl p-3 shadow-inner flex items-center justify-center group-hover:scale-110 transition-transform duration-700 overflow-hidden relative">
                                                     <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] to-transparent pointer-events-none" />
-                                                    {product.thumbnail ? <img src={product.thumbnail} className="w-full h-full object-contain relative z-10" /> : <svg className="w-8 h-8 text-white/5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+                                                    {product.thumbnail ? <img src={product.thumbnail} className="w-full h-full object-contain relative z-10" /> : <svg className="w-8 h-8 text-gray-300 dark:text-white/5 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
-                                                <span className="text-xl font-black text-white tracking-tighter group-hover:text-amber-400 transition-colors uppercase">#{product.sku}</span>
+                                                <span className="text-xl font-black text-gray-900 dark:text-white tracking-tighter group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors uppercase">#{product.sku}</span>
                                             </td>
                                             <td className="px-8 py-8">
                                                 <div className="flex flex-col gap-1">
-                                                    <h4 className="text-xl font-black text-white leading-none tracking-tighter uppercase max-w-xs">{product.name}</h4>
-                                                    <span className="text-[10px] font-black text-white/10 uppercase tracking-[0.3em]">{product.category?.category_name || 'GENERIC'}</span>
+                                                    <h4 className="text-xl font-black text-gray-900 dark:text-white leading-none tracking-tighter uppercase max-w-xs">{product.name}</h4>
+                                                    <span className="text-[10px] font-black text-gray-400 dark:text-white/10 uppercase tracking-[0.3em]">{product.category?.category_name || 'GENERIC'}</span>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
                                                 <div className="flex flex-col items-center gap-3">
                                                     <div className="flex items-baseline gap-2">
                                                         <span className={`text-3xl font-black ${level.text} tracking-tighter leading-none`}>{product.total_stock || 0}</span>
-                                                        <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">وحدة</span>
+                                                        <span className="text-[10px] font-black text-gray-400 dark:text-white/10 uppercase tracking-widest">وحدة</span>
                                                     </div>
-                                                    <div className="w-28 bg-white/5 h-1.5 rounded-full overflow-hidden border border-white/5">
+                                                    <div className="w-28 bg-slate-100 dark:bg-white/5 h-1.5 rounded-full overflow-hidden border border-gray-200 dark:border-white/5">
                                                         <div className={`h-full ${level.color} transition-all duration-1000 ${level.glow}`} style={{ width: `${Math.min(100, (product.total_stock / 200) * 100)}%` }} />
                                                     </div>
-                                                    <button onClick={() => openStockModal(product)} className="text-[9px] font-black text-white/20 hover:text-amber-400 uppercase tracking-[0.4em] transition-all bg-white/[0.02] px-4 py-1.5 rounded-full border border-white/5">ضبط المخزون</button>
+                                                    <button onClick={() => openStockModal(product)} className="text-[9px] font-black text-gray-500 dark:text-white/20 hover:text-amber-600 dark:hover:text-amber-400 uppercase tracking-[0.4em] transition-all bg-slate-100 dark:bg-white/[0.02] px-4 py-1.5 rounded-full border border-gray-200 dark:border-white/5">ضبط المخزون</button>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-8">
                                                 {(() => {
                                                     const defUnit = product.units?.find(u => u.is_default_sale) || product.units?.[0];
-                                                    if (!defUnit) return <span className="text-[10px] italic text-white/5 uppercase tracking-[0.4em]">التسعير غير متاح</span>;
+                                                    if (!defUnit) return <span className="text-[10px] italic text-gray-300 dark:text-white/5 uppercase tracking-[0.4em]">التسعير غير متاح</span>;
                                                     const unitCurrency = currencies.find(c => c.id === defUnit.currency_id) || default_currency;
                                                     return (
                                                         <div className="flex flex-col gap-2">
                                                             <div className="flex justify-between items-baseline gap-6">
-                                                                <span className="text-[10px] font-black text-white/10 uppercase tracking-widest">تجزئة</span>
-                                                                <span className="text-xl font-black text-white tracking-tighter">{Number(defUnit.retail_price).toLocaleString()} <span className="text-[10px] text-white/30">{unitCurrency?.currency_code_ar}</span></span>
+                                                                <span className="text-[10px] font-black text-gray-400 dark:text-white/10 uppercase tracking-widest">تجزئة</span>
+                                                                <span className="text-xl font-black text-gray-900 dark:text-white tracking-tighter">{Number(defUnit.retail_price).toLocaleString()} <span className="text-[10px] text-gray-400 dark:text-white/30">{unitCurrency?.currency_code_ar}</span></span>
                                                             </div>
-                                                            <div className="flex justify-between items-baseline gap-6 border-t border-white/[0.03] pt-1">
-                                                                <span className="text-[10px] font-black text-white/5 uppercase tracking-widest">جملة</span>
-                                                                <span className="text-base font-black text-white/20 tracking-tighter">{Number(defUnit.wholesale_price).toLocaleString()} <span className="text-[8px] opacity-20">{unitCurrency?.currency_code_ar}</span></span>
+                                                            <div className="flex justify-between items-baseline gap-6 border-t border-gray-100 dark:border-white/[0.03] pt-1">
+                                                                <span className="text-[10px] font-black text-gray-300 dark:text-white/5 uppercase tracking-widest">جملة</span>
+                                                                <span className="text-base font-black text-gray-500 dark:text-white/20 tracking-tighter">{Number(defUnit.wholesale_price).toLocaleString()} <span className="text-[8px] opacity-40">{unitCurrency?.currency_code_ar}</span></span>
                                                             </div>
                                                         </div>
                                                     );
@@ -256,8 +256,8 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                             </td>
                                             <td className="px-8 py-8">
                                                 <div className="flex items-center justify-center gap-3">
-                                                    <OpBtn onClick={() => openUnitsModal(product)} icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>} color="amber-400" />
-                                                    <OpBtn onClick={() => openEditModal(product)} icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>} color="blue-400" />
+                                                    <OpBtn onClick={() => openUnitsModal(product)} icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>} color="amber-500" />
+                                                    <OpBtn onClick={() => openEditModal(product)} icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>} color="blue-500" />
                                                     <OpBtn onClick={() => deleteProduct(product)} icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>} color="rose-500" />
                                                 </div>
                                             </td>
@@ -276,50 +276,50 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                         const defUnit = product.units?.find(u => u.is_default_sale) || product.units?.[0];
                         const unitCurrency = defUnit ? (currencies.find(c => c.id === defUnit.currency_id) || default_currency) : null;
                         return (
-                            <div key={product.id} className="bg-[#0c0c0e]/80 border border-white/5 rounded-3xl p-5 space-y-4">
+                            <div key={product.id} className="bg-white dark:bg-[#0c0c0e]/80 border border-gray-200 dark:border-white/5 rounded-3xl p-5 space-y-4 shadow-md dark:shadow-none">
                                 {/* Top Row: image + info */}
                                 <div className="flex items-start gap-4">
-                                    <div className="w-16 h-16 shrink-0 bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center overflow-hidden">
+                                    <div className="w-16 h-16 shrink-0 bg-slate-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-2xl flex items-center justify-center overflow-hidden">
                                         {product.thumbnail
                                             ? <img src={product.thumbnail} className="w-full h-full object-contain" />
-                                            : <svg className="w-7 h-7 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            : <svg className="w-7 h-7 text-gray-300 dark:text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                         }
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h4 className="text-base font-black text-white leading-tight uppercase truncate">{product.name}</h4>
-                                        <span className="text-[10px] font-black text-amber-400/60 uppercase tracking-widest">#{product.sku}</span>
-                                        <div className="text-[9px] font-black text-white/20 uppercase tracking-widest mt-0.5">{product.category?.category_name || 'GENERIC'}</div>
+                                        <h4 className="text-base font-black text-gray-900 dark:text-white leading-tight uppercase truncate">{product.name}</h4>
+                                        <span className="text-[10px] font-black text-amber-600 dark:text-amber-400/60 uppercase tracking-widest">#{product.sku}</span>
+                                        <div className="text-[9px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest mt-0.5">{product.category?.category_name || 'GENERIC'}</div>
                                     </div>
                                 </div>
 
                                 {/* Stock row */}
-                                <div className="flex items-center justify-between bg-white/[0.02] rounded-2xl px-4 py-3">
+                                <div className="flex items-center justify-between bg-slate-50 dark:bg-white/[0.02] rounded-2xl px-4 py-3">
                                     <div className="flex items-center gap-2">
                                         <div className={`w-2 h-2 rounded-full ${level.color}`} />
-                                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">المخزون</span>
+                                        <span className="text-[10px] font-black text-gray-500 dark:text-white/30 uppercase tracking-widest">المخزون</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className={`text-2xl font-black ${level.text} leading-none`}>{product.total_stock || 0}</span>
-                                        <span className="text-[9px] text-white/20 uppercase">وحدة</span>
+                                        <span className="text-[9px] text-gray-400 dark:text-white/20 uppercase">وحدة</span>
                                     </div>
                                 </div>
 
                                 {/* Pricing row */}
                                 {defUnit && (
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">سعر التجزئة</span>
-                                        <span className="text-base font-black text-white">{Number(defUnit.retail_price).toLocaleString()} <span className="text-[10px] text-white/30">{unitCurrency?.currency_code_ar}</span></span>
+                                        <span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest">سعر التجزئة</span>
+                                        <span className="text-base font-black text-gray-900 dark:text-white">{Number(defUnit.retail_price).toLocaleString()} <span className="text-[10px] text-gray-400 dark:text-white/30">{unitCurrency?.currency_code_ar}</span></span>
                                     </div>
                                 )}
 
                                 {/* Actions row */}
-                                <div className="flex gap-2 pt-2 border-t border-white/5">
-                                    <button onClick={() => openUnitsModal(product)} className="flex-1 py-3 bg-amber-400/10 text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-400/20 active:scale-95 transition-all">الوحدات</button>
-                                    <button onClick={() => openStockModal(product)} className="flex-1 py-3 bg-white/[0.03] text-white/40 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/5 active:scale-95 transition-all">المخزون</button>
-                                    <button onClick={() => openEditModal(product)} className="w-12 h-12 bg-blue-400/10 text-blue-400 rounded-xl flex items-center justify-center border border-blue-400/20 active:scale-95 transition-all">
+                                <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-white/5">
+                                    <button onClick={() => openUnitsModal(product)} className="flex-1 py-3 bg-amber-500/10 dark:bg-amber-400/10 text-amber-700 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase tracking-widest border border-amber-500/20 dark:border-amber-400/20 active:scale-95 transition-all">الوحدات</button>
+                                    <button onClick={() => openStockModal(product)} className="flex-1 py-3 bg-slate-100 dark:bg-white/[0.03] text-gray-600 dark:text-white/40 rounded-xl text-[10px] font-black uppercase tracking-widest border border-gray-200 dark:border-white/5 active:scale-95 transition-all">المخزون</button>
+                                    <button onClick={() => openEditModal(product)} className="w-12 h-12 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center border border-blue-500/20 dark:border-blue-400/20 active:scale-95 transition-all">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                     </button>
-                                    <button onClick={() => deleteProduct(product)} className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-xl flex items-center justify-center border border-rose-500/20 active:scale-95 transition-all">
+                                    <button onClick={() => deleteProduct(product)} className="w-12 h-12 bg-rose-500/10 text-rose-600 dark:text-rose-500 rounded-xl flex items-center justify-center border border-rose-500/20 active:scale-95 transition-all">
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                     </button>
                                 </div>
@@ -333,7 +333,7 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
             {/* ADD MODAL */}
             <Modal show={showAddModal} onClose={() => setShowAddModal(false)} maxWidth="xl">
-                <div className="bg-[#0c0c0e] text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[3rem] border border-white/5 relative" dir="rtl">
+                <div className="bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[3rem] border border-gray-200 dark:border-white/5 relative" dir="rtl">
                     <form onSubmit={submitAdd} className="space-y-8 md:space-y-12">
                         <ModalHeader title="تسجيل صنف جديد" onClose={() => setShowAddModal(false)} />
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-10">
@@ -347,11 +347,11 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                         <Field label="رصيد المخزون الافتتاحي" type="number" value={addForm.data.stock_quantity} onChange={v => addForm.setData('stock_quantity', v)} />
 
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">الصور التوثيقية</label>
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/20 uppercase tracking-[0.4em] block pr-4">الصور التوثيقية</label>
                             <input type="file" accept="image/*" multiple onChange={handleAddImagesChange} className="hidden" id="add-images" />
-                            <label htmlFor="add-images" className="flex flex-col items-center justify-center p-8 md:p-12 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-[2rem] cursor-pointer hover:bg-white/[0.04] transition-all group">
-                                <svg className="w-10 h-10 text-white/10 group-hover:text-amber-400 group-hover:scale-110 transition-all mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                <span className="text-[10px] font-black text-white/20 uppercase tracking-widest text-center">اضغط لرفع الصور</span>
+                            <label htmlFor="add-images" className="flex flex-col items-center justify-center p-8 md:p-12 bg-slate-50 dark:bg-white/[0.02] border-2 border-dashed border-gray-200 dark:border-white/5 rounded-[2rem] cursor-pointer hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-all group">
+                                <svg className="w-10 h-10 text-gray-300 dark:text-white/10 group-hover:text-amber-500 dark:group-hover:text-amber-400 group-hover:scale-110 transition-all mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-widest text-center">اضغط لرفع الصور</span>
                             </label>
                             {addForm.errors.images && <div className="text-rose-500 text-xs font-bold px-4">{addForm.errors.images}</div>}
                             {Object.keys(addForm.errors).filter(k => k.startsWith('images.')).map(k => (
@@ -359,10 +359,10 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                             ))}
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 mt-4">
                                 {addPreviews.map((p, i) => (
-                                    <div key={i} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${addForm.data.primary_index === i ? 'border-amber-400' : 'border-white/5'}`}>
+                                    <div key={i} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${addForm.data.primary_index === i ? 'border-amber-400' : 'border-gray-200 dark:border-white/5'}`}>
                                         <img src={p.url} className="w-full h-20 md:h-24 object-cover" />
                                         <button type="button" onClick={() => removeAddImage(i)} className="absolute top-1.5 left-1.5 w-6 h-6 bg-rose-500 text-white rounded-lg flex items-center justify-center"><svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
-                                        <button type="button" onClick={() => addForm.setData('primary_index', i)} className={`absolute inset-0 flex items-center justify-center text-[9px] font-black uppercase tracking-widest transition-all ${addForm.data.primary_index === i ? 'bg-amber-400/20 text-white opacity-100' : 'bg-black/60 text-white/40 opacity-0 group-hover/img:opacity-100'}`}>{addForm.data.primary_index === i ? 'رئيسية' : 'تعيين'}</button>
+                                        <button type="button" onClick={() => addForm.setData('primary_index', i)} className={`absolute inset-0 flex items-center justify-center text-[9px] font-black uppercase tracking-widest transition-all ${addForm.data.primary_index === i ? 'bg-amber-400/20 text-gray-900 dark:text-white opacity-100' : 'bg-black/60 text-white/40 opacity-0 group-hover/img:opacity-100'}`}>{addForm.data.primary_index === i ? 'رئيسية' : 'تعيين'}</button>
                                     </div>
                                 ))}
                             </div>
@@ -375,7 +375,7 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
             {/* EDIT MODAL */}
             <Modal show={showEditModal} onClose={() => setShowEditModal(false)} maxWidth="xl" >
-                <div className="bg-[#0c0c0e] text-white p-4 md:p-4 overflow-hidden rounded-2xl md:rounded-[3rem] border border-white/5 relative" >
+                <div className="bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white p-4 md:p-8 overflow-hidden rounded-2xl md:rounded-[3rem] border border-gray-200 dark:border-white/5 relative" dir="rtl">
 
                     <form onSubmit={submitEdit} className="space-y-8 md:space-y-12">
                         <ModalHeader title={`تعديل: ${selectedProduct?.name}`} onClose={() => setShowEditModal(false)} />
@@ -385,16 +385,16 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                         </div>
 
                         <div className="space-y-6">
-                            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">مستودع الصور</label>
+                            <label className="text-[10px] font-black text-gray-500 dark:text-white/20 uppercase tracking-[0.4em] block pr-4">مستودع الصور</label>
                             <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                                 {existingImages.map((img) => (
-                                    <div key={img.id} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${img.isDeleted ? 'opacity-20 border-rose-500' : editForm.data.primary_image_id === img.id ? 'border-amber-400' : 'border-white/5'}`}>
+                                    <div key={img.id} className={`relative group/img rounded-2xl overflow-hidden border-2 transition-all ${img.isDeleted ? 'opacity-20 border-rose-500' : editForm.data.primary_image_id === img.id ? 'border-amber-400' : 'border-gray-200 dark:border-white/5'}`}>
                                         <img src={`/storage/${img.image_path}`} className="w-full h-20 md:h-24 object-cover grayscale-[0.2]" />
                                         <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-1.5">
                                             {!img.isDeleted && (
-                                                <button type="button" onClick={() => editForm.setData('primary_image_id', img.id)} className="px-2 py-1 bg-white/5 text-[8px] font-black uppercase rounded-lg border border-white/10 hover:bg-amber-400 hover:text-black transition-all">رئيسية</button>
+                                                <button type="button" onClick={() => editForm.setData('primary_image_id', img.id)} className="px-2 py-1 bg-white/10 text-[8px] font-black uppercase text-white rounded-lg border border-white/20 hover:bg-amber-400 hover:text-black transition-all">رئيسية</button>
                                             )}
-                                            <button type="button" onClick={() => toggleDeleteExisting(img.id)} className={`px-2 py-1 text-[8px] font-black uppercase rounded-lg border transition-all ${img.isDeleted ? 'bg-white/5 text-white/40 border-white/10 hover:bg-emerald-500 hover:text-black' : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white'}`}>
+                                            <button type="button" onClick={() => toggleDeleteExisting(img.id)} className={`px-2 py-1 text-[8px] font-black uppercase rounded-lg border transition-all ${img.isDeleted ? 'bg-white/10 text-white/60 border-white/20 hover:bg-emerald-500 hover:text-black' : 'bg-rose-500/20 text-rose-300 border-rose-500/30 hover:bg-rose-500 hover:text-white'}`}>
                                                 {img.isDeleted ? 'استرجاع' : 'حذف'}
                                             </button>
                                         </div>
@@ -408,7 +408,7 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                         </div>
                                     </div>
                                 ))}
-                                <label className="h-20 md:h-24 bg-white/[0.02] border-2 border-dashed border-white/5 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition-all text-white/10 hover:text-amber-400">
+                                <label className="h-20 md:h-24 bg-slate-50 dark:bg-white/[0.02] border-2 border-dashed border-gray-200 dark:border-white/5 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-slate-100 dark:hover:bg-white/[0.04] transition-all text-gray-300 dark:text-white/10 hover:text-amber-500 dark:hover:text-amber-400">
                                     <input type="file" accept="image/*" multiple onChange={handleEditNewImagesChange} className="hidden" />
                                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                                 </label>
@@ -423,14 +423,14 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
             {/* STOCK MODAL */}
             <Modal show={showStockModal} onClose={() => setShowStockModal(false)} maxWidth="md">
-                <div className="bg-[#0c0c0e] text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[3rem] border border-white/5 relative" dir="rtl">
+                <div className="bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[3rem] border border-gray-200 dark:border-white/5 relative" dir="rtl">
                     <form onSubmit={submitStockMode} className="space-y-8 md:space-y-12">
                         <ModalHeader title="ضبط مخزون الفرع" onClose={() => setShowStockModal(false)} />
                         <Select label="اختر الفرع المستهدف" value={stockForm.data.branch_id} onChange={v => stockForm.setData('branch_id', v)} options={branches.map(b => ({ v: b.id, l: b.branch_name }))} />
                         <Field label="ضبط الكمية" type="number" value={stockForm.data.stock_quantity} onChange={v => stockForm.setData('stock_quantity', v)} />
-                        <div className="p-5 md:p-8 bg-amber-400/5 rounded-3xl border border-amber-400/10 flex items-start gap-4">
-                            <svg className="w-5 h-5 text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <p className="text-[11px] font-black text-amber-400/60 uppercase tracking-widest leading-relaxed">تنبيه: ضبط المخزون يلغي قيم السجل المركزي لهذا الفرع.</p>
+                        <div className="p-5 md:p-8 bg-amber-500/10 dark:bg-amber-400/5 rounded-3xl border border-amber-500/20 dark:border-amber-400/10 flex items-start gap-4">
+                            <svg className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <p className="text-[11px] font-black text-amber-700 dark:text-amber-400/60 uppercase tracking-widest leading-relaxed">تنبيه: ضبط المخزون يلغي قيم السجل المركزي لهذا الفرع.</p>
                         </div>
                         <ModalFooter onAbort={() => setShowStockModal(false)} submitTxt="تطبيق التعديل" processing={stockForm.processing} />
                     </form>
@@ -439,13 +439,13 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 
             {/* UNITS MODAL */}
             <Modal show={showUnitsModal} onClose={() => setShowUnitsModal(false)} maxWidth="2xl">
-                <div className="bg-[#0c0c0e] text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[4rem] border border-white/5 relative" dir="rtl">
+                <div className="bg-white dark:bg-[#0c0c0e] text-gray-900 dark:text-white p-6 md:p-12 overflow-hidden rounded-3xl md:rounded-[4rem] border border-gray-200 dark:border-white/5 relative" dir="rtl">
                     <form onSubmit={submitUnitsForm} className="space-y-8 md:space-y-12">
                         <ModalHeader title="إعداد وحدات البيع" onClose={() => setShowUnitsModal(false)} />
 
                         <div className="space-y-6 max-h-[55vh] overflow-y-auto px-2 md:px-4 custom-scrollbar">
                             {unitsForm.data.units.map((row, idx) => (
-                                <div key={idx} className="p-5 md:p-10 bg-white/[0.02] border border-white/5 rounded-3xl md:rounded-[3rem] relative group/row hover:bg-white/[0.03] transition-all">
+                                <div key={idx} className="p-5 md:p-10 bg-slate-50 dark:bg-white/[0.02] border border-gray-200 dark:border-white/5 rounded-3xl md:rounded-[3rem] relative group/row hover:bg-slate-100 dark:hover:bg-white/[0.03] transition-all">
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 md:gap-8 mb-5 md:mb-8">
                                         <Select label="وحدة البيع" value={row.unit_id} onChange={v => updateUnitRow(idx, 'unit_id', v)} options={units.map(u => ({ v: u.id, l: u.unit_name }))} />
                                         <Select label="الفرع" value={row.branch_id} onChange={v => updateUnitRow(idx, 'branch_id', v)} options={branches.map(b => ({ v: b.id, l: b.branch_name }))} />
@@ -458,14 +458,14 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                                         <Field label="سعر التجزئة" type="number" step="0.01" value={row.retail_price} onChange={v => updateUnitRow(idx, 'retail_price', v)} />
                                     </div>
                                     <div className="flex gap-2 mt-4">
-                                        <button type="button" onClick={() => updateUnitRow(idx, 'is_default_sale', !row.is_default_sale)} className={`h-9 px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${row.is_default_sale ? 'bg-amber-400 text-black border-transparent' : 'bg-[#111114] text-white/20 border-white/5 hover:text-white'}`}>
+                                        <button type="button" onClick={() => updateUnitRow(idx, 'is_default_sale', !row.is_default_sale)} className={`h-9 px-4 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${row.is_default_sale ? 'bg-amber-400 text-black border-transparent' : 'bg-slate-200 dark:bg-[#111114] text-gray-500 dark:text-white/20 border-gray-300 dark:border-white/5 hover:text-gray-900 dark:hover:text-white'}`}>
                                             {row.is_default_sale ? 'وحدة أساسية' : 'تعيين كأساسية'}
                                         </button>
                                         <button type="button" onClick={() => removeUnitRow(idx)} className="w-9 h-9 bg-rose-500 text-white rounded-full flex items-center justify-center active:scale-90 transition-all"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
                                     </div>
                                 </div>
                             ))}
-                            <button type="button" onClick={() => unitsForm.setData('units', [...unitsForm.data.units, { unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: false }])} className="w-full py-6 border-2 border-dashed border-white/5 rounded-3xl text-[10px] font-black text-white/10 uppercase tracking-[0.4em] hover:bg-white/5 hover:text-amber-400 transition-all">
+                            <button type="button" onClick={() => unitsForm.setData('units', [...unitsForm.data.units, { unit_id: units[0]?.id || '', branch_id: branches[0]?.id || '', currency_id: currencies[0]?.id || '', conversion_factor: 1, base_price: 0, wholesale_price: 0, retail_price: 0, is_default_sale: false }])} className="w-full py-6 border-2 border-dashed border-gray-200 dark:border-white/5 rounded-3xl text-[10px] font-black text-gray-400 dark:text-white/10 uppercase tracking-[0.4em] hover:bg-slate-100 dark:hover:bg-white/5 hover:text-amber-600 dark:hover:text-amber-400 transition-all">
                                 + إضافة وحدة جديدة
                             </button>
                         </div>
@@ -479,7 +479,8 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
                 __html: `
                 .custom-scrollbar::-webkit-scrollbar { width: 4px; }
                 .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+                .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(251,191,36,0.2); }
                 select { background-image: none !important; }
             ` }} />
@@ -490,12 +491,12 @@ export default function InventoryIndex({ auth, products, stats, units, categorie
 // Subcomponents
 function StatCard({ label, value, unit, icon, color }) {
     return (
-        <div className={`group bg-[#111114] p-6 md:p-10 rounded-3xl md:rounded-[3rem] border border-white/5 hover:border-white/10 transition-all duration-700 shadow-2xl relative overflow-hidden`}>
-            <div className={`absolute top-0 right-0 p-6 opacity-5 group-hover:scale-125 transition-transform duration-1000 ${color}`}>{icon}</div>
+        <div className="group bg-white dark:bg-[#111114] p-6 md:p-10 rounded-3xl md:rounded-[3rem] border border-gray-200 dark:border-white/5 hover:border-gray-300 dark:hover:border-white/10 transition-all duration-700 shadow-md dark:shadow-2xl relative overflow-hidden">
+            <div className={`absolute top-0 right-0 p-6 opacity-10 dark:opacity-5 group-hover:scale-125 transition-transform duration-1000 ${color}`}>{icon}</div>
             <div className="relative z-10 space-y-3">
-                <span className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em]">{label}</span>
+                <span className="text-[10px] font-black text-gray-400 dark:text-white/20 uppercase tracking-[0.4em]">{label}</span>
                 <div className="flex items-baseline gap-2">
-                    <span className="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none">{value}</span>
+                    <span className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white tracking-tighter leading-none">{value}</span>
                     <span className={`text-[10px] font-black uppercase tracking-widest ${color}`}>{unit}</span>
                 </div>
             </div>
@@ -505,7 +506,7 @@ function StatCard({ label, value, unit, icon, color }) {
 
 function OpBtn({ onClick, icon, color }) {
     return (
-        <button onClick={onClick} className={`w-12 h-12 bg-white/[0.03] border border-white/5 rounded-2xl flex items-center justify-center text-white/20 hover:text-${color} hover:border-${color}/20 transition-all active:scale-90 shadow-xl`}>
+        <button onClick={onClick} className={`w-12 h-12 bg-slate-100 dark:bg-white/[0.03] border border-gray-200 dark:border-white/5 rounded-2xl flex items-center justify-center text-gray-400 dark:text-white/20 hover:text-${color} hover:border-${color}/20 transition-all active:scale-90 shadow-sm dark:shadow-xl`}>
             {icon}
         </button>
     );
@@ -513,18 +514,18 @@ function OpBtn({ onClick, icon, color }) {
 
 function ModalHeader({ title, onClose }) {
     return (
-        <div className="flex justify-between items-center pb-6 md:pb-8 border-b border-white/5">
-            <h3 className="text-xl md:text-3xl font-black text-white tracking-tighter uppercase">{title}</h3>
-            <button type="button" onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-white/30"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
+        <div className="flex justify-between items-center pb-6 md:pb-8 border-b border-gray-200 dark:border-white/5">
+            <h3 className="text-xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tighter uppercase">{title}</h3>
+            <button type="button" onClick={onClose} className="w-10 h-10 md:w-12 md:h-12 bg-slate-100 dark:bg-white/5 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white transition-all text-gray-400 dark:text-white/30"><svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" /></svg></button>
         </div>
     );
 }
 
 function ModalFooter({ onAbort, submitTxt, processing }) {
     return (
-        <div className="pt-8 md:pt-12 flex gap-4 md:gap-8 border-t border-white/5">
-            <button type="button" onClick={onAbort} className="flex-1 py-5 md:py-7 bg-white/5 text-white/40 font-black uppercase text-xs tracking-[0.4em] rounded-2xl md:rounded-[2rem] hover:bg-white/10 transition-all">إلغاء</button>
-            <button type="submit" disabled={processing} className="flex-[2] py-5 md:py-7 bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black uppercase text-xs tracking-[0.4em] rounded-2xl md:rounded-[2rem] shadow-2xl shadow-amber-400/10 active:scale-95 transition-all disabled:opacity-50">
+        <div className="pt-8 md:pt-12 flex gap-4 md:gap-8 border-t border-gray-200 dark:border-white/5">
+            <button type="button" onClick={onAbort} className="flex-1 py-5 md:py-7 bg-slate-100 dark:bg-white/5 text-gray-500 dark:text-white/40 font-black uppercase text-xs tracking-[0.4em] rounded-2xl md:rounded-[2rem] hover:bg-slate-200 dark:hover:bg-white/10 transition-all">إلغاء</button>
+            <button type="submit" disabled={processing} className="flex-[2] py-5 md:py-7 bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-400 dark:to-amber-600 text-white dark:text-black font-black uppercase text-xs tracking-[0.4em] rounded-2xl md:rounded-[2rem] shadow-2xl shadow-amber-500/10 active:scale-95 transition-all disabled:opacity-50">
                 {processing ? 'جاري الحفظ...' : submitTxt}
             </button>
         </div>
@@ -534,8 +535,8 @@ function ModalFooter({ onAbort, submitTxt, processing }) {
 function Field({ label, value, onChange, type = "text", placeholder = "", step = "1", className = "" }) {
     return (
         <div className={`space-y-3 ${className}`}>
-            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
-            <input type={type} step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 md:py-6 px-6 md:px-8 text-lg md:text-xl font-black text-white focus:outline-none focus:border-amber-400/30 transition-all shadow-inner" required />
+            <label className="text-[10px] font-black text-gray-500 dark:text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
+            <input type={type} step={step} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="w-full bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-2xl py-4 md:py-6 px-6 md:px-8 text-lg md:text-xl font-black text-gray-900 dark:text-white focus:outline-none focus:border-amber-400/30 transition-all shadow-inner" required />
         </div>
     );
 }
@@ -543,12 +544,12 @@ function Field({ label, value, onChange, type = "text", placeholder = "", step =
 function Select({ label, value, onChange, options }) {
     return (
         <div className="space-y-3">
-            <label className="text-[10px] font-black text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
+            <label className="text-[10px] font-black text-gray-500 dark:text-white/20 uppercase tracking-[0.4em] block pr-4">{label}</label>
             <div className="relative">
-                <select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-4 md:py-6 px-6 md:px-8 text-base md:text-lg font-black text-white/60 focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer">
-                    {options.map(o => <option key={o.v} value={o.v} className="bg-[#111114]">{o.l}</option>)}
+                <select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-slate-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 rounded-2xl py-4 md:py-6 px-6 md:px-8 text-base md:text-lg font-black text-gray-700 dark:text-white/60 focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer">
+                    {options.map(o => <option key={o.v} value={o.v} className="bg-white dark:bg-[#111114] text-gray-900 dark:text-white">{o.l}</option>)}
                 </select>
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/10"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 dark:text-white/10"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg></div>
             </div>
         </div>
     );

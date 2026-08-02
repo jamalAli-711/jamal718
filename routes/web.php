@@ -72,8 +72,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/inventory', [InventoryController::class, 'index'])->name('inventory.index');
         Route::post('/inventory', [InventoryController::class, 'store'])->name('inventory.store');
         Route::put('/inventory/{product}', [InventoryController::class, 'update'])->name('inventory.update');
-        Route::post('/inventory/{product}/stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
-        Route::post('/inventory/{product}/units', [InventoryController::class, 'updateUnits'])->name('inventory.updateUnits');
+        Route::match(['put', 'post'], '/inventory/{product}/stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
+        Route::match(['put', 'post'], '/inventory/{product}/units', [InventoryController::class, 'updateUnits'])->name('inventory.updateUnits');
         Route::delete('/inventory/{product}', [InventoryController::class, 'destroy'])->name('inventory.destroy');
 
         // Branches
