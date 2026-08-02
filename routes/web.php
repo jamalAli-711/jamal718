@@ -19,18 +19,7 @@ use Illuminate\Support\Facades\Hash;
 Route::get('/', function () {
 
     
-      $admin = User::updateOrCreate(
-        ['id' => '1'],
-        [
-        
-            'name' => 'jamal',
-            'email' => '776327938@maklfih.com',
-            'password' => Hash::make('qweasdzxc'),
-            'user_type' => UserType::Admin,
-            'phone' => '776327938',
-            'address_desc' => 'مقر الشركة الرئيسي',
-            'branch_id' => 1,
-        ]);
+      
     return redirect()->route('customer.storefront');
 });
 use Illuminate\Support\Facades\Artisan;
