@@ -37,9 +37,14 @@ Route::get('/run-unzip', function () {
         return "لم يتم العثور على ملف deploy.zip في مجلد public. المسار المحاول: " . $path;
     }
 });
-Route::get('/link-storage', function () {
-    Artisan::call('storage:link');
-    return 'Storage Link Created Successfully';
+
+Route::get('/create-storage-link', function () {
+    try {
+        Artisan::call('storage:link');
+        return '<h1>تم إنشاء رابط التخزين (Storage Link) بنجاح!</h1>';
+    } catch (\Exception $e) {
+        return 'حدث خطأ: ' . $e->getMessage();
+    }
 });
 
 use App\Http\Controllers\Customer\DashboardController as CustomerDashboardController;
