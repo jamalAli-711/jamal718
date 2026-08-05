@@ -237,7 +237,7 @@ export default function Storefront({ products, categories }) {
                         {/* Search and Sort tools */}
                         <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
                             {/* Sort Selector */}
-                            <div className="relative w-full sm:w-48">
+                            {/* <div className="relative w-full sm:w-48">
                                 <select
                                     value={sortBy}
                                     onChange={e => setSortBy(e.target.value)}
@@ -250,7 +250,7 @@ export default function Storefront({ products, categories }) {
                                     <option value="in-stock">التوفر بالمخزن</option>
                                 </select>
                                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/20 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" /></svg>
-                            </div>
+                            </div> */}
 
                             {/* Search input */}
                             <div className="relative w-full sm:w-72">
