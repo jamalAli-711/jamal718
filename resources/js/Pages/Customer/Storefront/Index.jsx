@@ -364,7 +364,7 @@ function ProductCard({ product, quantity, inCartQuantity, onStep, onQuantityChan
 
                     <div className="flex items-center bg-slate-100 dark:bg-white/5 rounded-2xl p-1.5 border border-gray-200 dark:border-white/10 shadow-inner">
                         <button onClick={() => onStep(1)} className="w-6 h-6 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all">+</button>
-                        <input type="text" value={quantity} onChange={(e) => onQuantityChange(e.target.value)} onBlur={onBlur} className="w-10 bg-transparent text-center font-black text-sm text-gray-900 dark:text-white border-none focus:ring-0 p-0" />
+                        <input type="text" value={quantity} onChange={(e) => onQuantityChange(e.target.value)} onBlur={onBlur} className="w-14 bg-transparent text-center font-black text-sm text-gray-900 dark:text-white border-none focus:ring-0 p-0" />
                         <button onClick={() => onStep(-1)} disabled={quantity <= 1} className="w-6 h-6 flex items-center justify-center text-gray-700 dark:text-white/40 hover:text-red-600 dark:hover:text-amber-400 font-bold transition-all disabled:opacity-10">-</button>
                     </div>
                 </div>
